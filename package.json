@@ -1,19 +1,9 @@
 {
-  "name": "anime-sdk",
+  "name": "anime",
   "version": "1.1.0",
-  "description": "Universal Media Scraper SDK",
   "types": "dist/index.d.ts",
   "type": "module",
   "license": "MIT",
-  "author": "hexxt-git",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/hexxt-git/anime-sdk.git"
-  },
-  "bugs": {
-    "url": "https://github.com/hexxt-git/anime-sdk/issues"
-  },
-  "homepage": "https://github.com/hexxt-git/anime-sdk#readme",
   "keywords": [
     "anime",
     "sdk",
