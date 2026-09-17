@@ -4,9 +4,9 @@
  * To run: npx vitest run tests/e2e/allmanga.test.ts
  */
 import { describe, it, expect } from 'vitest';
-import { HttpClient } from '../../src/transport/http.js';
-import { AllmangaProvider } from '../../src/providers/AllmangaProvider.js';
-import { captureStreamScreenshot } from './screenshotHelper.js';
+import { HttpClient } from '../../src/transport/http';
+import { AllmangaProvider } from '../../src/providers/AllmangaProvider';
+import { captureStreamScreenshot } from './screenshotHelper';
 
 describe('AllManga E2E', () => {
   it('searches, fetches episodes, resolves a stream, and captures a screenshot', async () => {

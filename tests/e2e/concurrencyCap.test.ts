@@ -7,15 +7,15 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import * as http from 'node:http';
-import { BaseProvider, CallOptions } from '../../src/providers/BaseProvider.js';
-import { HttpClient } from '../../src/transport/http.js';
+import { BaseProvider, CallOptions } from '../../src/providers/BaseProvider';
+import { HttpClient } from '../../src/transport/http';
 import {
   ContentLanguage,
   IContentUnit,
   IMediaSearchResult,
   MediaCatalogType,
   ResolvedMediaStream,
-} from '../../src/types/index.js';
+} from '../../src/types/index';
 
 let server: http.Server;
 let baseUrl: string;

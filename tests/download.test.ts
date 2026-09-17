@@ -10,7 +10,7 @@ import {
   detectImageExtension,
   crc32,
   createZipBuffer,
-} from '../src/download/download.js';
+} from '../src/download/download';
 
 // ─── HLS parsing ─────────────────────────────────────────────────────────────
 

@@ -1,5 +1,5 @@
 import { DOMParser as LinkedomParser } from 'linkedom';
-import { IDomElement, IDomParser } from '../types/index.js';
+import { IDomElement, IDomParser } from '../types/index';
 
 // Auto-register linkedom in environments without a native DOMParser (Node, Bun).
 // Skipped if a native DOMParser is present (browsers) or a custom one was already

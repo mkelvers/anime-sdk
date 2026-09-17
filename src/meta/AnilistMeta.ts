@@ -1,4 +1,4 @@
-import { HttpClient } from '../transport/http.js';
+import { HttpClient } from '../transport/http';
 import {
   CallOptions,
   IMediaCharacter,
@@ -14,14 +14,14 @@ import {
   MediaRelationType,
   MediaSeason,
   MediaStatus,
-} from '../types/index.js';
-import { buildUrn } from '../utils/urn.js';
+} from '../types/index';
+import { buildUrn } from '../utils/urn';
 import {
   BaseMetadataProvider,
   BaseMetadataProviderOptions,
   BrowseKind,
   BrowseOptions,
-} from './BaseMetadataProvider.js';
+} from './BaseMetadataProvider';
 
 const ANILIST_API = 'https://graphql.anilist.co';
 

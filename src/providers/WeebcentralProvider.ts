@@ -1,13 +1,13 @@
-import { HttpClient } from '../transport/http.js';
-import { DomRegistry } from '../transport/dom.js';
+import { HttpClient } from '../transport/http';
+import { DomRegistry } from '../transport/dom';
 import {
   IMediaSearchResult,
   IContentUnit,
   ResolvedMediaStream,
   MediaCatalogType,
   ContentLanguage,
-} from '../types/index.js';
-import { BaseProvider, CallOptions } from './BaseProvider.js';
+} from '../types/index';
+import { BaseProvider, CallOptions } from './BaseProvider';
 
 export class WeebcentralProvider extends BaseProvider {
   readonly id = 'weebcentral';

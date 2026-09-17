@@ -8,8 +8,8 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import * as http from 'node:http';
-import { HttpClient } from '../../src/transport/http.js';
-import { RateLimiter } from '../../src/transport/rateLimiter.js';
+import { HttpClient } from '../../src/transport/http';
+import { RateLimiter } from '../../src/transport/rateLimiter';
 
 // In-process test upstream: each test installs a fresh request handler
 // via setHandler(); the server records request count + headers so the

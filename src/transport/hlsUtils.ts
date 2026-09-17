@@ -1,4 +1,4 @@
-import { HttpClient } from './http.js';
+import { HttpClient } from './http';
 
 export class HlsUtils {
   /**

@@ -6,9 +6,9 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import * as http from 'node:http';
-import { HttpClient } from '../../src/transport/http.js';
-import { AllmangaProvider } from '../../src/providers/AllmangaProvider.js';
-import { startServer } from '../../src/server/index.js';
+import { HttpClient } from '../../src/transport/http';
+import { AllmangaProvider } from '../../src/providers/AllmangaProvider';
+import { startServer } from '../../src/server/index';
 
 let server: http.Server;
 let baseUrl: string;

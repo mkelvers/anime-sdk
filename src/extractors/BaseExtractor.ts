@@ -1,5 +1,5 @@
-import { HttpClient } from '../transport/http.js';
-import { IVideoPayload } from '../types/index.js';
+import { HttpClient } from '../transport/http';
+import { IVideoPayload } from '../types/index';
 
 export abstract class BaseExtractor {
   abstract readonly id: string;

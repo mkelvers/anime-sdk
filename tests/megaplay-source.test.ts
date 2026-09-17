@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { aesEncrypt } from '../src/utils/crypto.js';
-import { extractMegaPlayFileId, parseMegaPlaySource } from '../src/providers/MegaPlayProvider.js';
+import { aesEncrypt } from '../src/utils/crypto';
+import { extractMegaPlayFileId, parseMegaPlaySource } from '../src/providers/MegaPlayProvider';
 
 const key = 'i?LMTAx0Q6,:}50U' + '\0'.repeat(16);
 const iv = "W0;27ToaUpl_P%'c";

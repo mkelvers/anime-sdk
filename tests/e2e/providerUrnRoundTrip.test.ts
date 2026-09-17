@@ -11,8 +11,8 @@
  * large enough to consistently include the mainline series.
  */
 import { describe, expect, it } from 'vitest';
-import { HttpClient } from '../../src/transport/http.js';
-import { AllmangaProvider } from '../../src/providers/AllmangaProvider.js';
+import { HttpClient } from '../../src/transport/http';
+import { AllmangaProvider } from '../../src/providers/AllmangaProvider';
 
 describe('Allmanga URN round-trip — live', () => {
   it('search → fetchContentUnits → IDs are URN-prefixed end to end', async () => {

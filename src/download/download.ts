@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-import { IVideoPayload, IMangaPayload } from '../types/index.js';
+import { IVideoPayload, IMangaPayload } from '../types/index';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

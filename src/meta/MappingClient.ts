@@ -1,14 +1,14 @@
-import { HttpClient } from '../transport/http.js';
-import { BaseProvider, CallOptions } from '../providers/BaseProvider.js';
+import { HttpClient } from '../transport/http';
+import { BaseProvider, CallOptions } from '../providers/BaseProvider';
 import {
   IMediaMappings,
   IMediaMetadata,
   IMediaSearchResult,
   IMediaTitle,
   SdkCache,
-} from '../types/index.js';
-import { unwrapUrn } from '../utils/urn.js';
-import { bestSimilarity, normalizeTitle } from './similarity.js';
+} from '../types/index';
+import { unwrapUrn } from '../utils/urn';
+import { bestSimilarity, normalizeTitle } from './similarity';
 
 /**
  * Cross-source ID resolver.

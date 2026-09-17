@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { HttpClient } from '../../src/transport/http.js';
-import { MangadexProvider } from '../../src/providers/MangadexProvider.js';
+import { HttpClient } from '../../src/transport/http';
+import { MangadexProvider } from '../../src/providers/MangadexProvider';
 
 describe('Mangadex E2E', () => {
   it('searches, fetches all chapters, and resolves a stream with accessible images', async () => {

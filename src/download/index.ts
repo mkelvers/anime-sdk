@@ -7,7 +7,7 @@ export {
   detectImageExtension,
   crc32,
   createZipBuffer,
-} from './download.js';
+} from './download';
 
 export type {
   DownloadVideoOptions,
@@ -16,4 +16,4 @@ export type {
   DownloadMangaPageResult,
   DownloadMangaChapterOptions,
   DownloadMangaChapterResult,
-} from './download.js';
+} from './download';

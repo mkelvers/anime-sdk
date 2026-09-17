@@ -1,14 +1,14 @@
-import { BaseProvider, CallOptions } from './BaseProvider.js';
-import { HttpClient } from '../transport/http.js';
-import { DomRegistry } from '../transport/dom.js';
-import { BloggerExtractor } from '../extractors/BloggerExtractor.js';
+import { BaseProvider, CallOptions } from './BaseProvider';
+import { HttpClient } from '../transport/http';
+import { DomRegistry } from '../transport/dom';
+import { BloggerExtractor } from '../extractors/BloggerExtractor';
 import {
   IMediaSearchResult,
   IContentUnit,
   ResolvedMediaStream,
   MediaCatalogType,
   IVideoPayload,
-} from '../types/index.js';
+} from '../types/index';
 
 export interface GoyabuOptions {
   baseUrl?: string;
@@ -200,7 +200,7 @@ export class GoyabuProvider extends BaseProvider {
    */
   protected async resolveStreamRaw(
     unitId: string,
-    _language?: import('../types/index.js').ContentLanguage,
+    _language?: import('../types/index').ContentLanguage,
     options: CallOptions = {},
   ): Promise<ResolvedMediaStream> {
     const fullUrl = `${this.baseUrl}${unitId.startsWith('/') ? '' : '/'}${unitId}`;

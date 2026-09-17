@@ -1,12 +1,12 @@
-import { HttpClient } from '../transport/http.js';
+import { HttpClient } from '../transport/http';
 import {
   IMediaSearchResult,
   IContentUnit,
   ResolvedMediaStream,
   MediaCatalogType,
   ContentLanguage,
-} from '../types/index.js';
-import { BaseProvider, CallOptions } from './BaseProvider.js';
+} from '../types/index';
+import { BaseProvider, CallOptions } from './BaseProvider';
 
 export class MangadexProvider extends BaseProvider {
   readonly id = 'mangadex';

@@ -12,12 +12,12 @@
  * AniList GraphQL API) so the mapping calls have authentic mappings.
  */
 import { describe, expect, it } from 'vitest';
-import { HttpClient } from '../../src/transport/http.js';
-import { MappingClient } from '../../src/meta/MappingClient.js';
-import { AnilistMeta } from '../../src/meta/AnilistMeta.js';
-import { AllmangaProvider } from '../../src/providers/AllmangaProvider.js';
-import { MangadexProvider } from '../../src/providers/MangadexProvider.js';
-import { SdkCache } from '../../src/types/index.js';
+import { HttpClient } from '../../src/transport/http';
+import { MappingClient } from '../../src/meta/MappingClient';
+import { AnilistMeta } from '../../src/meta/AnilistMeta';
+import { AllmangaProvider } from '../../src/providers/AllmangaProvider';
+import { MangadexProvider } from '../../src/providers/MangadexProvider';
+import { SdkCache } from '../../src/types/index';
 
 function memCache(): SdkCache & { snapshot(): Record<string, unknown> } {
   const store = new Map<string, unknown>();

@@ -11,10 +11,10 @@
  *      is folded onto the content unit list.
  */
 import { describe, expect, it } from 'vitest';
-import { HttpClient } from '../../src/transport/http.js';
-import { AnilistMeta } from '../../src/meta/AnilistMeta.js';
-import { MappingClient } from '../../src/meta/MappingClient.js';
-import { AllmangaProvider } from '../../src/providers/AllmangaProvider.js';
+import { HttpClient } from '../../src/transport/http';
+import { AnilistMeta } from '../../src/meta/AnilistMeta';
+import { MappingClient } from '../../src/meta/MappingClient';
+import { AllmangaProvider } from '../../src/providers/AllmangaProvider';
 
 describe('Metadata → content integration (live)', () => {
   it('fetches AniList metadata for Cowboy Bebop and lists episodes on AllManga via mapping', async () => {
@@ -47,7 +47,7 @@ describe('Metadata → content integration (live)', () => {
 
   it('lookupByMapping shortcut: MegaPlayProvider returns the AniList ID directly', async () => {
     const http = new HttpClient({ timeoutMs: 15_000 });
-    const { MegaPlayProvider } = await import('../../src/providers/MegaPlayProvider.js');
+    const { MegaPlayProvider } = await import('../../src/providers/MegaPlayProvider');
     const megaplay = new MegaPlayProvider(http);
     // MegaPlayProvider opts into the lookupByMapping fast path — its
     // media ID *is* the AniList ID. No network calls should be needed.

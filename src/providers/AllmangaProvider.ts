@@ -1,8 +1,8 @@
-import { BaseProvider, CallOptions } from './BaseProvider.js';
-import { HttpClient } from '../transport/http.js';
-import { aesDecryptCtr } from '../utils/crypto.js';
-import { Mp4UploadExtractor } from '../extractors/Mp4UploadExtractor.js';
-import { GenericHlsExtractor } from '../extractors/GenericHlsExtractor.js';
+import { BaseProvider, CallOptions } from './BaseProvider';
+import { HttpClient } from '../transport/http';
+import { aesDecryptCtr } from '../utils/crypto';
+import { Mp4UploadExtractor } from '../extractors/Mp4UploadExtractor';
+import { GenericHlsExtractor } from '../extractors/GenericHlsExtractor';
 import {
   IMediaSearchResult,
   IContentUnit,
@@ -10,7 +10,7 @@ import {
   MediaCatalogType,
   IVideoPayload,
   ContentLanguage,
-} from '../types/index.js';
+} from '../types/index';
 
 export interface AllmangaOptions {
   baseUrl?: string;

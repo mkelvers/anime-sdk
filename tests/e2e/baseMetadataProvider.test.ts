@@ -7,9 +7,9 @@
  * Uses AnilistMeta + AllmangaProvider only (no mocks, no fixtures).
  */
 import { describe, expect, it } from 'vitest';
-import { HttpClient } from '../../src/transport/http.js';
-import { AnilistMeta } from '../../src/meta/AnilistMeta.js';
-import { AllmangaProvider } from '../../src/providers/AllmangaProvider.js';
+import { HttpClient } from '../../src/transport/http';
+import { AnilistMeta } from '../../src/meta/AnilistMeta';
+import { AllmangaProvider } from '../../src/providers/AllmangaProvider';
 
 describe('BaseMetadataProvider — live', () => {
   it('strictEpisodeMatching throws on an impossible episode number', async () => {

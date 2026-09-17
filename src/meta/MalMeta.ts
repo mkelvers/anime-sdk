@@ -1,4 +1,4 @@
-import { HttpClient } from '../transport/http.js';
+import { HttpClient } from '../transport/http';
 import {
   CallOptions,
   IMediaMetadata,
@@ -10,14 +10,14 @@ import {
   MediaRelationType,
   MediaSeason,
   MediaStatus,
-} from '../types/index.js';
-import { buildTypedUrn } from '../utils/urn.js';
+} from '../types/index';
+import { buildTypedUrn } from '../utils/urn';
 import {
   BaseMetadataProvider,
   BaseMetadataProviderOptions,
   BrowseKind,
   BrowseOptions,
-} from './BaseMetadataProvider.js';
+} from './BaseMetadataProvider';
 
 /**
  * MyAnimeList metadata provider, backed by the public Jikan API.

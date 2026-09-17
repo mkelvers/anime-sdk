@@ -11,23 +11,23 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
-import { HttpClient } from '../../src/transport/http.js';
-import { AllmangaProvider } from '../../src/providers/AllmangaProvider.js';
-import { GogoanimeProvider } from '../../src/providers/GogoanimeProvider.js';
-import { GoyabuProvider } from '../../src/providers/GoyabuProvider.js';
-import { AnikotoProvider } from '../../src/providers/AnikotoProvider.js';
-import { MegaPlayProvider } from '../../src/providers/MegaPlayProvider.js';
-import { AnimeParadiseProvider } from '../../src/providers/AnimeParadiseProvider.js';
-import { MangadexProvider } from '../../src/providers/MangadexProvider.js';
-import { WeebcentralProvider } from '../../src/providers/WeebcentralProvider.js';
-import { MangapillProvider } from '../../src/providers/MangapillProvider.js';
+import { HttpClient } from '../../src/transport/http';
+import { AllmangaProvider } from '../../src/providers/AllmangaProvider';
+import { GogoanimeProvider } from '../../src/providers/GogoanimeProvider';
+import { GoyabuProvider } from '../../src/providers/GoyabuProvider';
+import { AnikotoProvider } from '../../src/providers/AnikotoProvider';
+import { MegaPlayProvider } from '../../src/providers/MegaPlayProvider';
+import { AnimeParadiseProvider } from '../../src/providers/AnimeParadiseProvider';
+import { MangadexProvider } from '../../src/providers/MangadexProvider';
+import { WeebcentralProvider } from '../../src/providers/WeebcentralProvider';
+import { MangapillProvider } from '../../src/providers/MangapillProvider';
 import {
   downloadVideo,
   downloadMangaPage,
   downloadMangaChapter,
-} from '../../src/download/download.js';
-import { ContentLanguage, ResolvedMediaStream } from '../../src/types/index.js';
-import { BaseProvider } from '../../src/providers/BaseProvider.js';
+} from '../../src/download/download';
+import { ContentLanguage, ResolvedMediaStream } from '../../src/types/index';
+import { BaseProvider } from '../../src/providers/BaseProvider';
 
 const DOWNLOAD_DIR = path.resolve(process.cwd(), 'scratch/downloads');
 

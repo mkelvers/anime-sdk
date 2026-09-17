@@ -1,7 +1,7 @@
-import { BaseProvider, CallOptions } from './BaseProvider.js';
-import { HttpClient } from '../transport/http.js';
-import { DomRegistry } from '../transport/dom.js';
-import { aesDecrypt } from '../utils/crypto.js';
+import { BaseProvider, CallOptions } from './BaseProvider';
+import { HttpClient } from '../transport/http';
+import { DomRegistry } from '../transport/dom';
+import { aesDecrypt } from '../utils/crypto';
 import {
   IMediaSearchResult,
   IContentUnit,
@@ -11,7 +11,7 @@ import {
   ContentLanguage,
   IVideoPayload,
   ISubtitleTrack,
-} from '../types/index.js';
+} from '../types/index';
 
 export interface MegaPlayOptions {
   baseUrl?: string;
@@ -129,15 +129,13 @@ export class MegaPlayProvider extends BaseProvider {
       return [];
     }
 
-    return json.data.Page.media.map(
-      (media: any): IMediaSearchResult => ({
-        id: String(media.id),
-        title: media.title.english || media.title.romaji,
-        thumbnailUrl: media.coverImage.large,
-        catalogType: 'ANIME',
-        providerId: this.id,
-      }),
-    );
+    return json.data.Page.media.map((media: any): IMediaSearchResult => ({
+      id: String(media.id),
+      title: media.title.english || media.title.romaji,
+      thumbnailUrl: media.coverImage.large,
+      catalogType: 'ANIME',
+      providerId: this.id,
+    }));
   }
 
   protected override async fetchContentUnitsRaw(

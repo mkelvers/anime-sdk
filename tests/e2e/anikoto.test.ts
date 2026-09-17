@@ -4,9 +4,9 @@
  * To run: npx vitest run tests/e2e/anikoto.test.ts
  */
 import { describe, it, expect } from 'vitest';
-import { HttpClient } from '../../src/transport/http.js';
-import { AnikotoProvider } from '../../src/providers/AnikotoProvider.js';
-import { captureStreamScreenshot } from './screenshotHelper.js';
+import { HttpClient } from '../../src/transport/http';
+import { AnikotoProvider } from '../../src/providers/AnikotoProvider';
+import { captureStreamScreenshot } from './screenshotHelper';
 
 describe('Anikoto E2E', () => {
   it('searches, fetches episodes, resolves a sub stream, and captures a screenshot', async () => {

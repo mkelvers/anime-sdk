@@ -4,9 +4,9 @@
  * To run: npx vitest run tests/e2e/goyabu.test.ts
  */
 import { describe, it, expect } from 'vitest';
-import { HttpClient } from '../../src/transport/http.js';
-import { GoyabuProvider } from '../../src/providers/GoyabuProvider.js';
-import { captureStreamScreenshot } from './screenshotHelper.js';
+import { HttpClient } from '../../src/transport/http';
+import { GoyabuProvider } from '../../src/providers/GoyabuProvider';
+import { captureStreamScreenshot } from './screenshotHelper';
 
 describe('Goyabu E2E', () => {
   it('searches, fetches episodes, resolves a stream, and captures a screenshot', async () => {

@@ -1,5 +1,5 @@
-import { BaseExtractor } from './BaseExtractor.js';
-import { IVideoPayload } from '../types/index.js';
+import { BaseExtractor } from './BaseExtractor';
+import { IVideoPayload } from '../types/index';
 
 /**
  * Extracts the direct MP4 URL from an mp4upload.com / www.mp4upload.com embed page.

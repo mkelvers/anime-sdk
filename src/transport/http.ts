@@ -3,15 +3,15 @@ import {
   PerHostRateLimits,
   RateLimitConfig,
   RateLimiter,
-} from './rateLimiter.js';
+} from './rateLimiter';
 import {
   DEFAULT_RETRY_STATUSES,
   HttpRetryableError,
   RetryConfig,
   parseRetryAfter,
   withRetry,
-} from './retry.js';
-import { CurlFallbackTransport, HttpTransport } from './transport.js';
+} from './retry';
+import { CurlFallbackTransport, HttpTransport } from './transport';
 
 export interface HttpClientConfig {
   proxyUrl?: string;

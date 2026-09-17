@@ -1,4 +1,4 @@
-import { HttpClient } from '../transport/http.js';
+import { HttpClient } from '../transport/http';
 import {
   CallOptions,
   IMediaMetadata,
@@ -7,8 +7,8 @@ import {
   MediaFormat,
   MediaSeason,
   MediaStatus,
-} from '../types/index.js';
-import { BaseMetadataProvider, BaseMetadataProviderOptions } from './BaseMetadataProvider.js';
+} from '../types/index';
+import { BaseMetadataProvider, BaseMetadataProviderOptions } from './BaseMetadataProvider';
 
 /**
  * Kitsu metadata provider (JSON:API).

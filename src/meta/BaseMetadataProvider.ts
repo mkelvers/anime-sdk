@@ -1,5 +1,5 @@
-import { HttpClient } from '../transport/http.js';
-import { BaseProvider } from '../providers/BaseProvider.js';
+import { HttpClient } from '../transport/http';
+import { BaseProvider } from '../providers/BaseProvider';
 import {
   CallOptions,
   ContentLanguage,
@@ -13,10 +13,10 @@ import {
   MediaSeason,
   ResolvedMediaStream,
   Urn,
-} from '../types/index.js';
+} from '../types/index';
 
-import { buildUrn, unwrapUrn } from '../utils/urn.js';
-import { MappingClient } from './MappingClient.js';
+import { buildUrn, unwrapUrn } from '../utils/urn';
+import { MappingClient } from './MappingClient';
 
 /**
  * Named browse buckets for {@link BaseMetadataProvider.browse}.

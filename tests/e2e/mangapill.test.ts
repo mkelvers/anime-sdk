@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { HttpClient } from '../../src/transport/http.js';
-import { DomRegistry } from '../../src/transport/dom.js';
-import { MangapillProvider } from '../../src/providers/MangapillProvider.js';
+import { HttpClient } from '../../src/transport/http';
+import { DomRegistry } from '../../src/transport/dom';
+import { MangapillProvider } from '../../src/providers/MangapillProvider';
 
 describe('Mangapill E2E', () => {
   it('searches, fetches chapters, and resolves a stream with accessible images', async () => {

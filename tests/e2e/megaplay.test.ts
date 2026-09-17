@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import * as fs from 'fs';
-import { HttpClient } from '../../src/transport/http.js';
-import { MegaPlayProvider } from '../../src/providers/MegaPlayProvider.js';
-import { captureStreamScreenshot } from './screenshotHelper.js';
+import { HttpClient } from '../../src/transport/http';
+import { MegaPlayProvider } from '../../src/providers/MegaPlayProvider';
+import { captureStreamScreenshot } from './screenshotHelper';
 
 describe('MegaPlayProvider E2E', () => {
   const http = new HttpClient({ timeoutMs: 30000 });

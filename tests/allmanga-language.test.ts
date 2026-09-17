@@ -4,8 +4,8 @@
  * without making any network requests.
  */
 import { describe, it, expect } from 'vitest';
-import { HttpClient } from '../src/transport/http.js';
-import { AllmangaProvider } from '../src/providers/AllmangaProvider.js';
+import { HttpClient } from '../src/transport/http';
+import { AllmangaProvider } from '../src/providers/AllmangaProvider';
 
 describe('AllmangaProvider – language / sub/dub', () => {
   const http = new HttpClient();

@@ -6,8 +6,8 @@
  * the operator either fixes the network path or removes the test.
  */
 import { describe, expect, it } from 'vitest';
-import { HttpClient } from '../../src/transport/http.js';
-import { KitsuMeta } from '../../src/meta/KitsuMeta.js';
+import { HttpClient } from '../../src/transport/http';
+import { KitsuMeta } from '../../src/meta/KitsuMeta';
 
 describe('KitsuMeta — live', () => {
   it('search emits typed anime URNs', async () => {

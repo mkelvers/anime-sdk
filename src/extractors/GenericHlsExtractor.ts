@@ -1,5 +1,5 @@
-import { BaseExtractor } from './BaseExtractor.js';
-import { IVideoPayload } from '../types/index.js';
+import { BaseExtractor } from './BaseExtractor';
+import { IVideoPayload } from '../types/index';
 
 /**
  * Generic extractor that fetches an embed page and scans the response body

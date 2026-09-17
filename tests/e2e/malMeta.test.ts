@@ -5,8 +5,8 @@
  * (Cowboy Bebop, anime — stable forever) and an arbitrary manga.
  */
 import { describe, it, expect } from 'vitest';
-import { HttpClient } from '../../src/transport/http.js';
-import { MalMeta } from '../../src/meta/MalMeta.js';
+import { HttpClient } from '../../src/transport/http';
+import { MalMeta } from '../../src/meta/MalMeta';
 
 describe('MalMeta — live (Jikan)', () => {
   it('search emits typed anime URNs', async () => {

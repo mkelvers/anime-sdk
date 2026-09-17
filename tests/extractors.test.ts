@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
-import { aesEncrypt, aesDecrypt } from '../src/utils/crypto.js';
-import { HttpClient } from '../src/transport/http.js';
-import { VidstreamingExtractor } from '../src/extractors/VidstreamingExtractor.js';
+import { aesEncrypt, aesDecrypt } from '../src/utils/crypto';
+import { HttpClient } from '../src/transport/http';
+import { VidstreamingExtractor } from '../src/extractors/VidstreamingExtractor';
 
 describe('AES Cryptography Helpers', () => {
   it('should encrypt and decrypt plaintext correctly', async () => {

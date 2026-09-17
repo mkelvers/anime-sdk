@@ -1,5 +1,5 @@
-import { BaseExtractor } from './BaseExtractor.js';
-import { IVideoPayload } from '../types/index.js';
+import { BaseExtractor } from './BaseExtractor';
+import { IVideoPayload } from '../types/index';
 
 /**
  * Extracts the direct googlevideo.com URL from a Blogger video embed

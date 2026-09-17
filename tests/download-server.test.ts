@@ -9,16 +9,16 @@
  */
 import { describe, it, expect, afterAll } from 'vitest';
 import * as http from 'node:http';
-import { BaseProvider } from '../src/providers/BaseProvider.js';
-import { HttpClient } from '../src/transport/http.js';
+import { BaseProvider } from '../src/providers/BaseProvider';
+import { HttpClient } from '../src/transport/http';
 import {
   IMediaSearchResult,
   IContentUnit,
   ResolvedMediaStream,
   MediaCatalogType,
   ContentLanguage,
-} from '../src/types/index.js';
-import { startServer } from '../src/server/index.js';
+} from '../src/types/index';
+import { startServer } from '../src/server/index';
 
 // ─── Mock provider helpers ──────────────────────────────────────────────────
 

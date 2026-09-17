@@ -1,5 +1,5 @@
 import * as crypto from 'node:crypto';
-import { ISubtitleTrack } from '../types/index.js';
+import { ISubtitleTrack } from '../types/index';
 
 /**
  * Best-effort mapping from a human label ("English", "Italian", "Portuguese")

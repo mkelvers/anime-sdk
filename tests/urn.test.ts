@@ -7,7 +7,7 @@ import {
   parseUrn,
   strictUnwrapUrn,
   unwrapUrn,
-} from '../src/utils/urn.js';
+} from '../src/utils/urn';
 
 describe('URN helpers', () => {
   it('builds a URN with provider:raw shape', () => {

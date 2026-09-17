@@ -4,8 +4,8 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import * as nodeCrypto from 'node:crypto';
 import { Readable } from 'node:stream';
-import { BaseProvider } from '../providers/BaseProvider.js';
-import { BaseMetadataProvider, BrowseKind } from '../meta/BaseMetadataProvider.js';
+import { BaseProvider } from '../providers/BaseProvider';
+import { BaseMetadataProvider, BrowseKind } from '../meta/BaseMetadataProvider';
 import {
   ContentLanguage,
   IUnitTracks,
@@ -14,15 +14,15 @@ import {
   MediaSeason,
   ResolvedMediaStream,
   SdkCache,
-} from '../types/index.js';
-import { proxifySubtitleUrl } from '../utils/subtitles.js';
-import { strictUnwrapUrn } from '../utils/urn.js';
+} from '../types/index';
+import { proxifySubtitleUrl } from '../utils/subtitles';
+import { strictUnwrapUrn } from '../utils/urn';
 import {
   downloadVideo,
   downloadMangaPage,
   downloadMangaChapter,
   detectImageExtension,
-} from '../download/index.js';
+} from '../download/index';
 
 export interface ServerOptions {
   providers: BaseProvider[];

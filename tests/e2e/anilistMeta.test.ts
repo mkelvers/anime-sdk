@@ -7,8 +7,8 @@
  * finished airing in 1999, will never disappear).
  */
 import { describe, it, expect } from 'vitest';
-import { HttpClient } from '../../src/transport/http.js';
-import { AnilistMeta } from '../../src/meta/AnilistMeta.js';
+import { HttpClient } from '../../src/transport/http';
+import { AnilistMeta } from '../../src/meta/AnilistMeta';
 
 describe('AnilistMeta — live', () => {
   it('search returns AniList-prefixed URNs for a known query', async () => {

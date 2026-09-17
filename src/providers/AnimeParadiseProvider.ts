@@ -1,13 +1,13 @@
-import { BaseProvider, CallOptions } from './BaseProvider.js';
-import { HttpClient } from '../transport/http.js';
+import { BaseProvider, CallOptions } from './BaseProvider';
+import { HttpClient } from '../transport/http';
 import {
   IMediaSearchResult,
   IContentUnit,
   ResolvedMediaStream,
   MediaCatalogType,
   IUnitTracks,
-} from '../types/index.js';
-import { normalizeSubtitleEntries } from '../utils/subtitles.js';
+} from '../types/index';
+import { normalizeSubtitleEntries } from '../utils/subtitles';
 
 const API_BASE = 'https://api.animeparadise.moe';
 const STREAM_BASE = 'https://stream.animeparadise.moe';
@@ -64,7 +64,7 @@ export class AnimeParadiseProvider extends BaseProvider {
 
   protected async resolveStreamRaw(
     unitId: string,
-    _language?: import('../types/index.js').ContentLanguage,
+    _language?: import('../types/index').ContentLanguage,
     options: CallOptions = {},
   ): Promise<ResolvedMediaStream> {
     const sep = unitId.lastIndexOf(':');
@@ -105,7 +105,7 @@ export class AnimeParadiseProvider extends BaseProvider {
    */
   protected async fetchUnitTracksRaw(
     unitId: string,
-    _language?: import('../types/index.js').ContentLanguage,
+    _language?: import('../types/index').ContentLanguage,
     options: CallOptions = {},
   ): Promise<IUnitTracks> {
     const sep = unitId.lastIndexOf(':');

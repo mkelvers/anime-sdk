@@ -1,4 +1,4 @@
-import { HttpClient } from '../transport/http.js';
+import { HttpClient } from '../transport/http';
 import {
   CallOptions,
   IMediaSearchResult,
@@ -11,11 +11,11 @@ import {
   IMediaMappings,
   IUnitTracks,
   Urn,
-} from '../types/index.js';
-import { buildUrn, unwrapUrn } from '../utils/urn.js';
+} from '../types/index';
+import { buildUrn, unwrapUrn } from '../utils/urn';
 
 // Re-export so subclasses can stay close to the type they need.
-export type { CallOptions } from '../types/index.js';
+export type { CallOptions } from '../types/index';
 
 /**
  * @deprecated Use {@link CallOptions} from `src/types/index.ts` — the

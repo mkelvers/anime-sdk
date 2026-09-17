@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { BaseProvider, CallOptions } from '../src/providers/BaseProvider.js';
+import { BaseProvider, CallOptions } from '../src/providers/BaseProvider';
 import {
   ContentLanguage,
   IContentUnit,
   IMediaSearchResult,
   MediaCatalogType,
   ResolvedMediaStream,
-} from '../src/types/index.js';
+} from '../src/types/index';
 
 class TestProvider extends BaseProvider {
   public readonly id = 'test';

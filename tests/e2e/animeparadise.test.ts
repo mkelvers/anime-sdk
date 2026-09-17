@@ -4,9 +4,9 @@
  * To run: npx vitest run tests/e2e/animeparadise.test.ts
  */
 import { describe, it, expect } from 'vitest';
-import { HttpClient } from '../../src/transport/http.js';
-import { AnimeParadiseProvider } from '../../src/providers/AnimeParadiseProvider.js';
-import { captureStreamScreenshot } from './screenshotHelper.js';
+import { HttpClient } from '../../src/transport/http';
+import { AnimeParadiseProvider } from '../../src/providers/AnimeParadiseProvider';
+import { captureStreamScreenshot } from './screenshotHelper';
 
 describe('AnimeParadise E2E', () => {
   it('searches, fetches episodes, resolves a stream, and captures a screenshot', async () => {

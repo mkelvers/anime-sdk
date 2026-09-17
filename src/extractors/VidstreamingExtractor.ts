@@ -1,6 +1,6 @@
-import { BaseExtractor } from './BaseExtractor.js';
-import { IVideoPayload } from '../types/index.js';
-import { aesEncrypt, aesDecrypt } from '../utils/crypto.js';
+import { BaseExtractor } from './BaseExtractor';
+import { IVideoPayload } from '../types/index';
+import { aesEncrypt, aesDecrypt } from '../utils/crypto';
 
 export class VidstreamingExtractor extends BaseExtractor {
   public readonly id = 'vidstreaming';

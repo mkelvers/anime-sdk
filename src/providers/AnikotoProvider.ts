@@ -1,7 +1,7 @@
-import { BaseProvider, CallOptions } from './BaseProvider.js';
-import { HttpClient } from '../transport/http.js';
-import { DomRegistry } from '../transport/dom.js';
-import { extractMegaPlayFileId, parseMegaPlaySource } from './MegaPlayProvider.js';
+import { BaseProvider, CallOptions } from './BaseProvider';
+import { HttpClient } from '../transport/http';
+import { DomRegistry } from '../transport/dom';
+import { extractMegaPlayFileId, parseMegaPlaySource } from './MegaPlayProvider';
 import {
   IMediaSearchResult,
   IContentUnit,
@@ -10,7 +10,7 @@ import {
   ContentLanguage,
   IVideoPayload,
   ISubtitleTrack,
-} from '../types/index.js';
+} from '../types/index';
 
 export class AnikotoProvider extends BaseProvider {
   public override readonly id = 'anikoto';
