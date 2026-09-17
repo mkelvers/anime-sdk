@@ -23,14 +23,9 @@
   "files": [
     "dist"
   ],
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
-  },
+  "exports": "./dist/index.js",
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm && tsc --emitDeclarationOnly",
+    "build": "bun build src/index.ts --outdir dist --target node --format esm && tsc",
     "test": "vitest",
     "test:run": "vitest run",
     "prepare": "husky || true"
