@@ -1,15 +1,14 @@
 import { DOMParser as LinkedomParser } from 'linkedom';
 import { IDomElement, IDomParser } from '../types/index';
 
-// Auto-register linkedom in environments without a native DOMParser (Node, Bun).
-// Skipped if a native DOMParser is present (browsers) or a custom one was already
-// set, so DomRegistry.register() still takes full precedence.
-if (typeof globalThis.DOMParser === 'undefined') {
-  (globalThis as any).DOMParser = LinkedomParser;
-}
+type LinkedomElement = NonNullable<
+  ReturnType<
+    InstanceType<typeof LinkedomParser>['parseFromString']
+  >['documentElement']
+>;
 
 export class BrowserDomElement implements IDomElement {
-  constructor(private element: Element) {}
+  constructor(private element: LinkedomElement) {}
 
   public querySelector(selector: string): IDomElement | null {
     const el = this.element.querySelector(selector);
@@ -26,7 +25,7 @@ export class BrowserDomElement implements IDomElement {
   }
 
   public get textContent(): string | null {
-    return this.element.textContent;
+    return this.element.textContent ?? this.element.innerHTML;
   }
 
   public get outerHTML(): string {
@@ -40,13 +39,11 @@ export class BrowserDomElement implements IDomElement {
 
 export class BrowserDomParser implements IDomParser {
   public parse(html: string): IDomElement {
-    if (typeof globalThis.DOMParser === 'undefined') {
-      throw new Error(
-        'DOMParser is not available in this environment. Please register a custom DOM Parser via DomRegistry.register().',
-      );
-    }
-    const parser = new globalThis.DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
+    const parser = new LinkedomParser();
+    const doc = parser.parseFromString(
+      `<html><body>${html}</body></html>`,
+      'text/html',
+    );
     // Ensure we start from documentElement or body if needed
     return new BrowserDomElement(doc.documentElement || doc.body);
   }
