@@ -1,0 +1,223 @@
+fragment AniListMediaSummary on Media {
+  id
+  type
+  format
+  seasonYear
+  startDate {
+    year
+  }
+  averageScore
+  isAdult
+  idMal
+  episodes
+  title {
+    romaji
+    english
+    native
+    userPreferred
+  }
+  coverImage {
+    extraLarge
+    large
+    medium
+    color
+  }
+}
+
+query AniListBrowse(
+  $page: Int
+  $perPage: Int
+  $type: MediaType
+  $sort: [MediaSort]
+  $season: MediaSeason
+  $seasonYear: Int
+  $format: MediaFormat
+) {
+  Page(page: $page, perPage: $perPage) {
+    media(
+      type: $type
+      sort: $sort
+      season: $season
+      seasonYear: $seasonYear
+      format: $format
+    ) {
+      ...AniListMediaSummary
+    }
+  }
+}
+
+query AniListSearch(
+  $search: String
+  $perPage: Int
+  $type: MediaType
+  $sort: [MediaSort]
+) {
+  Page(page: 1, perPage: $perPage) {
+    media(search: $search, sort: $sort, type: $type) {
+      ...AniListMediaSummary
+    }
+  }
+}
+
+query AniListMedia($id: Int) {
+  Media(id: $id) {
+    id
+    type
+    format
+    status
+    episodes
+    chapters
+    duration
+    season
+    seasonYear
+    startDate {
+      year
+      month
+      day
+    }
+    endDate {
+      year
+      month
+      day
+    }
+    averageScore
+    isAdult
+    idMal
+    description(asHtml: false)
+    synonyms
+    genres
+    studios(isMain: true) {
+      nodes {
+        name
+      }
+    }
+    tags {
+      name
+      rank
+    }
+    title {
+      romaji
+      english
+      native
+      userPreferred
+    }
+    coverImage {
+      extraLarge
+      large
+      medium
+      color
+    }
+    bannerImage
+    trailer {
+      id
+      site
+    }
+    externalLinks {
+      site
+      url
+      language
+      type
+    }
+    streamingEpisodes {
+      title
+      thumbnail
+      url
+      site
+    }
+    relations {
+      edges {
+        relationType(version: 2)
+        node {
+          id
+          type
+          format
+          status
+          title {
+            romaji
+            english
+            native
+            userPreferred
+          }
+          coverImage {
+            extraLarge
+            large
+            medium
+            color
+          }
+        }
+      }
+    }
+    characters(sort: [ROLE, RELEVANCE, ID], perPage: 25) {
+      edges {
+        role
+        node {
+          id
+          name {
+            full
+            native
+          }
+          image {
+            large
+            medium
+          }
+        }
+        voiceActors(sort: [RELEVANCE, ID]) {
+          id
+          name {
+            full
+            native
+          }
+          language: languageV2
+          image {
+            large
+            medium
+          }
+        }
+      }
+    }
+    staff(sort: [RELEVANCE, ID], perPage: 25) {
+      edges {
+        role
+        node {
+          id
+          name {
+            full
+            native
+          }
+          image {
+            large
+            medium
+          }
+        }
+      }
+    }
+    recommendations(sort: [RATING_DESC], perPage: 12) {
+      nodes {
+        rating
+        mediaRecommendation {
+          id
+          type
+          format
+          title {
+            romaji
+            english
+            native
+            userPreferred
+          }
+          coverImage {
+            extraLarge
+            large
+            medium
+            color
+          }
+        }
+      }
+    }
+  }
+}
+
+query AniListMediaEpisodes($id: Int) {
+  Media(id: $id) {
+    episodes
+  }
+}

@@ -26,11 +26,14 @@
   "exports": "./dist/index.js",
   "scripts": {
     "build": "bun build src/index.ts --outdir dist --target node --format esm && tsc",
+    "graphql:generate": "graphql-codegen --config codegen.ts",
     "test": "vitest",
     "test:run": "vitest run",
     "prepare": "husky || true"
   },
   "dependencies": {
+    "@graphql-typed-document-node/core": "^3.2.0",
+    "graphql": "^17.0.2",
     "linkedom": "^0.18.12",
     "zod": "^4.6.5"
   },
@@ -38,6 +41,8 @@
     "*.{ts,json}": "prettier --write"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^7.4.1",
+    "@graphql-codegen/client-preset": "^6.2.0",
     "@types/node": "^25.9.1",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.10",

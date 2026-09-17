@@ -1,0 +1,56 @@
+scalar JSON
+
+input SearchInput {
+  allowAdult: Boolean
+  allowUnknown: Boolean
+  query: String
+}
+
+enum VaildCountryOriginEnumType {
+  ALL
+}
+
+enum VaildTranslationTypeEnumType {
+  sub
+  dub
+  raw
+}
+
+type Show {
+  _id: String!
+  name: String
+  englishName: String
+  availableEpisodes: JSON
+  availableEpisodesDetail: JSON
+}
+
+type ShowConnection {
+  edges: [ShowEdge!]!
+}
+
+type ShowEdge {
+  _id: String!
+  name: String
+  englishName: String
+  availableEpisodes: JSON
+}
+
+type Episode {
+  episodeString: String
+  sourceUrls: JSON
+}
+
+type Query {
+  shows(
+    search: SearchInput
+    limit: Int
+    page: Int
+    countryOrigin: VaildCountryOriginEnumType
+  ): ShowConnection
+  show(_id: String!): Show
+  episode(
+    showId: String!
+    translationType: VaildTranslationTypeEnumType!
+    episodeString: String!
+  ): Episode
+}
