@@ -45,7 +45,9 @@ export class GoyabuProvider extends BaseProvider {
     const normalized = query.trim().replace(/[-_]/g, ' ');
     const searchUrl = `${this.baseUrl}/?s=${encodeURIComponent(normalized)}`;
 
-    const response = await this.http.get(searchUrl, { signal: options.signal });
+    const response = await this.http.get(searchUrl, {
+      signal: options.signal,
+    });
     if (response.status !== 200) {
       throw new Error(`Goyabu search failed with status ${response.status}`);
     }
@@ -120,7 +122,9 @@ export class GoyabuProvider extends BaseProvider {
     options: CallOptions = {},
   ): Promise<IContentUnit[]> {
     const fullUrl = `${this.baseUrl}${mediaId.startsWith('/') ? '' : '/'}${mediaId}`;
-    const response = await this.http.get(fullUrl, { signal: options.signal });
+    const response = await this.http.get(fullUrl, {
+      signal: options.signal,
+    });
     if (response.status !== 200) {
       throw new Error(
         `Failed to fetch Goyabu details page: ${response.status}`,
@@ -239,7 +243,9 @@ export class GoyabuProvider extends BaseProvider {
     options: CallOptions = {},
   ): Promise<ResolvedMediaStream> {
     const fullUrl = `${this.baseUrl}${unitId.startsWith('/') ? '' : '/'}${unitId}`;
-    const response = await this.http.get(fullUrl, { signal: options.signal });
+    const response = await this.http.get(fullUrl, {
+      signal: options.signal,
+    });
     if (response.status !== 200) {
       throw new Error(
         `Failed to fetch Goyabu episode page: ${response.status}`,

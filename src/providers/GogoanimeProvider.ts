@@ -39,7 +39,9 @@ export class GogoanimeProvider extends BaseProvider {
     options: CallOptions = {},
   ): Promise<IMediaSearchResult[]> {
     const searchUrl = `${this.baseUrl}/browser?keyword=${encodeURIComponent(query)}`;
-    const response = await this.http.get(searchUrl, { signal: options.signal });
+    const response = await this.http.get(searchUrl, {
+      signal: options.signal,
+    });
     if (response.status !== 200) {
       throw new Error(`GogoAnime search failed with status ${response.status}`);
     }
@@ -110,7 +112,9 @@ export class GogoanimeProvider extends BaseProvider {
     }
 
     const fullUrl = `${this.baseUrl}${watchUrlPath.startsWith('/') ? '' : '/'}${watchUrlPath}`;
-    const response = await this.http.get(fullUrl, { signal: options.signal });
+    const response = await this.http.get(fullUrl, {
+      signal: options.signal,
+    });
     if (response.status !== 200) {
       throw new Error(`Failed to fetch AniNeko watch page: ${response.status}`);
     }
@@ -167,7 +171,9 @@ export class GogoanimeProvider extends BaseProvider {
     options: CallOptions = {},
   ): Promise<ResolvedMediaStream> {
     const fullUrl = `${this.baseUrl}${unitId.startsWith('/') ? '' : '/'}${unitId}`;
-    const response = await this.http.get(fullUrl, { signal: options.signal });
+    const response = await this.http.get(fullUrl, {
+      signal: options.signal,
+    });
     if (response.status !== 200) {
       throw new Error(
         `Failed to fetch AniNeko episode page: ${response.status}`,

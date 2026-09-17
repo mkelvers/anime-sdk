@@ -77,7 +77,9 @@ export class MangadexProvider extends BaseProvider {
       query,
     )}&includes[]=cover_art&limit=24&contentRating[]=safe&contentRating[]=suggestive&hasAvailableChapters=true`;
 
-    const response = await this.http.get(url, { signal: options.signal });
+    const response = await this.http.get(url, {
+      signal: options.signal,
+    });
     const data = await parseJson(response, mangaDexSearchResponseSchema);
 
     const results: IMediaSearchResult[] = [];
@@ -116,7 +118,9 @@ export class MangadexProvider extends BaseProvider {
     do {
       const url = `${this.apiUrl}/manga/${mediaId}/feed?limit=${limit}&offset=${offset}&order[chapter]=asc&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&contentRating[]=pornographic&includeExternalUrl=0`;
 
-      const response = await this.http.get(url, { signal: options.signal });
+      const response = await this.http.get(url, {
+        signal: options.signal,
+      });
       const data = await parseJson(response, mangaDexFeedResponseSchema);
 
       total = data.total;
@@ -147,7 +151,9 @@ export class MangadexProvider extends BaseProvider {
     options: CallOptions = {},
   ): Promise<ResolvedMediaStream> {
     const url = `${this.apiUrl}/at-home/server/${unitId}`;
-    const response = await this.http.get(url, { signal: options.signal });
+    const response = await this.http.get(url, {
+      signal: options.signal,
+    });
     const data = await parseJson(response, mangaDexAtHomeResponseSchema);
 
     const baseUrl = data.baseUrl;
