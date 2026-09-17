@@ -1,5 +1,6 @@
 import { print } from 'graphql';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
+import { z } from 'zod';
 import { HttpClient } from '../transport/http';
 
 export interface GraphQLResponse<TResult> {
@@ -7,6 +8,19 @@ export interface GraphQLResponse<TResult> {
   errors?: ReadonlyArray<{
     message: string;
   }>;
+}
+
+function graphQLResponseSchema<TResult>() {
+  return z.object({
+    data: z.custom<TResult>().optional(),
+    errors: z
+      .array(
+        z.object({
+          message: z.string(),
+        }),
+      )
+      .optional(),
+  });
 }
 
 export async function postGraphQL<TResult, TVariables>(
@@ -25,8 +39,10 @@ export async function postGraphQL<TResult, TVariables>(
     options,
   );
 
+  const body = graphQLResponseSchema<TResult>().parse(await response.json());
+
   return {
     response,
-    body: (await response.json()) as GraphQLResponse<TResult>,
+    body,
   };
 }
