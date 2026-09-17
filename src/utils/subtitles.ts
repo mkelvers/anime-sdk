@@ -1,4 +1,5 @@
 import * as crypto from 'node:crypto';
+import { z } from 'zod';
 import { ISubtitleTrack } from '../types/index';
 
 const LABEL_TO_BCP47: Record<string, string> = {
@@ -21,6 +22,13 @@ const LABEL_TO_BCP47: Record<string, string> = {
   thai: 'th',
   vietnamese: 'vi',
 };
+const subtitleUrlSchema = z
+  .string()
+  .url()
+  .refine((value) => /^https?:\/\//i.test(value));
+const subtitleLabelSchema = z.string().trim().min(1);
+const subtitleLanguageSchema = z.string().trim().min(1);
+const subtitleFormatSchema = z.enum(['vtt', 'srt', 'ass']);
 
 /**
  * Normalize whatever a provider hands us into `ISubtitleTrack[]`. We accept
@@ -34,36 +42,36 @@ export function normalizeSubtitleEntries(entries: unknown): ISubtitleTrack[] {
   }
   const out: ISubtitleTrack[] = [];
   for (const item of entries) {
-    if (!item || typeof item !== 'object') {
+    const recordResult = z.record(z.string(), z.unknown()).safeParse(item);
+    if (!recordResult.success) {
       continue;
     }
-    const rec = item as Record<string, unknown>;
+    const rec = recordResult.data;
     const rawUrl = rec.url ?? rec.src ?? rec.file;
-    if (typeof rawUrl !== 'string' || !/^https?:\/\//i.test(rawUrl)) {
+    const urlResult = subtitleUrlSchema.safeParse(rawUrl);
+    if (!urlResult.success) {
       continue;
     }
+    const url = urlResult.data;
 
     const rawLabel = rec.label ?? rec.name ?? rec.language;
-    const label =
-      typeof rawLabel === 'string' && rawLabel.trim()
-        ? rawLabel.trim()
-        : 'Unknown';
+    const labelResult = subtitleLabelSchema.safeParse(rawLabel);
+    const label = labelResult.success ? labelResult.data : 'Unknown';
 
     const rawType = rec.format ?? rec.type;
-    const typeStr = typeof rawType === 'string' ? rawType.toLowerCase() : '';
-    const format: ISubtitleTrack['format'] | undefined =
-      typeStr === 'vtt' || typeStr === 'srt' || typeStr === 'ass'
-        ? (typeStr as ISubtitleTrack['format'])
-        : inferFormatFromUrl(rawUrl);
+    const typeResult = subtitleFormatSchema.safeParse(rawType);
+    const format: ISubtitleTrack['format'] | undefined = typeResult.success
+      ? typeResult.data
+      : inferFormatFromUrl(url);
+    const languageResult = subtitleLanguageSchema.safeParse(rec.language);
 
     out.push({
-      url: rawUrl,
+      url,
       label,
-      language:
-        typeof rec.language === 'string' && rec.language
-          ? rec.language
-          : (LABEL_TO_BCP47[label.toLowerCase()] ??
-            label.slice(0, 2).toLowerCase()),
+      language: languageResult.success
+        ? languageResult.data
+        : (LABEL_TO_BCP47[label.toLowerCase()] ??
+          label.slice(0, 2).toLowerCase()),
       ...(format ? { format } : {}),
     });
   }
