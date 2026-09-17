@@ -1,6 +1,6 @@
 import { BaseProvider, CallOptions } from './BaseProvider';
 import { HttpClient } from '../transport/http';
-import { aesDecryptCtr } from '../utils/crypto';
+import { aesDecryptCtr, sha256 } from '../utils/crypto';
 import { Mp4UploadExtractor } from '../extractors/Mp4UploadExtractor';
 import { GenericHlsExtractor } from '../extractors/GenericHlsExtractor';
 import {
@@ -326,8 +326,7 @@ export class AllmangaProvider extends BaseProvider {
     const nonce = data.subarray(1, 13);
     const ciphertext = data.subarray(13, data.length - 16);
     const keyBytes = new TextEncoder().encode(ALLANIME_KEY_PHRASE);
-    const keyHash = await globalThis.crypto.subtle.digest('SHA-256', keyBytes);
-    const key = new Uint8Array(keyHash);
+    const key = await sha256(ALLANIME_KEY_PHRASE);
     const iv = new Uint8Array(16);
     iv.set(nonce, 0);
     new DataView(iv.buffer).setUint32(12, 2, false);
