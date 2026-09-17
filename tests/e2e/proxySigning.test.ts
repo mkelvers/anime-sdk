@@ -64,7 +64,9 @@ describe('/proxy signature enforcement', () => {
       `${baseUrl}/proxy?url=${encodeURIComponent(target)}`,
     );
     expect(res.status).toBe(401);
-    const body = (await res.json()) as { error: string };
+    const body = (await res.json()) as {
+      error: string;
+    };
     expect(body.error).toMatch(/sig/i);
   });
 

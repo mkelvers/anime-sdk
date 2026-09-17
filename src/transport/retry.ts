@@ -119,7 +119,11 @@ function isRetryable(err: unknown, config: RetryConfig): boolean {
     }
     if (
       'code' in err &&
-      typeof (err as { code?: unknown }).code === 'string' &&
+      typeof (
+        err as {
+          code?: unknown;
+        }
+      ).code === 'string' &&
       [
         'ECONNRESET',
         'ECONNREFUSED',
@@ -129,7 +133,13 @@ function isRetryable(err: unknown, config: RetryConfig): boolean {
         'EHOSTUNREACH',
         'ENETUNREACH',
         'UND_ERR_SOCKET',
-      ].includes((err as { code?: string }).code!)
+      ].includes(
+        (
+          err as {
+            code?: string;
+          }
+        ).code!,
+      )
     ) {
       return true;
     }

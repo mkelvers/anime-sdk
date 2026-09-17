@@ -45,7 +45,9 @@ describe('/proxy SSRF allowlist', () => {
       `${baseUrl}/proxy?url=${encodeURIComponent('https://wikipedia.org/')}`,
     );
     expect(r.status).toBe(403);
-    const body = (await r.json()) as { error: string };
+    const body = (await r.json()) as {
+      error: string;
+    };
     expect(body.error).toMatch(/allowlist/);
   });
 

@@ -19,7 +19,9 @@ import { AllmangaProvider } from '../../src/providers/AllmangaProvider';
 import { MangadexProvider } from '../../src/providers/MangadexProvider';
 import { SdkCache } from '../../src/types/index';
 
-function memCache(): SdkCache & { snapshot(): Record<string, unknown> } {
+function memCache(): SdkCache & {
+  snapshot(): Record<string, unknown>;
+} {
   const store = new Map<string, unknown>();
   return {
     get: (k) => store.get(k),

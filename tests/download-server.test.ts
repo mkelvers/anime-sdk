@@ -42,7 +42,9 @@ function startImageServer(): Promise<{
       res.end(TINY_PNG);
     });
     s.listen(0, () => {
-      const addr = s.address() as { port: number };
+      const addr = s.address() as {
+        port: number;
+      };
       resolve({ server: s, port: addr.port });
     });
   });
@@ -107,7 +109,11 @@ describe('Server download routes', () => {
     // Wait for the SDK server to be listening
     await new Promise<void>((resolve) => {
       sdkServer.on('listening', () => {
-        sdkPort = (sdkServer.address() as { port: number }).port;
+        sdkPort = (
+          sdkServer.address() as {
+            port: number;
+          }
+        ).port;
         resolve();
       });
     });

@@ -109,12 +109,21 @@ export abstract class BaseMetadataProvider {
     return false;
   }
 
-  public async browse(kind: BrowseKind, options: BrowseOptions = {}): Promise<IMetaSearchResult[]> {
+  public async browse(
+    kind: BrowseKind,
+    options: BrowseOptions = {},
+  ): Promise<IMetaSearchResult[]> {
     if (!this.supportsBrowseKind(kind)) {
-      throw new Error(`${this.id}: browse('${kind}') not supported by this provider`);
+      throw new Error(
+        `${this.id}: browse('${kind}') not supported by this provider`,
+      );
     }
     const items = await this.browseRawNative(kind, options);
-    return items.map((r) => ({ ...r, id: buildUrn(this.id, r.id), providerId: this.id }));
+    return items.map((r) => ({
+      ...r,
+      id: buildUrn(this.id, r.id),
+      providerId: this.id,
+    }));
   }
 
   /**
@@ -130,12 +139,22 @@ export abstract class BaseMetadataProvider {
 
   // ── Public API ───────────────────────────────────────────────────────────
 
-  public async search(query: string, options: CallOptions = {}): Promise<IMetaSearchResult[]> {
+  public async search(
+    query: string,
+    options: CallOptions = {},
+  ): Promise<IMetaSearchResult[]> {
     const results = await this.searchRawNative(query, options);
-    return results.map((r) => ({ ...r, id: buildUrn(this.id, r.id), providerId: this.id }));
+    return results.map((r) => ({
+      ...r,
+      id: buildUrn(this.id, r.id),
+      providerId: this.id,
+    }));
   }
 
-  public async fetchMediaInfo(metaUrn: Urn, options: CallOptions = {}): Promise<IMediaMetadata> {
+  public async fetchMediaInfo(
+    metaUrn: Urn,
+    options: CallOptions = {},
+  ): Promise<IMediaMetadata> {
     const raw = unwrapUrn(this.id, metaUrn);
     const meta = await this.fetchMediaInfoRawNative(raw, options);
     return { ...meta, id: buildUrn(this.id, meta.id), providerId: this.id };
@@ -185,7 +204,12 @@ export abstract class BaseMetadataProvider {
     language?: ContentLanguage,
     options: CallOptions = {},
   ): Promise<ResolvedMediaStream> {
-    const unit = await this.findContentUnit(metaUrn, episodeNumber, contentProvider, options);
+    const unit = await this.findContentUnit(
+      metaUrn,
+      episodeNumber,
+      contentProvider,
+      options,
+    );
     return contentProvider.resolveStream(unit.id, language, options);
   }
 
@@ -198,9 +222,16 @@ export abstract class BaseMetadataProvider {
     options: CallOptions = {},
   ): Promise<IUnitTracks> {
     if (!contentProvider.supportsUnitTracks) {
-      throw new Error(`Provider "${contentProvider.id}" does not support fetchUnitTracks`);
+      throw new Error(
+        `Provider "${contentProvider.id}" does not support fetchUnitTracks`,
+      );
     }
-    const unit = await this.findContentUnit(metaUrn, episodeNumber, contentProvider, options);
+    const unit = await this.findContentUnit(
+      metaUrn,
+      episodeNumber,
+      contentProvider,
+      options,
+    );
     return contentProvider.fetchUnitTracks(unit.id, language, options);
   }
 
@@ -213,7 +244,11 @@ export abstract class BaseMetadataProvider {
     metaUrn: Urn,
     contentProvider: BaseProvider,
     options: CallOptions = {},
-  ): Promise<{ rawMediaId: string; mediaUrn: Urn; matchedTitle: string }> {
+  ): Promise<{
+    rawMediaId: string;
+    mediaUrn: Urn;
+    matchedTitle: string;
+  }> {
     const metadata = await this.fetchMediaInfo(metaUrn, options);
     const resolution = await this.mapping.resolveProviderMediaId(
       metadata,
@@ -242,7 +277,10 @@ export abstract class BaseMetadataProvider {
    * keys by episode number. Subclasses can override to fold in catalogue-
    * specific fields (e.g. filler markers, recap flags).
    */
-  protected enrichContentUnits(units: IContentUnit[], metadata: IMediaMetadata): IContentUnit[] {
+  protected enrichContentUnits(
+    units: IContentUnit[],
+    metadata: IMediaMetadata,
+  ): IContentUnit[] {
     const byNumber = new Map<number, IStreamingEpisode>();
     for (const ep of metadata.streamingEpisodes ?? []) {
       if (typeof ep.number === 'number') {
@@ -265,7 +303,9 @@ export abstract class BaseMetadataProvider {
         title: ext.title ?? u.title,
         ...(ext.thumbnail ? { thumbnailUrl: ext.thumbnail } : {}),
         ...(ext.description ? { description: ext.description } : {}),
-        ...(typeof ext.isFiller === 'boolean' ? { isFiller: ext.isFiller } : {}),
+        ...(typeof ext.isFiller === 'boolean'
+          ? { isFiller: ext.isFiller }
+          : {}),
         ...(typeof ext.isRecap === 'boolean' ? { isRecap: ext.isRecap } : {}),
         ...(ext.airDate ? { airDate: ext.airDate } : {}),
       };
@@ -291,14 +331,19 @@ export abstract class BaseMetadataProvider {
     options: CallOptions = {},
   ): Promise<number> {
     let offset = 0;
-    let current: IMediaMetadata | undefined = await this.fetchMediaInfo(metaUrn, options);
+    let current: IMediaMetadata | undefined = await this.fetchMediaInfo(
+      metaUrn,
+      options,
+    );
     const visited = new Set<string>();
     for (let i = 0; i < 8 && current; i += 1) {
       if (visited.has(current.id)) {
         break;
       }
       visited.add(current.id);
-      const prequel = current.relations?.find((r) => r.relationType === 'PREQUEL');
+      const prequel = current.relations?.find(
+        (r) => r.relationType === 'PREQUEL',
+      );
       if (!prequel) {
         break;
       }
@@ -323,7 +368,11 @@ export abstract class BaseMetadataProvider {
     contentProvider: BaseProvider,
     options: CallOptions,
   ): Promise<IContentUnit> {
-    const units = await this.fetchContentUnits(metaUrn, contentProvider, options);
+    const units = await this.fetchContentUnits(
+      metaUrn,
+      contentProvider,
+      options,
+    );
     const target = units.find((u) => u.number === episodeNumber);
     if (target) {
       return target;
@@ -344,7 +393,10 @@ export abstract class BaseMetadataProvider {
     const mode = options.episodeAbsoluteMatching ?? 'auto';
     if (mode !== 'never' && shouldTryAbsolute(units, episodeNumber, mode)) {
       try {
-        const offset = await this.computeAbsoluteEpisodeOffset(metaUrn, options);
+        const offset = await this.computeAbsoluteEpisodeOffset(
+          metaUrn,
+          options,
+        );
         if (offset > 0) {
           const absolute = episodeNumber + offset;
           const absHit = units.find((u) => u.number === absolute);

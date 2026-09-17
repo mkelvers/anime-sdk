@@ -78,9 +78,9 @@ describe('startServer — live integration', () => {
   });
 
   it('/openapi.json describes the meta routes', async () => {
-    const { status, body } = await getJson<{ paths: Record<string, unknown> }>(
-      '/openapi.json',
-    );
+    const { status, body } = await getJson<{
+      paths: Record<string, unknown>;
+    }>('/openapi.json');
     expect(status).toBe(200);
     expect(body.paths).toHaveProperty('/meta/search');
     expect(body.paths).toHaveProperty('/meta/info');
@@ -139,9 +139,7 @@ describe('startServer — live integration', () => {
       Array<{
         id: string;
       }>
-    >(
-      '/meta/browse?provider=anilist&kind=trending&perPage=3',
-    );
+    >('/meta/browse?provider=anilist&kind=trending&perPage=3');
     expect(status).toBe(200);
     expect(body.length).toBeGreaterThan(0);
     expect(body[0].id.startsWith('anilist:')).toBe(true);
@@ -158,9 +156,9 @@ describe('startServer — live integration', () => {
   });
 
   it('returns 400 for missing required params', async () => {
-    const { status, body } = await getJson<{ error: string }>(
-      '/meta/search?q=foo',
-    );
+    const { status, body } = await getJson<{
+      error: string;
+    }>('/meta/search?q=foo');
     expect(status).toBe(400);
     expect(body.error).toMatch(/provider/i);
   });
@@ -171,9 +169,9 @@ describe('startServer — live integration', () => {
   });
 
   it('strict URN check rejects a mismatched meta URN with 400', async () => {
-    const { status, body } = await getJson<{ error: string }>(
-      '/meta/info?provider=anilist&id=mal:21',
-    );
+    const { status, body } = await getJson<{
+      error: string;
+    }>('/meta/info?provider=anilist&id=mal:21');
     expect(status).toBe(400);
     expect(body.error).toMatch(/does not match/);
   });

@@ -64,7 +64,8 @@ export interface MappingClientOptions {
   fuzzyConcurrency?: number;
 }
 
-export type MappingMethod = 'cached' | 'provider' | 'malsync' | 'anify' | 'arm' | 'fuzzy';
+export type MappingMethod =
+  'cached' | 'provider' | 'malsync' | 'anify' | 'arm' | 'fuzzy';
 
 export interface MappingResolution {
   providerId: string;
@@ -91,7 +92,14 @@ interface MalsyncResponse {
   anilistId?: number;
   Sites?: Record<
     string,
-    Record<string, { identifier?: string | number; url?: string; title?: string }>
+    Record<
+      string,
+      {
+        identifier?: string | number;
+        url?: string;
+        title?: string;
+      }
+    >
   >;
 }
 
@@ -145,7 +153,10 @@ export class MappingClient {
     // ── 1. Provider-native lookup ─────────────────────────────────────────
     if (contentProvider.lookupByMapping && metadata.mappings) {
       try {
-        const raw = await contentProvider.lookupByMapping(metadata.mappings, options);
+        const raw = await contentProvider.lookupByMapping(
+          metadata.mappings,
+          options,
+        );
         if (raw) {
           return this.acceptAndCache(
             cacheKey,
@@ -161,7 +172,11 @@ export class MappingClient {
     }
 
     // ── 2. External mapping APIs (raced) ──────────────────────────────────
-    const ext = await this.resolveFromExternalMappings(metadata, contentProvider, options);
+    const ext = await this.resolveFromExternalMappings(
+      metadata,
+      contentProvider,
+      options,
+    );
     if (ext) {
       return this.acceptAndCache(
         cacheKey,
@@ -200,25 +215,48 @@ export class MappingClient {
     metadata: IMediaMetadata,
     contentProvider: BaseProvider,
     options: CallOptions,
-  ): Promise<{ rawId: string; method: MappingMethod } | null> {
-    const type: 'anime' | 'manga' = metadata.catalogType === 'MANGA' ? 'manga' : 'anime';
+  ): Promise<{
+    rawId: string;
+    method: MappingMethod;
+  } | null> {
+    const type: 'anime' | 'manga' =
+      metadata.catalogType === 'MANGA' ? 'manga' : 'anime';
     const malsyncAliases = providerMalsyncAliases(contentProvider);
 
-    const tasks: Array<{ method: MappingMethod; promise: Promise<string | null> }> = [];
+    const tasks: Array<{
+      method: MappingMethod;
+      promise: Promise<string | null>;
+    }> = [];
 
-    if (!this.options.disableMalsync && (metadata.mappings?.anilist || metadata.mappings?.mal)) {
+    if (
+      !this.options.disableMalsync &&
+      (metadata.mappings?.anilist || metadata.mappings?.mal)
+    ) {
       tasks.push({
         method: 'malsync',
-        promise: this.lookupMalsync(metadata, type, malsyncAliases, contentProvider.id, options),
+        promise: this.lookupMalsync(
+          metadata,
+          type,
+          malsyncAliases,
+          contentProvider.id,
+          options,
+        ),
       });
     }
-    if (!this.options.disableAnify && (metadata.mappings?.anilist || metadata.mappings?.mal)) {
+    if (
+      !this.options.disableAnify &&
+      (metadata.mappings?.anilist || metadata.mappings?.mal)
+    ) {
       tasks.push({
         method: 'anify',
         promise: this.lookupAnify(metadata, contentProvider.id, options),
       });
     }
-    if (!this.options.disableArmServer && type === 'anime' && metadata.mappings?.anilist) {
+    if (
+      !this.options.disableArmServer &&
+      type === 'anime' &&
+      metadata.mappings?.anilist
+    ) {
       tasks.push({
         method: 'arm',
         promise: this.enrichMappingsViaArm(metadata, options).then(() => null),
@@ -234,7 +272,10 @@ export class MappingClient {
 
     // Race: resolve as soon as any task returns a non-null value.
     // We can't use Promise.any (rejects ≠ no-match), so do it manually.
-    return new Promise<{ rawId: string; method: MappingMethod } | null>((resolve) => {
+    return new Promise<{
+      rawId: string;
+      method: MappingMethod;
+    } | null>((resolve) => {
       let remaining = tasks.length;
       for (const { method, promise } of tasks) {
         promise
@@ -395,7 +436,10 @@ export class MappingClient {
         continue;
       }
       if (anilistId) {
-        await this.options.cache.set(`malsync:${siteName}:anilist:${anilistId}`, raw);
+        await this.options.cache.set(
+          `malsync:${siteName}:anilist:${anilistId}`,
+          raw,
+        );
       }
       if (malId) {
         await this.options.cache.set(`malsync:${siteName}:mal:${malId}`, raw);
@@ -479,7 +523,10 @@ export class MappingClient {
     // Borderline → cross-check episode count.
     if (typeof metadata.episodeCount === 'number') {
       try {
-        const units = await contentProvider.fetchContentUnits(top.result.id, options);
+        const units = await contentProvider.fetchContentUnits(
+          top.result.id,
+          options,
+        );
         const actualCount = units.length;
         const expected = metadata.episodeCount;
         const tol = this.options.episodeCountTolerance ?? 3;
@@ -522,7 +569,10 @@ export class MappingClient {
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
-function mappingCacheKey(metadata: IMediaMetadata, contentProvider: BaseProvider): string {
+function mappingCacheKey(
+  metadata: IMediaMetadata,
+  contentProvider: BaseProvider,
+): string {
   return `mapping:${metadata.providerId}:${unwrapUrn(metadata.providerId, metadata.id)}:${contentProvider.id}`;
 }
 
@@ -554,7 +604,9 @@ function uniqueQueries(raw: Array<string | undefined>): string[] {
  * capitalized) so single-word provider IDs work without configuration.
  */
 function providerMalsyncAliases(provider: BaseProvider): string[] {
-  const ctor = provider.constructor as unknown as { malsyncSites?: readonly string[] };
+  const ctor = provider.constructor as unknown as {
+    malsyncSites?: readonly string[];
+  };
   if (ctor.malsyncSites && ctor.malsyncSites.length > 0) {
     return [...ctor.malsyncSites];
   }
@@ -590,7 +642,10 @@ function getCandidateYear(c: IMediaSearchResult): number | undefined {
 function makeRes(
   contentProvider: BaseProvider,
   raw: string,
-  s: { result: IMediaSearchResult; score: number },
+  s: {
+    result: IMediaSearchResult;
+    score: number;
+  },
 ): MappingResolution {
   return {
     providerId: contentProvider.id,
@@ -607,7 +662,9 @@ async function runParallelSearches(
   perQueryLimit: number,
   options: CallOptions,
 ): Promise<IMediaSearchResult[]> {
-  const results = await Promise.allSettled(queries.map((q) => contentProvider.search(q, options)));
+  const results = await Promise.allSettled(
+    queries.map((q) => contentProvider.search(q, options)),
+  );
   const seen = new Set<string>();
   const out: IMediaSearchResult[] = [];
   for (const r of results) {
