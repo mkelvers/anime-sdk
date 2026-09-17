@@ -17,7 +17,7 @@ import { MappingClient } from '../../src/meta/MappingClient';
 import { AnilistMeta } from '../../src/meta/AnilistMeta';
 import { AllmangaProvider } from '../../src/providers/AllmangaProvider';
 import { MangadexProvider } from '../../src/providers/MangadexProvider';
-import { SdkCache } from '@/types';
+import { SdkCache } from '../../src/types';
 
 function memCache(): SdkCache & {
   snapshot(): Record<string, unknown>;

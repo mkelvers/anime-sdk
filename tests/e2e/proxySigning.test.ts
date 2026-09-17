@@ -19,7 +19,7 @@ import * as http from 'node:http';
 import * as crypto from 'node:crypto';
 import { HttpClient } from '../../src/transport/http';
 import { AllmangaProvider } from '../../src/providers/AllmangaProvider';
-import { startServer } from '@/server';
+import { startServer } from '../../src/server';
 
 let server: http.Server;
 let baseUrl: string;

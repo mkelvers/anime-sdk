@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
-import { IVideoPayload } from '@/types';
+import { IVideoPayload } from '../../src/types';
 
 interface Segment {
   url: string;

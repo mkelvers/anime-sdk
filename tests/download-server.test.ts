@@ -17,8 +17,8 @@ import {
   ResolvedMediaStream,
   MediaCatalogType,
   ContentLanguage,
-} from '@/types';
-import { startServer } from '@/server';
+} from '../src/types';
+import { startServer } from '../src/server';
 
 /** Tiny PNG: 1×1 pixel, valid PNG file (67 bytes). */
 const TINY_PNG = Buffer.from(
