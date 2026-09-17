@@ -1,13 +1,16 @@
 {
-  "name": "anime",
+  "name": "yume",
   "version": "1.1.0",
+  "description": "Anime media scraper SDK",
   "types": "dist/index.d.ts",
   "type": "module",
   "license": "MIT",
+  "author": "mkelvers",
   "keywords": [
     "anime",
-    "sdk",
+    "media",
     "scraper",
+    "sdk",
     "api"
   ],
   "files": [
