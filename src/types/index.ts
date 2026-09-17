@@ -16,6 +16,8 @@ export type Urn = string;
  */
 export type ContentLanguage = 'sub' | 'dub' | 'raw';
 
+export type ResolveStreamLanguage = ContentLanguage | 'both';
+
 export interface IMediaSearchResult {
   id: string;
   title: string;
@@ -110,6 +112,11 @@ export interface IMangaPayload {
 export type ResolvedMediaStream =
   | { type: 'video'; streams: IVideoPayload[] }
   | { type: 'manga'; pages: IMangaPayload };
+
+export interface ResolvedMediaStreams {
+  sub: ResolvedMediaStream | null;
+  dub: ResolvedMediaStream | null;
+}
 
 export interface IDomElement {
   querySelector(selector: string): IDomElement | null;

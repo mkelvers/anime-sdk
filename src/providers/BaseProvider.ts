@@ -4,6 +4,8 @@ import {
   IMediaSearchResult,
   IContentUnit,
   ResolvedMediaStream,
+  ResolvedMediaStreams,
+  ResolveStreamLanguage,
   MediaCatalogType,
   ContentLanguage,
   IMediaMappings,
@@ -80,11 +82,36 @@ export abstract class BaseProvider {
 
   public resolveStream(
     unitUrn: Urn,
+    language: 'both',
+    options?: CallOptions,
+  ): Promise<ResolvedMediaStreams>;
+  public resolveStream(
+    unitUrn: Urn,
     language?: ContentLanguage,
+    options?: CallOptions,
+  ): Promise<ResolvedMediaStream>;
+  public resolveStream(
+    unitUrn: Urn,
+    language: ResolveStreamLanguage = 'sub',
     options: CallOptions = {},
-  ): Promise<ResolvedMediaStream> {
+  ): Promise<ResolvedMediaStream | ResolvedMediaStreams> {
     return this.withConcurrency(async () => {
       const raw = unwrapUrn(this.id, unitUrn);
+      if (language === 'both') {
+        let sub: ResolvedMediaStream | null = null;
+        let dub: ResolvedMediaStream | null = null;
+        try {
+          sub = await this.resolveStreamRaw(raw, 'sub', options);
+        } catch {
+          // A missing translation should not reject the combined result.
+        }
+        try {
+          dub = await this.resolveStreamRaw(raw, 'dub', options);
+        } catch {
+          // A missing translation should not reject the combined result.
+        }
+        return { sub, dub };
+      }
       return this.resolveStreamRaw(raw, language, options);
     });
   }
