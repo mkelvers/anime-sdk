@@ -188,7 +188,12 @@ export class RateLimiter {
       1,
       Math.min(waitMain || 1, waitBurst || waitMain || 1),
     );
-    setTimeout(() => this.pump(b), wait).unref?.();
+    const timer = setTimeout(() => this.pump(b), wait);
+    (
+      timer as unknown as {
+        unref?: () => void;
+      }
+    ).unref?.();
   }
 
   /** Drain as many waiters as the refilled bucket can satisfy. */
