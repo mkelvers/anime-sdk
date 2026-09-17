@@ -36,9 +36,15 @@ function parseSegments(playlist: string, playlistUrl: string): Segment[] {
       }
     } else if (line && !line.startsWith('#')) {
       try {
-        out.push({ url: new URL(line, playlistUrl).toString(), duration: dur });
+        out.push({
+          url: new URL(line, playlistUrl).toString(),
+          duration: dur,
+        });
       } catch {
-        out.push({ url: line, duration: dur });
+        out.push({
+          url: line,
+          duration: dur,
+        });
       }
     }
   }
@@ -118,7 +124,10 @@ async function probeIsVideoBytes(
   try {
     const res = await fetch(url, {
       method: 'GET',
-      headers: { ...fetchHeaders(headers), Range: 'bytes=0-2048' },
+      headers: {
+        ...fetchHeaders(headers),
+        Range: 'bytes=0-2048',
+      },
       // node fetch follows redirects by default
     });
     if (res.status !== 200 && res.status !== 206) {
@@ -174,7 +183,10 @@ async function scrapeEmbedForStream(
     /https?:\/\/[^"'\s<>\\]+?\/[^"'\s<>\\/]+\.m3u8(?:[?#][^"'\s<>\\]*)?/i,
   );
   if (m3u8) {
-    return { url: m3u8.replace(/&amp;/g, '&'), isHls: true };
+    return {
+      url: m3u8.replace(/&amp;/g, '&'),
+      isHls: true,
+    };
   }
 
   const mp4 = pickFirstUrl(
@@ -182,7 +194,10 @@ async function scrapeEmbedForStream(
     /https?:\/\/[^"'\s<>\\]+?\/[^"'\s<>\\/]+\.mp4(?:[?#][^"'\s<>\\]*)?/i,
   );
   if (mp4) {
-    return { url: mp4.replace(/&amp;/g, '&'), isHls: false };
+    return {
+      url: mp4.replace(/&amp;/g, '&'),
+      isHls: false,
+    };
   }
 
   return null;
@@ -203,7 +218,9 @@ async function captureFromHls(
   headers: Record<string, string>,
 ): Promise<void> {
   let currentUrl = playlistUrl;
-  let res = await fetch(currentUrl, { headers: fetchHeaders(headers) });
+  let res = await fetch(currentUrl, {
+    headers: fetchHeaders(headers),
+  });
   if (!res.ok) {
     throw new Error(
       `Playlist ${res.status} ${res.statusText} (${currentUrl.slice(0, 120)})`,
@@ -222,7 +239,9 @@ async function captureFromHls(
       throw new Error('Master playlist has no variants');
     }
     currentUrl = variants[variants.length - 1]; // pick highest quality (last)
-    res = await fetch(currentUrl, { headers: fetchHeaders(headers) });
+    res = await fetch(currentUrl, {
+      headers: fetchHeaders(headers),
+    });
     if (!res.ok) {
       throw new Error(`Variant ${res.status} (${currentUrl.slice(0, 120)})`);
     }
@@ -245,7 +264,9 @@ async function captureFromHls(
     acc += seg.duration;
   }
 
-  const segRes = await fetch(target.url, { headers: fetchHeaders(headers) });
+  const segRes = await fetch(target.url, {
+    headers: fetchHeaders(headers),
+  });
   if (!segRes.ok) {
     throw new Error(`Segment ${segRes.status} (${target.url.slice(0, 120)})`);
   }
@@ -324,7 +345,10 @@ async function captureFromMp4(
     ]
       .filter(Boolean)
       .join(' '),
-    { stdio: 'pipe', timeout: 25000 },
+    {
+      stdio: 'pipe',
+      timeout: 25000,
+    },
   );
 
   if (!fs.existsSync(outputPath) || fs.statSync(outputPath).size < 1024) {
@@ -358,7 +382,9 @@ export async function captureStreamScreenshot(
 
   const localDir = path.resolve(process.cwd(), 'scratch/screenshots');
   if (!fs.existsSync(localDir)) {
-    fs.mkdirSync(localDir, { recursive: true });
+    fs.mkdirSync(localDir, {
+      recursive: true,
+    });
   }
 
   const outputPath = path.join(localDir, `screenshot_${providerId}.png`);
@@ -381,7 +407,11 @@ export async function captureStreamScreenshot(
     try {
       await captureFromUrl(outputPath, candidate);
       console.log(`[Screenshot ${providerId}] OK → ${outputPath}`);
-      return { outputPath, stream: candidate, attemptedCount: i + 1 };
+      return {
+        outputPath,
+        stream: candidate,
+        attemptedCount: i + 1,
+      };
     } catch (e) {
       const msg = (e as Error).message;
       console.log(`[Screenshot ${providerId}]   failed: ${msg}`);

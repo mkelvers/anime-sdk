@@ -11,7 +11,9 @@ import { KitsuMeta } from '../../src/meta/KitsuMeta';
 
 describe('KitsuMeta — live', () => {
   it('search emits typed anime URNs', async () => {
-    const http = new HttpClient({ timeoutMs: 25_000 });
+    const http = new HttpClient({
+      timeoutMs: 25_000,
+    });
     const meta = new KitsuMeta(http);
     const results = await meta.search('Cowboy Bebop');
     expect(results.length).toBeGreaterThan(0);
@@ -23,7 +25,9 @@ describe('KitsuMeta — live', () => {
   }, 40_000);
 
   it('fetchMediaInfo for kitsu:anime:1 maps core fields + cross-source mappings', async () => {
-    const http = new HttpClient({ timeoutMs: 25_000 });
+    const http = new HttpClient({
+      timeoutMs: 25_000,
+    });
     const meta = new KitsuMeta(http);
     const info = await meta.fetchMediaInfo('kitsu:anime:1');
     expect(info.id).toBe('kitsu:anime:1');
@@ -43,7 +47,9 @@ describe('KitsuMeta — live', () => {
   }, 40_000);
 
   it('legacy bare URN (`kitsu:1`) still resolves to the anime endpoint', async () => {
-    const http = new HttpClient({ timeoutMs: 25_000 });
+    const http = new HttpClient({
+      timeoutMs: 25_000,
+    });
     const meta = new KitsuMeta(http);
     const info = await meta.fetchMediaInfo('kitsu:1');
     expect(info.id).toBe('kitsu:anime:1');

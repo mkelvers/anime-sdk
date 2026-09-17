@@ -30,10 +30,15 @@ describe('runtime validation', () => {
 
   it('only accepts string-to-string proxy headers', () => {
     expect(
-      proxyHeadersSchema.safeParse({ Referer: 'https://example.test/' })
-        .success,
+      proxyHeadersSchema.safeParse({
+        Referer: 'https://example.test/',
+      }).success,
     ).toBe(true);
-    expect(proxyHeadersSchema.safeParse({ Range: 42 }).success).toBe(false);
+    expect(
+      proxyHeadersSchema.safeParse({
+        Range: 42,
+      }).success,
+    ).toBe(false);
     expect(proxyHeadersSchema.safeParse(['not headers']).success).toBe(false);
   });
 });

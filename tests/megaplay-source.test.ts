@@ -28,7 +28,12 @@ describe('MegaPlay source payloads', () => {
       .replace(/\//g, '_')
       .replace(/=+$/, '');
 
-    await expect(parseMegaPlaySource({ enc, tracks: [] })).resolves.toEqual({
+    await expect(
+      parseMegaPlaySource({
+        enc,
+        tracks: [],
+      }),
+    ).resolves.toEqual({
       file: 'https://media.example.test/episode/master.m3u8',
       tracks: [],
     });

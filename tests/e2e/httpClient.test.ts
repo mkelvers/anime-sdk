@@ -46,9 +46,14 @@ describe('HttpClient — AbortSignal propagation', () => {
       // Stall forever — the client must cancel itself.
       setTimeout(() => res.end('late'), 5000);
     });
-    const client = new HttpClient({ timeoutMs: 60_000, retry: false });
+    const client = new HttpClient({
+      timeoutMs: 60_000,
+      retry: false,
+    });
     const ac = new AbortController();
-    const p = client.get(`${baseUrl}/slow`, { signal: ac.signal });
+    const p = client.get(`${baseUrl}/slow`, {
+      signal: ac.signal,
+    });
     setTimeout(() => ac.abort(), 50);
     await expect(p).rejects.toThrow();
   });
@@ -61,9 +66,13 @@ describe('HttpClient — AbortSignal propagation', () => {
     });
     const ac = new AbortController();
     ac.abort();
-    const client = new HttpClient({ retry: false });
+    const client = new HttpClient({
+      retry: false,
+    });
     await expect(
-      client.get(`${baseUrl}/never`, { signal: ac.signal }),
+      client.get(`${baseUrl}/never`, {
+        signal: ac.signal,
+      }),
     ).rejects.toThrow();
     expect(called).toBe(0);
   });
@@ -78,16 +87,27 @@ describe('HttpClient — retry semantics', () => {
       n += 1;
       if (n === 1) {
         firstAt = Date.now();
-        res.writeHead(429, { 'Retry-After': '0' }).end('throttled');
+        res
+          .writeHead(429, {
+            'Retry-After': '0',
+          })
+          .end('throttled');
         return;
       }
       secondAt = Date.now();
       res
-        .writeHead(200, { 'Content-Type': 'application/json' })
+        .writeHead(200, {
+          'Content-Type': 'application/json',
+        })
         .end('{"ok":true}');
     });
     const client = new HttpClient({
-      retry: { initialDelayMs: 5, factor: 1, jitter: 0, maxAttempts: 3 },
+      retry: {
+        initialDelayMs: 5,
+        factor: 1,
+        jitter: 0,
+        maxAttempts: 3,
+      },
       disableRateLimit: true,
     });
     const res = await client.get(`${baseUrl}/retry`);
@@ -103,7 +123,12 @@ describe('HttpClient — retry semantics', () => {
       res.writeHead(503).end('down');
     });
     const client = new HttpClient({
-      retry: { initialDelayMs: 5, factor: 1, jitter: 0, maxAttempts: 3 },
+      retry: {
+        initialDelayMs: 5,
+        factor: 1,
+        jitter: 0,
+        maxAttempts: 3,
+      },
       disableRateLimit: true,
     });
     await expect(client.get(`${baseUrl}/down`)).rejects.toThrow(/HTTP 503/);
@@ -120,10 +145,26 @@ describe('HttpClient — retry semantics', () => {
       }
       res.writeHead(200).end('ok');
     });
-    const limiter = new RateLimiter({}, { capacity: 50, intervalMs: 60_000 });
+    const limiter = new RateLimiter(
+      {},
+      {
+        capacity: 50,
+        intervalMs: 60_000,
+      },
+    );
     const client = new HttpClient({
-      retry: { initialDelayMs: 5, factor: 1, jitter: 0, maxAttempts: 5 },
-      rateLimits: { '127.0.0.1': { capacity: 50, intervalMs: 60_000 } },
+      retry: {
+        initialDelayMs: 5,
+        factor: 1,
+        jitter: 0,
+        maxAttempts: 5,
+      },
+      rateLimits: {
+        '127.0.0.1': {
+          capacity: 50,
+          intervalMs: 60_000,
+        },
+      },
     });
     // Spend tokens via the SDK's own limiter; verify each attempt is
     // billed. We do this by calling the HttpClient and reading the
@@ -147,7 +188,12 @@ describe('HttpClient — rate limiter integration', () => {
     });
     const client = new HttpClient({
       retry: false,
-      rateLimits: { '127.0.0.1': { capacity: 1, intervalMs: 250 } },
+      rateLimits: {
+        '127.0.0.1': {
+          capacity: 1,
+          intervalMs: 250,
+        },
+      },
     });
     const start = Date.now();
     await Promise.all([client.get(`${baseUrl}/a`), client.get(`${baseUrl}/b`)]);

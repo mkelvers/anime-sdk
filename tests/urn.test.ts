@@ -117,11 +117,17 @@ describe('typed URN helpers', () => {
   });
 
   it('parseTypedUrn returns undefined kind for bare/untyped URNs', () => {
-    expect(parseTypedUrn('mal', 'mal:21')).toEqual({ rawId: '21' });
-    expect(parseTypedUrn('mal', '21')).toEqual({ rawId: '21' });
+    expect(parseTypedUrn('mal', 'mal:21')).toEqual({
+      rawId: '21',
+    });
+    expect(parseTypedUrn('mal', '21')).toEqual({
+      rawId: '21',
+    });
   });
 
   it('parseTypedUrn passes through wrong-provider URNs untouched', () => {
-    expect(parseTypedUrn('mal', 'anilist:21')).toEqual({ rawId: 'anilist:21' });
+    expect(parseTypedUrn('mal', 'anilist:21')).toEqual({
+      rawId: 'anilist:21',
+    });
   });
 });

@@ -4,19 +4,28 @@ import { RateLimiter } from '../src/transport/rateLimiter';
 describe('RateLimiter', () => {
   it('acquires immediately when under capacity', async () => {
     const r = new RateLimiter({
-      'example.com': { capacity: 3, intervalMs: 60_000 },
+      'example.com': {
+        capacity: 3,
+        intervalMs: 60_000,
+      },
     });
     const before = Date.now();
     await r.acquire('example.com');
     await r.acquire('example.com');
     await r.acquire('example.com');
     expect(Date.now() - before).toBeLessThan(50);
-    expect(r.snapshot('example.com')).toMatchObject({ tokens: 0, queued: 0 });
+    expect(r.snapshot('example.com')).toMatchObject({
+      tokens: 0,
+      queued: 0,
+    });
   });
 
   it('queues callers past capacity until the next window', async () => {
     const r = new RateLimiter({
-      'example.com': { capacity: 1, intervalMs: 200 },
+      'example.com': {
+        capacity: 1,
+        intervalMs: 200,
+      },
     });
     const start = Date.now();
     await r.acquire('example.com');
@@ -32,7 +41,10 @@ describe('RateLimiter', () => {
       'example.com': {
         capacity: 10,
         intervalMs: 60_000,
-        burst: { capacity: 2, intervalMs: 200 },
+        burst: {
+          capacity: 2,
+          intervalMs: 200,
+        },
       },
     });
     await r.acquire('example.com');
@@ -45,7 +57,10 @@ describe('RateLimiter', () => {
 
   it('respects abort signal while queued', async () => {
     const r = new RateLimiter({
-      'example.com': { capacity: 1, intervalMs: 10_000 },
+      'example.com': {
+        capacity: 1,
+        intervalMs: 10_000,
+      },
     });
     await r.acquire('example.com'); // exhaust the bucket
     const ac = new AbortController();

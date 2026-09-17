@@ -36,8 +36,14 @@ beforeAll(async () => {
     await new Promise<void>((r) => setTimeout(r, 60));
     inFlight -= 1;
     res
-      .writeHead(200, { 'content-type': 'application/json' })
-      .end(JSON.stringify({ ok: true }));
+      .writeHead(200, {
+        'content-type': 'application/json',
+      })
+      .end(
+        JSON.stringify({
+          ok: true,
+        }),
+      );
   });
   await new Promise<void>((resolve) =>
     server.listen(0, '127.0.0.1', () => resolve()),
@@ -61,8 +67,17 @@ class CappedProvider extends BaseProvider {
     _q: string,
     options: CallOptions = {},
   ): Promise<IMediaSearchResult[]> {
-    await this.http.get(`${baseUrl}/q`, { signal: options.signal });
-    return [{ id: 'x', title: 'x', catalogType: 'ANIME', providerId: this.id }];
+    await this.http.get(`${baseUrl}/q`, {
+      signal: options.signal,
+    });
+    return [
+      {
+        id: 'x',
+        title: 'x',
+        catalogType: 'ANIME',
+        providerId: this.id,
+      },
+    ];
   }
   protected async fetchContentUnitsRaw(): Promise<IContentUnit[]> {
     return [];
@@ -78,10 +93,20 @@ class CappedProvider extends BaseProvider {
 describe('BaseProvider — concurrency cap', () => {
   it('caps parallel in-flight calls to maxConcurrency', async () => {
     reset();
-    const http = new HttpClient({ disableRateLimit: true, retry: false });
+    const http = new HttpClient({
+      disableRateLimit: true,
+      retry: false,
+    });
     const provider = new CappedProvider(http);
     // 10 parallel calls; only 2 should hit the upstream simultaneously.
-    await Promise.all(Array.from({ length: 10 }, () => provider.search('q')));
+    await Promise.all(
+      Array.from(
+        {
+          length: 10,
+        },
+        () => provider.search('q'),
+      ),
+    );
     expect(maxInFlight).toBeLessThanOrEqual(2);
     expect(maxInFlight).toBeGreaterThan(0);
   }, 30_000);

@@ -49,8 +49,14 @@ describe('VidstreamingExtractor', () => {
     // 2. Encrypted response from encrypt-ajax.php
     const mockAjaxResult = {
       source: [
-        { file: 'https://cdn.com/stream.m3u8', label: '1080 P' },
-        { file: 'https://cdn.com/stream-720.m3u8', label: '720 P' },
+        {
+          file: 'https://cdn.com/stream.m3u8',
+          label: '1080 P',
+        },
+        {
+          file: 'https://cdn.com/stream-720.m3u8',
+          label: '720 P',
+        },
       ],
       source_bk: [],
     };
@@ -66,7 +72,9 @@ describe('VidstreamingExtractor', () => {
       if (url.includes('encrypt-ajax.php')) {
         return {
           status: 200,
-          json: async () => ({ data: encryptedAjaxData }),
+          json: async () => ({
+            data: encryptedAjaxData,
+          }),
         } as Response;
       }
       return {

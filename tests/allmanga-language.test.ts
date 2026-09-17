@@ -17,7 +17,9 @@ describe('AllmangaProvider – language / sub/dub', () => {
   });
 
   it('respects the defaultLanguage constructor option', () => {
-    const provider = new AllmangaProvider(http, { defaultLanguage: 'dub' });
+    const provider = new AllmangaProvider(http, {
+      defaultLanguage: 'dub',
+    });
     expect((provider as any).defaultLanguage).toBe('dub');
   });
 

@@ -10,7 +10,9 @@ import { captureStreamScreenshot } from './screenshotHelper';
 
 describe('GogoAnime E2E', () => {
   it('searches, fetches episodes, resolves a stream, and captures a screenshot', async () => {
-    const http = new HttpClient({ timeoutMs: 25000 });
+    const http = new HttpClient({
+      timeoutMs: 25000,
+    });
     const provider = new GogoanimeProvider(http);
 
     const query = 'Frieren';

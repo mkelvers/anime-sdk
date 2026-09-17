@@ -27,7 +27,9 @@ let baseUrl: string;
 const cache = new Map<string, unknown>();
 
 beforeAll(async () => {
-  const httpClient = new HttpClient({ timeoutMs: 30_000 });
+  const httpClient = new HttpClient({
+    timeoutMs: 30_000,
+  });
   server = startServer({
     providers: [new AllmangaProvider(httpClient)],
     metaProviders: [new AnilistMeta(httpClient)],
@@ -61,7 +63,10 @@ async function getJson<T = unknown>(
 }> {
   const res = await fetch(`${baseUrl}${path}`);
   const body = (await res.json()) as T;
-  return { status: res.status, body };
+  return {
+    status: res.status,
+    body,
+  };
 }
 
 describe('startServer — live integration', () => {

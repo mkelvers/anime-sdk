@@ -10,7 +10,9 @@ import { captureStreamScreenshot } from './screenshotHelper';
 
 describe('AllManga E2E', () => {
   it('searches, fetches episodes, resolves a stream, and captures a screenshot', async () => {
-    const http = new HttpClient({ timeoutMs: 25000 });
+    const http = new HttpClient({
+      timeoutMs: 25000,
+    });
     const provider = new AllmangaProvider(http);
 
     // Pick a long-running show with a robust source mix.

@@ -16,7 +16,9 @@ import { AllmangaProvider } from '../../src/providers/AllmangaProvider';
 
 describe('Allmanga URN round-trip — live', () => {
   it('search → fetchContentUnits → IDs are URN-prefixed end to end', async () => {
-    const http = new HttpClient({ timeoutMs: 30_000 });
+    const http = new HttpClient({
+      timeoutMs: 30_000,
+    });
     const allmanga = new AllmangaProvider(http);
 
     const hits = await allmanga.search('Frieren');

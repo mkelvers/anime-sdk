@@ -34,11 +34,15 @@ function memCache(): SdkCache & {
 
 describe('MappingClient — live waterfall', () => {
   it('fuzzy-matches a real AniList title onto AllmangaProvider', async () => {
-    const http = new HttpClient({ timeoutMs: 25_000 });
+    const http = new HttpClient({
+      timeoutMs: 25_000,
+    });
     const meta = new AnilistMeta(http);
     const allmanga = new AllmangaProvider(http);
     const cache = memCache();
-    const client = new MappingClient(http, { cache });
+    const client = new MappingClient(http, {
+      cache,
+    });
 
     // Cowboy Bebop (AniList id 1) — title is the same on every provider,
     // so the fuzzy path is almost guaranteed to find a match.
@@ -58,11 +62,15 @@ describe('MappingClient — live waterfall', () => {
   }, 60_000);
 
   it('resolves a real AniList manga record onto MangadexProvider', async () => {
-    const http = new HttpClient({ timeoutMs: 25_000 });
+    const http = new HttpClient({
+      timeoutMs: 25_000,
+    });
     const meta = new AnilistMeta(http);
     const mangadex = new MangadexProvider(http);
     const cache = memCache();
-    const client = new MappingClient(http, { cache });
+    const client = new MappingClient(http, {
+      cache,
+    });
 
     // Vinland Saga — AniList id 30642 (manga). MAL ID 642. Both the title
     // and the manga itself are unambiguous on MangaDex, so the resolution
@@ -81,10 +89,14 @@ describe('MappingClient — live waterfall', () => {
   }, 60_000);
 
   it('does not mutate the input metadata record', async () => {
-    const http = new HttpClient({ timeoutMs: 25_000 });
+    const http = new HttpClient({
+      timeoutMs: 25_000,
+    });
     const meta = new AnilistMeta(http);
     const allmanga = new AllmangaProvider(http);
-    const client = new MappingClient(http, { cache: memCache() });
+    const client = new MappingClient(http, {
+      cache: memCache(),
+    });
     const info = await meta.fetchMediaInfo('anilist:1');
     const before = JSON.stringify(info.mappings);
     await client.resolveProviderMediaId(info, allmanga);

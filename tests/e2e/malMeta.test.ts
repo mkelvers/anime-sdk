@@ -10,7 +10,9 @@ import { MalMeta } from '../../src/meta/MalMeta';
 
 describe('MalMeta — live (Jikan)', () => {
   it('search emits typed anime URNs', async () => {
-    const http = new HttpClient({ timeoutMs: 25_000 });
+    const http = new HttpClient({
+      timeoutMs: 25_000,
+    });
     const meta = new MalMeta(http);
     const results = await meta.search('Cowboy Bebop');
     expect(results.length).toBeGreaterThan(0);
@@ -23,7 +25,9 @@ describe('MalMeta — live (Jikan)', () => {
   }, 40_000);
 
   it('fetchMediaInfo for mal:anime:1 maps all primary fields', async () => {
-    const http = new HttpClient({ timeoutMs: 25_000 });
+    const http = new HttpClient({
+      timeoutMs: 25_000,
+    });
     const meta = new MalMeta(http);
     const info = await meta.fetchMediaInfo('mal:anime:1');
     expect(info.id).toBe('mal:anime:1');
@@ -44,7 +48,9 @@ describe('MalMeta — live (Jikan)', () => {
   }, 40_000);
 
   it('legacy bare URN (`mal:1`) probes anime first and still works', async () => {
-    const http = new HttpClient({ timeoutMs: 25_000 });
+    const http = new HttpClient({
+      timeoutMs: 25_000,
+    });
     const meta = new MalMeta(http);
     const info = await meta.fetchMediaInfo('mal:1');
     // Legacy URN: id retains anime: prefix after round-trip.
@@ -53,7 +59,9 @@ describe('MalMeta — live (Jikan)', () => {
   }, 40_000);
 
   it('fetchMediaInfo for an explicit manga URN routes to the manga endpoint', async () => {
-    const http = new HttpClient({ timeoutMs: 25_000 });
+    const http = new HttpClient({
+      timeoutMs: 25_000,
+    });
     const meta = new MalMeta(http);
     // MAL manga ID 1 = Monster (Naoki Urasawa) — finished long ago, stable.
     const info = await meta.fetchMediaInfo('mal:manga:1');
@@ -65,7 +73,9 @@ describe('MalMeta — live (Jikan)', () => {
   }, 40_000);
 
   it('anime fetchMediaInfo carries Jikan filler/recap flags via streamingEpisodes', async () => {
-    const http = new HttpClient({ timeoutMs: 60_000 });
+    const http = new HttpClient({
+      timeoutMs: 60_000,
+    });
     const meta = new MalMeta(http);
     // Cowboy Bebop (26 episodes, all canonical = no filler) — small
     // enough to fully fetch but its filler flags are well-defined.
@@ -80,7 +90,9 @@ describe('MalMeta — live (Jikan)', () => {
   }, 90_000);
 
   it('browse(top) returns a paginated top list', async () => {
-    const http = new HttpClient({ timeoutMs: 30_000 });
+    const http = new HttpClient({
+      timeoutMs: 30_000,
+    });
     const meta = new MalMeta(http);
     expect(meta.supportsBrowseKind('top')).toBe(true);
     const items = await meta.browse('top', {

@@ -4,7 +4,9 @@ import { MangadexProvider } from '../../src/providers/MangadexProvider';
 
 describe('Mangadex E2E Pagination', () => {
   it('fetches more than 500 chapters for One Piece', async () => {
-    const http = new HttpClient({ timeoutMs: 30000 });
+    const http = new HttpClient({
+      timeoutMs: 30000,
+    });
     const provider = new MangadexProvider(http);
 
     const query = 'Kaguya-sama';

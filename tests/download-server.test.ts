@@ -45,7 +45,10 @@ function startImageServer(): Promise<{
       const addr = s.address() as {
         port: number;
       };
-      resolve({ server: s, port: addr.port });
+      resolve({
+        server: s,
+        port: addr.port,
+      });
     });
   });
 }
@@ -72,7 +75,13 @@ class MockMangaProvider extends BaseProvider {
   }
 
   async fetchContentUnits(): Promise<IContentUnit[]> {
-    return [{ id: 'ch-1', title: 'Chapter 1', number: 1 }];
+    return [
+      {
+        id: 'ch-1',
+        title: 'Chapter 1',
+        number: 1,
+      },
+    ];
   }
 
   async resolveStream(): Promise<ResolvedMediaStream> {
@@ -101,10 +110,15 @@ describe('Server download routes', () => {
     const img = await startImageServer();
     imgServer = img.server;
 
-    const httpClient = new HttpClient({ timeoutMs: 10000 });
+    const httpClient = new HttpClient({
+      timeoutMs: 10000,
+    });
     const manga = new MockMangaProvider(httpClient, img.port);
 
-    sdkServer = startServer({ providers: [manga], port: 0 });
+    sdkServer = startServer({
+      providers: [manga],
+      port: 0,
+    });
 
     // Wait for the SDK server to be listening
     await new Promise<void>((resolve) => {

@@ -14,7 +14,9 @@ let server: http.Server;
 let baseUrl: string;
 
 beforeAll(async () => {
-  const httpClient = new HttpClient({ timeoutMs: 20_000 });
+  const httpClient = new HttpClient({
+    timeoutMs: 20_000,
+  });
   server = startServer({
     providers: [new AllmangaProvider(httpClient)],
     proxy: true,

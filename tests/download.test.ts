@@ -172,7 +172,10 @@ describe('crc32', () => {
 describe('createZipBuffer', () => {
   it('creates a valid ZIP with PK header', () => {
     const zip = createZipBuffer([
-      { filename: 'test.txt', data: Buffer.from('Hello, World!') },
+      {
+        filename: 'test.txt',
+        data: Buffer.from('Hello, World!'),
+      },
     ]);
 
     // ZIP magic bytes: PK\x03\x04
@@ -184,9 +187,18 @@ describe('createZipBuffer', () => {
 
   it('creates a ZIP with correct EOCD entry count', () => {
     const entries = [
-      { filename: 'a.txt', data: Buffer.from('AAA') },
-      { filename: 'b.txt', data: Buffer.from('BBB') },
-      { filename: 'c.txt', data: Buffer.from('CCC') },
+      {
+        filename: 'a.txt',
+        data: Buffer.from('AAA'),
+      },
+      {
+        filename: 'b.txt',
+        data: Buffer.from('BBB'),
+      },
+      {
+        filename: 'c.txt',
+        data: Buffer.from('CCC'),
+      },
     ];
 
     const zip = createZipBuffer(entries);
@@ -213,7 +225,12 @@ describe('createZipBuffer', () => {
 
   it('stores file data uncompressed (STORE method)', () => {
     const data = Buffer.from('test content 12345');
-    const zip = createZipBuffer([{ filename: 'file.txt', data }]);
+    const zip = createZipBuffer([
+      {
+        filename: 'file.txt',
+        data,
+      },
+    ]);
 
     // The file data should appear verbatim in the ZIP
     const dataStr = data.toString();
@@ -242,7 +259,12 @@ describe('createZipBuffer', () => {
     const data = Buffer.from('Hello');
     const expectedCrc = crc32(data);
 
-    const zip = createZipBuffer([{ filename: 'hello.txt', data }]);
+    const zip = createZipBuffer([
+      {
+        filename: 'hello.txt',
+        data,
+      },
+    ]);
 
     // Local file header CRC is at offset 14
     const localCrc = zip.readUInt32LE(14);

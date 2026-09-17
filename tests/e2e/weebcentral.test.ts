@@ -36,7 +36,9 @@ describe('Weebcentral E2E', () => {
 
     // Verify image accessibility
     const imgUrl = stream.pages.imageUrls[0];
-    const imgRes = await http.get(imgUrl, { headers: stream.pages.headers });
+    const imgRes = await http.get(imgUrl, {
+      headers: stream.pages.headers,
+    });
     expect(imgRes.status).toBe(200);
     const contentType = imgRes.headers.get('content-type');
     expect(contentType).toMatch(/^image\//);

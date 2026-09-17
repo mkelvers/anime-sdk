@@ -10,7 +10,9 @@ import { captureStreamScreenshot } from './screenshotHelper';
 
 describe('AnimeParadise E2E', () => {
   it('searches, fetches episodes, resolves a stream, and captures a screenshot', async () => {
-    const http = new HttpClient({ timeoutMs: 25000 });
+    const http = new HttpClient({
+      timeoutMs: 25000,
+    });
     const provider = new AnimeParadiseProvider(http);
 
     const searchResults = await provider.search('Frieren');

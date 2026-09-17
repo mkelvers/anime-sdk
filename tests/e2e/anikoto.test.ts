@@ -10,7 +10,9 @@ import { captureStreamScreenshot } from './screenshotHelper';
 
 describe('Anikoto E2E', () => {
   it('searches, fetches episodes, resolves a sub stream, and captures a screenshot', async () => {
-    const http = new HttpClient({ timeoutMs: 25000 });
+    const http = new HttpClient({
+      timeoutMs: 25000,
+    });
     const provider = new AnikotoProvider(http);
 
     const query = 'Solo Leveling';
@@ -42,7 +44,9 @@ describe('Anikoto E2E', () => {
   }, 90000);
 
   it('resolves a dub stream, and captures a screenshot', async () => {
-    const http = new HttpClient({ timeoutMs: 25000 });
+    const http = new HttpClient({
+      timeoutMs: 25000,
+    });
     const provider = new AnikotoProvider(http);
 
     // Using a known ID for Solo Leveling to save time

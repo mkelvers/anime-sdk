@@ -10,7 +10,9 @@ import { captureStreamScreenshot } from './screenshotHelper';
 
 describe('Goyabu E2E', () => {
   it('searches, fetches episodes, resolves a stream, and captures a screenshot', async () => {
-    const http = new HttpClient({ timeoutMs: 25000 });
+    const http = new HttpClient({
+      timeoutMs: 25000,
+    });
     const provider = new GoyabuProvider(http);
 
     // Confirm the site is even up before exercising the scraper.

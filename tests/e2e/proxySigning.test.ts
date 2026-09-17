@@ -26,7 +26,9 @@ let baseUrl: string;
 const SECRET = 'super-secret-key';
 
 beforeAll(async () => {
-  const httpClient = new HttpClient({ timeoutMs: 20_000 });
+  const httpClient = new HttpClient({
+    timeoutMs: 20_000,
+  });
   server = startServer({
     providers: [new AllmangaProvider(httpClient)],
     metaProviders: [],
@@ -88,7 +90,9 @@ describe('/proxy signature enforcement', () => {
   }, 30_000);
 
   it('signature covers the headers (`h`) parameter too', async () => {
-    const headers = { 'X-Test': 'yes' };
+    const headers = {
+      'X-Test': 'yes',
+    };
     const h = Buffer.from(JSON.stringify(headers)).toString('base64');
     const goodSig = sign(target, h);
     const r1 = await fetch(

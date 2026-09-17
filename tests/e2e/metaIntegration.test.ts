@@ -18,9 +18,13 @@ import { AllmangaProvider } from '../../src/providers/AllmangaProvider';
 
 describe('Metadata → content integration (live)', () => {
   it('fetches AniList metadata for Cowboy Bebop and lists episodes on AllManga via mapping', async () => {
-    const http = new HttpClient({ timeoutMs: 30_000 });
+    const http = new HttpClient({
+      timeoutMs: 30_000,
+    });
     const mapping = new MappingClient(http);
-    const meta = new AnilistMeta(http, { mappingClient: mapping });
+    const meta = new AnilistMeta(http, {
+      mappingClient: mapping,
+    });
     const allmanga = new AllmangaProvider(http);
 
     // 1. Pull AniList metadata + enrichments.
@@ -46,13 +50,17 @@ describe('Metadata → content integration (live)', () => {
   }, 90_000);
 
   it('lookupByMapping shortcut: MegaPlayProvider returns the AniList ID directly', async () => {
-    const http = new HttpClient({ timeoutMs: 15_000 });
+    const http = new HttpClient({
+      timeoutMs: 15_000,
+    });
     const { MegaPlayProvider } =
       await import('../../src/providers/MegaPlayProvider');
     const megaplay = new MegaPlayProvider(http);
     // MegaPlayProvider opts into the lookupByMapping fast path — its
     // media ID *is* the AniList ID. No network calls should be needed.
-    const raw = await megaplay.lookupByMapping!({ anilist: 1 });
+    const raw = await megaplay.lookupByMapping!({
+      anilist: 1,
+    });
     expect(raw).toBe('1');
     const none = await megaplay.lookupByMapping!({});
     expect(none).toBeNull();

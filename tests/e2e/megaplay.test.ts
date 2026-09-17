@@ -5,7 +5,9 @@ import { MegaPlayProvider } from '../../src/providers/MegaPlayProvider';
 import { captureStreamScreenshot } from './screenshotHelper';
 
 describe('MegaPlayProvider E2E', () => {
-  const http = new HttpClient({ timeoutMs: 30000 });
+  const http = new HttpClient({
+    timeoutMs: 30000,
+  });
   const provider = new MegaPlayProvider(http);
 
   it('should search for Frieren', async () => {

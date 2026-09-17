@@ -12,7 +12,9 @@ import { AnilistMeta } from '../../src/meta/AnilistMeta';
 
 describe('AnilistMeta — live', () => {
   it('search returns AniList-prefixed URNs for a known query', async () => {
-    const http = new HttpClient({ timeoutMs: 20_000 });
+    const http = new HttpClient({
+      timeoutMs: 20_000,
+    });
     const meta = new AnilistMeta(http);
     const results = await meta.search('Cowboy Bebop');
     expect(results.length).toBeGreaterThan(0);
@@ -26,7 +28,9 @@ describe('AnilistMeta — live', () => {
   }, 30_000);
 
   it('fetchMediaInfo for AniList ID 1 (Cowboy Bebop) populates all enrichment fields', async () => {
-    const http = new HttpClient({ timeoutMs: 25_000 });
+    const http = new HttpClient({
+      timeoutMs: 25_000,
+    });
     const meta = new AnilistMeta(http);
     const info = await meta.fetchMediaInfo('anilist:1');
 
@@ -59,7 +63,9 @@ describe('AnilistMeta — live', () => {
   }, 40_000);
 
   it('browse(trending) returns at least one anime', async () => {
-    const http = new HttpClient({ timeoutMs: 20_000 });
+    const http = new HttpClient({
+      timeoutMs: 20_000,
+    });
     const meta = new AnilistMeta(http);
     expect(meta.supportsBrowseKind('trending')).toBe(true);
     const items = await meta.browse('trending', {
@@ -71,7 +77,9 @@ describe('AnilistMeta — live', () => {
   }, 30_000);
 
   it('browse(seasonal) requires season+year', async () => {
-    const http = new HttpClient({ timeoutMs: 5_000 });
+    const http = new HttpClient({
+      timeoutMs: 5_000,
+    });
     const meta = new AnilistMeta(http);
     await expect(meta.browse('seasonal', {})).rejects.toThrow(
       /season and year/,
@@ -79,7 +87,9 @@ describe('AnilistMeta — live', () => {
   });
 
   it('rejects non-numeric AniList IDs without making a network call', async () => {
-    const http = new HttpClient({ timeoutMs: 5_000 });
+    const http = new HttpClient({
+      timeoutMs: 5_000,
+    });
     const meta = new AnilistMeta(http);
     await expect(meta.fetchMediaInfo('anilist:not-a-number')).rejects.toThrow(
       /Invalid AniList ID/,

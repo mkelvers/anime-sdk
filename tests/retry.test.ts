@@ -32,7 +32,12 @@ describe('withRetry', () => {
         }
         return 'ok';
       },
-      { initialDelayMs: 1, factor: 1, jitter: 0, maxAttempts: 5 },
+      {
+        initialDelayMs: 1,
+        factor: 1,
+        jitter: 0,
+        maxAttempts: 5,
+      },
     );
     expect(out).toBe('ok');
     expect(calls).toBe(3);
@@ -67,7 +72,12 @@ describe('withRetry', () => {
         secondAt = Date.now();
         return 'ok';
       },
-      { initialDelayMs: 1000, factor: 2, jitter: 0, maxAttempts: 3 },
+      {
+        initialDelayMs: 1000,
+        factor: 2,
+        jitter: 0,
+        maxAttempts: 3,
+      },
     );
     const delay = secondAt - firstAt;
     expect(delay).toBeGreaterThanOrEqual(100);
@@ -78,7 +88,13 @@ describe('withRetry', () => {
     const ac = new AbortController();
     ac.abort();
     await expect(
-      withRetry(async () => 'never', { maxAttempts: 3 }, ac.signal),
+      withRetry(
+        async () => 'never',
+        {
+          maxAttempts: 3,
+        },
+        ac.signal,
+      ),
     ).rejects.toThrow();
   });
 
@@ -90,7 +106,12 @@ describe('withRetry', () => {
           calls += 1;
           throw new HttpRetryableError(503);
         },
-        { initialDelayMs: 1, factor: 1, jitter: 0, maxAttempts: 3 },
+        {
+          initialDelayMs: 1,
+          factor: 1,
+          jitter: 0,
+          maxAttempts: 3,
+        },
       ),
     ).rejects.toBeInstanceOf(HttpRetryableError);
     expect(calls).toBe(3);

@@ -13,7 +13,9 @@ import { AllmangaProvider } from '../../src/providers/AllmangaProvider';
 
 describe('BaseMetadataProvider — live', () => {
   it('strictEpisodeMatching throws on an impossible episode number', async () => {
-    const http = new HttpClient({ timeoutMs: 30_000 });
+    const http = new HttpClient({
+      timeoutMs: 30_000,
+    });
     const meta = new AnilistMeta(http);
     const allmanga = new AllmangaProvider(http);
     // Cowboy Bebop has 26 episodes; request ep 999.
@@ -25,7 +27,9 @@ describe('BaseMetadataProvider — live', () => {
   }, 90_000);
 
   it('computeAbsoluteEpisodeOffset traverses PREQUEL relations', async () => {
-    const http = new HttpClient({ timeoutMs: 30_000 });
+    const http = new HttpClient({
+      timeoutMs: 30_000,
+    });
     const meta = new AnilistMeta(http);
     // Attack on Titan Final Season (AniList id 110277) — its PREQUEL chain
     // climbs back through Season 3 Part 2 → Season 3 → Season 2 → Season 1.
@@ -38,7 +42,9 @@ describe('BaseMetadataProvider — live', () => {
   }, 60_000);
 
   it('supportsBrowseKind reports the implemented buckets', async () => {
-    const http = new HttpClient({ timeoutMs: 5_000 });
+    const http = new HttpClient({
+      timeoutMs: 5_000,
+    });
     const meta = new AnilistMeta(http);
     expect(meta.supportsBrowseKind('trending')).toBe(true);
     expect(meta.supportsBrowseKind('popular')).toBe(true);

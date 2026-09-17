@@ -33,7 +33,9 @@ const DOWNLOAD_DIR = path.resolve(process.cwd(), 'scratch/downloads');
 
 beforeAll(() => {
   if (!fs.existsSync(DOWNLOAD_DIR)) {
-    fs.mkdirSync(DOWNLOAD_DIR, { recursive: true });
+    fs.mkdirSync(DOWNLOAD_DIR, {
+      recursive: true,
+    });
   }
 });
 
@@ -85,7 +87,10 @@ async function resolveAnimeStream(
   }
 
   const stream = await provider.resolveStream(ep1.id, lang);
-  return { stream, episodeTitle: ep1.title };
+  return {
+    stream,
+    episodeTitle: ep1.title,
+  };
 }
 
 // ─── Helper: resolve a manga stream for a manga provider ─────────────────────
@@ -115,7 +120,10 @@ async function resolveMangaStream(
   console.log(`[${provider.id}] Chapter: ${ch1.title} (${ch1.id})`);
 
   const stream = await provider.resolveStream(ch1.id);
-  return { stream, chapterTitle: ch1.title };
+  return {
+    stream,
+    chapterTitle: ch1.title,
+  };
 }
 
 // ─── Helper: verify MP4 file ─────────────────────────────────────────────────
@@ -173,7 +181,9 @@ function assertValidZip(filePath: string): void {
 // ─── Anime Provider Download Tests ──────────────────────────────────────────
 
 describe('Anime Downloads (JJK Episode 1)', () => {
-  const http = new HttpClient({ timeoutMs: 30000 });
+  const http = new HttpClient({
+    timeoutMs: 30000,
+  });
 
   it('allmanga → .mp4', async () => {
     const provider = new AllmangaProvider(http);
@@ -184,7 +194,9 @@ describe('Anime Downloads (JJK Episode 1)', () => {
     }
 
     const outPath = path.join(DOWNLOAD_DIR, 'allmanga_jjk_ep1.mp4');
-    await downloadVideo(stream.streams, outPath, { timeoutMs: 1_200_000 });
+    await downloadVideo(stream.streams, outPath, {
+      timeoutMs: 1_200_000,
+    });
     assertValidMp4(outPath);
   }, 1_200_000);
 
@@ -197,7 +209,9 @@ describe('Anime Downloads (JJK Episode 1)', () => {
     }
 
     const outPath = path.join(DOWNLOAD_DIR, 'gogoanime_jjk_ep1.mp4');
-    await downloadVideo(stream.streams, outPath, { timeoutMs: 1_200_000 });
+    await downloadVideo(stream.streams, outPath, {
+      timeoutMs: 1_200_000,
+    });
     assertValidMp4(outPath);
   }, 1_200_000);
 
@@ -210,7 +224,9 @@ describe('Anime Downloads (JJK Episode 1)', () => {
     }
 
     const outPath = path.join(DOWNLOAD_DIR, 'goyabu_jjk_ep1.mp4');
-    await downloadVideo(stream.streams, outPath, { timeoutMs: 1_200_000 });
+    await downloadVideo(stream.streams, outPath, {
+      timeoutMs: 1_200_000,
+    });
     assertValidMp4(outPath);
   }, 1_200_000);
 
@@ -223,7 +239,9 @@ describe('Anime Downloads (JJK Episode 1)', () => {
     }
 
     const outPath = path.join(DOWNLOAD_DIR, 'anikoto_jjk_ep1.mp4');
-    await downloadVideo(stream.streams, outPath, { timeoutMs: 1_200_000 });
+    await downloadVideo(stream.streams, outPath, {
+      timeoutMs: 1_200_000,
+    });
     assertValidMp4(outPath);
   }, 1_200_000);
 
@@ -236,7 +254,9 @@ describe('Anime Downloads (JJK Episode 1)', () => {
     }
 
     const outPath = path.join(DOWNLOAD_DIR, 'megaplay_jjk_ep1.mp4');
-    await downloadVideo(stream.streams, outPath, { timeoutMs: 1_200_000 });
+    await downloadVideo(stream.streams, outPath, {
+      timeoutMs: 1_200_000,
+    });
     assertValidMp4(outPath);
   }, 1_200_000);
 
@@ -253,7 +273,9 @@ describe('Anime Downloads (JJK Episode 1)', () => {
     }
 
     const outPath = path.join(DOWNLOAD_DIR, 'animeparadise_jjk_ep1.mp4');
-    await downloadVideo(stream.streams, outPath, { timeoutMs: 1_200_000 });
+    await downloadVideo(stream.streams, outPath, {
+      timeoutMs: 1_200_000,
+    });
     assertValidMp4(outPath);
   }, 1_200_000);
 });
@@ -261,7 +283,9 @@ describe('Anime Downloads (JJK Episode 1)', () => {
 // ─── Manga Provider Download Tests ──────────────────────────────────────────
 
 describe('Manga Downloads (JJK Chapter)', () => {
-  const http = new HttpClient({ timeoutMs: 30000 });
+  const http = new HttpClient({
+    timeoutMs: 30000,
+  });
 
   it('mangadex → page image + chapter .zip', async () => {
     const provider = new MangadexProvider(http);
