@@ -1,4 +1,5 @@
 import { BaseProvider, CallOptions } from './BaseProvider';
+import { z } from 'zod';
 import { HttpClient } from '../transport/http';
 import {
   IMediaSearchResult,
@@ -8,9 +9,55 @@ import {
   IUnitTracks,
 } from '../types/index';
 import { normalizeSubtitleEntries } from '../utils/subtitles';
+import { parseJson } from '../utils/validation';
 
 const API_BASE = 'https://api.animeparadise.moe';
 const STREAM_BASE = 'https://stream.animeparadise.moe';
+
+const animeParadiseSearchResponseSchema = z.object({
+  data: z.array(
+    z.object({
+      _id: z.string(),
+      title: z.string(),
+      alternativeTitle: z
+        .object({
+          english: z.string().nullish(),
+        })
+        .nullish(),
+      posterImage: z
+        .object({
+          medium: z.string().nullish(),
+          large: z.string().nullish(),
+        })
+        .nullish(),
+      year: z.number().nullish(),
+      released: z.string().nullish(),
+    }),
+  ),
+});
+
+const animeParadiseEpisodesResponseSchema = z.object({
+  data: z.array(
+    z.object({
+      uid: z.string(),
+      title: z.string().nullish(),
+      number: z.coerce.number(),
+    }),
+  ),
+});
+
+const animeParadiseEpisodeResponseSchema = z.object({
+  data: z
+    .object({
+      episode: z
+        .object({
+          streamLink: z.string().nullish(),
+          subData: z.unknown().optional(),
+        })
+        .nullish(),
+    })
+    .nullish(),
+});
 
 export class AnimeParadiseProvider extends BaseProvider {
   public readonly id = 'animeparadise';
@@ -30,12 +77,13 @@ export class AnimeParadiseProvider extends BaseProvider {
         signal: options.signal,
       },
     );
-    const json = (await res.json()) as any;
-    const items: any[] = json?.data ?? [];
+    const json = await parseJson(res, animeParadiseSearchResponseSchema);
+    const items = json.data;
     return items.map((item) => ({
       id: item._id,
       title: item.alternativeTitle?.english ?? item.title,
-      thumbnailUrl: item.posterImage?.medium ?? item.posterImage?.large,
+      thumbnailUrl:
+        item.posterImage?.medium ?? item.posterImage?.large ?? undefined,
       catalogType: 'ANIME' as const,
       providerId: this.id,
       year:
@@ -54,13 +102,13 @@ export class AnimeParadiseProvider extends BaseProvider {
     const res = await this.http.get(`${API_BASE}/anime/${mediaId}/episode`, {
       signal: options.signal,
     });
-    const json = (await res.json()) as any;
-    const episodes: any[] = json?.data ?? [];
+    const json = await parseJson(res, animeParadiseEpisodesResponseSchema);
+    const episodes = json.data;
     return episodes.map((ep) => ({
       // encode uid and animeId so resolveStream can call /ep/{uid}?origin={animeId}
       id: `${ep.uid}:${mediaId}`,
       title: ep.title ?? `Episode ${ep.number}`,
-      number: parseFloat(ep.number),
+      number: ep.number,
       availableLanguages: ['sub'] as const,
     }));
   }
@@ -80,8 +128,8 @@ export class AnimeParadiseProvider extends BaseProvider {
     const res = await this.http.get(`${API_BASE}/ep/${uid}?origin=${animeId}`, {
       signal: options.signal,
     });
-    const json = (await res.json()) as any;
-    const episode = json?.data?.episode;
+    const json = await parseJson(res, animeParadiseEpisodeResponseSchema);
+    const episode = json.data?.episode;
     if (!episode?.streamLink) {
       throw new Error('AnimeParadise: no streamLink in response');
     }
@@ -125,13 +173,7 @@ export class AnimeParadiseProvider extends BaseProvider {
     const res = await this.http.get(`${API_BASE}/ep/${uid}?origin=${animeId}`, {
       signal: options.signal,
     });
-    const json = (await res.json()) as {
-      data?: {
-        episode?: {
-          subData?: unknown;
-        };
-      };
-    };
+    const json = await parseJson(res, animeParadiseEpisodeResponseSchema);
     const subtitles = normalizeSubtitleEntries(json?.data?.episode?.subData);
     // AnimeParadise serves a single auto-ladder HLS manifest per episode — we
     // don't know the rendition list without fetching the master, so 'auto' is

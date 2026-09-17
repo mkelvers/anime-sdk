@@ -1,4 +1,5 @@
 import { BaseProvider, CallOptions } from './BaseProvider';
+import { z } from 'zod';
 import { HttpClient } from '../transport/http';
 import { DomRegistry } from '../transport/dom';
 import { aesDecrypt } from '../utils/crypto';
@@ -12,6 +13,7 @@ import {
   IVideoPayload,
   ISubtitleTrack,
 } from '../types/index';
+import { parseJson } from '../utils/validation';
 
 export interface MegaPlayOptions {
   baseUrl?: string;
@@ -28,6 +30,55 @@ interface MegaPlaySource {
   tracks: MegaPlaySourceTrack[];
 }
 
+const megaPlayTrackSchema = z.object({
+  file: z.string(),
+  label: z.string(),
+  kind: z.string(),
+});
+
+const megaPlayPayloadSchema = z.object({
+  sources: z
+    .object({
+      file: z.string().optional(),
+    })
+    .optional(),
+  enc: z.string().optional(),
+  tracks: z.array(megaPlayTrackSchema).optional(),
+});
+
+const megaPlayDecryptedSourceSchema = z.object({
+  file: z.string(),
+});
+
+const anilistSearchResponseSchema = z.object({
+  data: z
+    .object({
+      Page: z
+        .object({
+          media: z.array(
+            z.object({
+              id: z.number(),
+              title: z.object({
+                romaji: z.string().nullish(),
+                english: z.string().nullish(),
+              }),
+              coverImage: z.object({
+                large: z.string().nullish(),
+              }),
+              episodes: z.number().nullish(),
+            }),
+          ),
+        })
+        .optional(),
+      Media: z
+        .object({
+          episodes: z.number().nullish(),
+        })
+        .optional(),
+    })
+    .optional(),
+});
+
 const megaPlayEncryptionKey = 'i?LMTAx0Q6,:}50U' + '\0'.repeat(16);
 const megaPlayEncryptionIv = "W0;27ToaUpl_P%'c";
 
@@ -41,31 +92,36 @@ export function extractMegaPlayFileId(embedPage: string): string | null {
 
 /** Parse both the legacy clear source and current encrypted MegaPlay payloads. */
 export async function parseMegaPlaySource(
-  payload: any,
+  payload: unknown,
 ): Promise<MegaPlaySource | null> {
-  let file = payload?.sources?.file;
+  const parsed = megaPlayPayloadSchema.safeParse(payload);
+  if (!parsed.success) {
+    return null;
+  }
 
-  if (!file && typeof payload?.enc === 'string') {
+  let file = parsed.data.sources?.file;
+
+  if (!file && parsed.data.enc) {
     try {
-      const base64 = payload.enc.replace(/-/g, '+').replace(/_/g, '/');
+      const base64 = parsed.data.enc.replace(/-/g, '+').replace(/_/g, '/');
       const decrypted = await aesDecrypt(
         base64 + '='.repeat((4 - (base64.length % 4)) % 4),
         megaPlayEncryptionKey,
         megaPlayEncryptionIv,
       );
-      file = JSON.parse(decrypted).file;
+      file = megaPlayDecryptedSourceSchema.parse(JSON.parse(decrypted)).file;
     } catch {
       return null;
     }
   }
 
-  if (typeof file !== 'string' || file.length === 0) {
+  if (!file) {
     return null;
   }
 
   return {
     file,
-    tracks: Array.isArray(payload?.tracks) ? payload.tracks : [],
+    tracks: parsed.data.tracks ?? [],
   };
 }
 
@@ -130,15 +186,15 @@ export class MegaPlayProvider extends BaseProvider {
       { signal: options.signal },
     );
 
-    const json = (await response.json()) as any;
-    if (!json.data || !json.data.Page || !json.data.Page.media) {
+    const json = await parseJson(response, anilistSearchResponseSchema);
+    if (!json.data?.Page) {
       return [];
     }
 
-    return json.data.Page.media.map((media: any): IMediaSearchResult => ({
+    return json.data.Page.media.map((media): IMediaSearchResult => ({
       id: String(media.id),
-      title: media.title.english || media.title.romaji,
-      thumbnailUrl: media.coverImage.large,
+      title: media.title.english ?? media.title.romaji ?? String(media.id),
+      thumbnailUrl: media.coverImage.large ?? undefined,
       catalogType: 'ANIME',
       providerId: this.id,
     }));
@@ -166,8 +222,8 @@ export class MegaPlayProvider extends BaseProvider {
       { signal: options.signal },
     );
 
-    const json = (await response.json()) as any;
-    const episodesCount = json.data?.Media?.episodes || 1; // Default to 1 if unknown
+    const json = await parseJson(response, anilistSearchResponseSchema);
+    const episodesCount = json.data?.Media?.episodes ?? 1;
 
     const units: IContentUnit[] = [];
     for (let i = 1; i <= episodesCount; i++) {
@@ -242,8 +298,8 @@ export class MegaPlayProvider extends BaseProvider {
     ];
 
     const subtitles: ISubtitleTrack[] = source.tracks
-      .filter((t: any) => t.kind === 'captions')
-      .map((t: any) => ({
+      .filter((t) => t.kind === 'captions')
+      .map((t) => ({
         url: t.file,
         label: t.label,
         language: t.label.toLowerCase(),

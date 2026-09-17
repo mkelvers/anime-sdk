@@ -1,4 +1,5 @@
 import { BaseProvider, CallOptions } from './BaseProvider';
+import { z } from 'zod';
 import { HttpClient } from '../transport/http';
 import { DomRegistry } from '../transport/dom';
 import { extractMegaPlayFileId, parseMegaPlaySource } from './MegaPlayProvider';
@@ -11,6 +12,26 @@ import {
   IVideoPayload,
   ISubtitleTrack,
 } from '../types/index';
+import { parseJson } from '../utils/validation';
+
+const anikotoEpisodeSchema = z.object({
+  episode_embed_id: z.string(),
+  title: z.string().nullish(),
+  number: z.coerce.number(),
+  embed_url: z.object({
+    sub: z.string().nullish(),
+    dub: z.string().nullish(),
+  }),
+});
+
+const anikotoEpisodesResponseSchema = z.object({
+  ok: z.boolean(),
+  data: z
+    .object({
+      episodes: z.array(anikotoEpisodeSchema),
+    })
+    .nullish(),
+});
 
 export class AnikotoProvider extends BaseProvider {
   public override readonly id = 'anikoto';
@@ -68,15 +89,13 @@ export class AnikotoProvider extends BaseProvider {
     const response = await this.http.get(`${this.apiUrl}/series/${mediaId}`, {
       signal: options.signal,
     });
-    const json = (await response.json()) as any;
+    const json = await parseJson(response, anikotoEpisodesResponseSchema);
 
     if (!json.ok || !json.data || !json.data.episodes) {
       return [];
     }
 
-    const episodes = json.data.episodes;
-
-    return episodes.map((ep: any) => {
+    return json.data.episodes.map((ep) => {
       const languages: ContentLanguage[] = [];
       if (ep.embed_url.sub) {
         languages.push('sub');
@@ -146,8 +165,8 @@ export class AnikotoProvider extends BaseProvider {
     ];
 
     const subtitles: ISubtitleTrack[] = source.tracks
-      .filter((t: any) => t.kind === 'captions')
-      .map((t: any) => ({
+      .filter((t) => t.kind === 'captions')
+      .map((t) => ({
         url: t.file,
         label: t.label,
         language: t.label.toLowerCase(),

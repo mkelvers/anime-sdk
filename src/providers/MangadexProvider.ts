@@ -1,4 +1,5 @@
 import { HttpClient } from '../transport/http';
+import { z } from 'zod';
 import {
   IMediaSearchResult,
   IContentUnit,
@@ -7,6 +8,51 @@ import {
   ContentLanguage,
 } from '../types/index';
 import { BaseProvider, CallOptions } from './BaseProvider';
+import { parseJson } from '../utils/validation';
+
+const mangaDexMangaSchema = z.object({
+  id: z.string(),
+  attributes: z.object({
+    title: z.record(z.string(), z.string()),
+    year: z.number().nullish(),
+  }),
+  relationships: z.array(
+    z.object({
+      type: z.string(),
+      attributes: z
+        .object({
+          fileName: z.string(),
+        })
+        .optional(),
+    }),
+  ),
+});
+
+const mangaDexSearchResponseSchema = z.object({
+  data: z.array(mangaDexMangaSchema),
+});
+
+const mangaDexFeedResponseSchema = z.object({
+  total: z.number(),
+  data: z.array(
+    z.object({
+      id: z.string(),
+      attributes: z.object({
+        chapter: z.string(),
+        title: z.string().nullish(),
+        translatedLanguage: z.string(),
+      }),
+    }),
+  ),
+});
+
+const mangaDexAtHomeResponseSchema = z.object({
+  baseUrl: z.string(),
+  chapter: z.object({
+    hash: z.string(),
+    data: z.array(z.string()),
+  }),
+});
 
 export class MangadexProvider extends BaseProvider {
   readonly id = 'mangadex';
@@ -32,22 +78,18 @@ export class MangadexProvider extends BaseProvider {
     )}&includes[]=cover_art&limit=24&contentRating[]=safe&contentRating[]=suggestive&hasAvailableChapters=true`;
 
     const res = await this.http.get(url, { signal: options.signal });
-    const data = (await res.json()) as any;
+    const data = await parseJson(res, mangaDexSearchResponseSchema);
 
     const results: IMediaSearchResult[] = [];
 
     for (const manga of data.data) {
       const title =
         manga.attributes.title.en || Object.values(manga.attributes.title)[0];
-      const coverRel = manga.relationships.find(
-        (r: any) => r.type === 'cover_art',
-      );
+      const coverRel = manga.relationships.find((r) => r.type === 'cover_art');
       const coverFileName = coverRel?.attributes?.fileName;
       const thumbnailUrl = coverFileName
         ? `${this.coverUrlBase}/${manga.id}/${coverFileName}.256.jpg`
         : undefined;
-      const yearRaw = manga.attributes.year as number | null | undefined;
-
       results.push({
         id: manga.id,
         title,
@@ -55,7 +97,7 @@ export class MangadexProvider extends BaseProvider {
         catalogType: 'MANGA',
         providerId: this.id,
         availableLanguages: ['sub'],
-        year: typeof yearRaw === 'number' ? yearRaw : undefined,
+        year: manga.attributes.year ?? undefined,
       });
     }
 
@@ -75,7 +117,7 @@ export class MangadexProvider extends BaseProvider {
       const url = `${this.apiUrl}/manga/${mediaId}/feed?limit=${limit}&offset=${offset}&order[chapter]=asc&contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica&contentRating[]=pornographic&includeExternalUrl=0`;
 
       const res = await this.http.get(url, { signal: options.signal });
-      const data = (await res.json()) as any;
+      const data = await parseJson(res, mangaDexFeedResponseSchema);
 
       total = data.total;
 
@@ -89,7 +131,7 @@ export class MangadexProvider extends BaseProvider {
             ? `Ch. ${chapter.attributes.chapter} - ${chapter.attributes.title}`
             : `Chapter ${chapter.attributes.chapter}`,
           number: isNaN(num) ? 0 : num,
-          availableLanguages: [lang === 'en' ? 'sub' : lang], // Map 'en' to 'sub', others as-is or default
+          availableLanguages: [lang === 'en' ? 'sub' : 'raw'],
         });
       }
 
@@ -106,7 +148,7 @@ export class MangadexProvider extends BaseProvider {
   ): Promise<ResolvedMediaStream> {
     const url = `${this.apiUrl}/at-home/server/${unitId}`;
     const res = await this.http.get(url, { signal: options.signal });
-    const data = (await res.json()) as any;
+    const data = await parseJson(res, mangaDexAtHomeResponseSchema);
 
     const baseUrl = data.baseUrl;
     const hash = data.chapter.hash;

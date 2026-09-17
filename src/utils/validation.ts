@@ -39,6 +39,14 @@ export const mediaSeasonSchema = z.enum(['WINTER', 'SPRING', 'SUMMER', 'FALL']);
 
 export const proxyHeadersSchema = z.record(z.string(), z.string());
 
+/** Parse an HTTP JSON response and return the schema-inferred output type. */
+export async function parseJson<T extends z.ZodType>(
+  response: Response,
+  schema: T,
+): Promise<z.output<T>> {
+  return schema.parse(await response.json());
+}
+
 export interface ParsedQueryValue<T> {
   value: T | undefined;
   error?: string;
