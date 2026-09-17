@@ -1,5 +1,5 @@
 const getCryptoSubtle = (): SubtleCrypto => {
-  if (typeof globalThis.crypto !== 'undefined' && globalThis.crypto.subtle) {
+  if (globalThis.crypto?.subtle) {
     return globalThis.crypto.subtle;
   }
   throw new Error(
