@@ -18,6 +18,15 @@ import {
 import { proxifySubtitleUrl } from '../utils/subtitles';
 import { strictUnwrapUrn } from '../utils/urn';
 import {
+  browseKindSchema,
+  contentLanguageSchema,
+  mediaCatalogTypeSchema,
+  mediaFormatSchema,
+  mediaSeasonSchema,
+  parseOptionalQueryValue,
+  proxyHeadersSchema,
+} from '../utils/validation';
+import {
   downloadVideo,
   downloadMangaPage,
   downloadMangaChapter,
@@ -452,10 +461,12 @@ export function startServer(options: ServerOptions): http.Server {
         };
         if (hParam) {
           try {
-            Object.assign(
-              upstreamHeaders,
+            const parsed = proxyHeadersSchema.safeParse(
               JSON.parse(Buffer.from(hParam, 'base64').toString('utf8')),
             );
+            if (parsed.success) {
+              Object.assign(upstreamHeaders, parsed.data);
+            }
           } catch {
             /* ignore malformed headers param */
           }
@@ -602,7 +613,15 @@ export function startServer(options: ServerOptions): http.Server {
       if (url.pathname === '/stream') {
         const unitId = q.get('unitId');
         const provider = findProvider(q.get('provider'));
-        const language = q.get('language') as ContentLanguage | null;
+        const languageResult = parseOptionalQueryValue(
+          'language',
+          q.get('language'),
+          contentLanguageSchema,
+        );
+        if (languageResult.error) {
+          return err(res, 400, languageResult.error);
+        }
+        const language = languageResult.value;
         if (!unitId) {
           return err(res, 400, 'Missing param: unitId');
         }
@@ -621,7 +640,15 @@ export function startServer(options: ServerOptions): http.Server {
       if (url.pathname === '/tracks') {
         const unitId = q.get('unitId');
         const provider = findProvider(q.get('provider'));
-        const language = q.get('language') as ContentLanguage | null;
+        const languageResult = parseOptionalQueryValue(
+          'language',
+          q.get('language'),
+          contentLanguageSchema,
+        );
+        if (languageResult.error) {
+          return err(res, 400, languageResult.error);
+        }
+        const language = languageResult.value;
         if (!unitId) {
           return err(res, 400, 'Missing param: unitId');
         }
@@ -651,7 +678,15 @@ export function startServer(options: ServerOptions): http.Server {
       if (url.pathname === '/download/video/progress') {
         const unitId = q.get('unitId');
         const provider = findProvider(q.get('provider'));
-        const language = q.get('language') as ContentLanguage | null;
+        const languageResult = parseOptionalQueryValue(
+          'language',
+          q.get('language'),
+          contentLanguageSchema,
+        );
+        if (languageResult.error) {
+          return err(res, 400, languageResult.error);
+        }
+        const language = languageResult.value;
         if (!unitId) {
           return err(res, 400, 'Missing param: unitId');
         }
@@ -1032,7 +1067,15 @@ export function startServer(options: ServerOptions): http.Server {
         if (url.pathname === '/meta/stream') {
           const id = q.get('id');
           const episode = q.get('episode');
-          const language = q.get('language') as ContentLanguage | null;
+          const languageResult = parseOptionalQueryValue(
+            'language',
+            q.get('language'),
+            contentLanguageSchema,
+          );
+          if (languageResult.error) {
+            return err(res, 400, languageResult.error);
+          }
+          const language = languageResult.value;
           if (!id) {
             return err(res, 400, 'Missing param: id');
           }
@@ -1059,7 +1102,15 @@ export function startServer(options: ServerOptions): http.Server {
         if (url.pathname === '/meta/tracks') {
           const id = q.get('id');
           const episode = q.get('episode');
-          const language = q.get('language') as ContentLanguage | null;
+          const languageResult = parseOptionalQueryValue(
+            'language',
+            q.get('language'),
+            contentLanguageSchema,
+          );
+          if (languageResult.error) {
+            return err(res, 400, languageResult.error);
+          }
+          const language = languageResult.value;
           if (!id) {
             return err(res, 400, 'Missing param: id');
           }
@@ -1087,19 +1138,44 @@ export function startServer(options: ServerOptions): http.Server {
         }
 
         if (url.pathname === '/meta/browse') {
-          const kind = q.get('kind') as BrowseKind | null;
-          if (!kind || !['trending', 'popular', 'seasonal', 'top'].includes(kind)) {
-            return err(res, 400, 'Param `kind` must be one of: trending, popular, seasonal, top');
+          const kindResult = parseOptionalQueryValue('kind', q.get('kind'), browseKindSchema);
+          if (kindResult.error || !kindResult.value) {
+            return err(res, 400, kindResult.error ?? 'Missing param: kind');
           }
+          const kind = kindResult.value;
           if (!meta.supportsBrowseKind(kind)) {
             return err(res, 501, `Provider "${meta.id}" does not support browse('${kind}')`);
           }
-          const catalogType = (q.get('catalogType') as MediaCatalogType | null) ?? 'ANIME';
+          const catalogTypeResult = parseOptionalQueryValue(
+            'catalogType',
+            q.get('catalogType'),
+            mediaCatalogTypeSchema,
+          );
+          if (catalogTypeResult.error) {
+            return err(res, 400, catalogTypeResult.error);
+          }
+          const catalogType = catalogTypeResult.value ?? 'ANIME';
           const page = q.get('page') ? Math.max(1, parseInt(q.get('page')!, 10) || 1) : 1;
           const perPage = q.get('perPage') ? parseInt(q.get('perPage')!, 10) : undefined;
-          const season = q.get('season') as MediaSeason | null;
+          const seasonResult = parseOptionalQueryValue(
+            'season',
+            q.get('season'),
+            mediaSeasonSchema,
+          );
+          if (seasonResult.error) {
+            return err(res, 400, seasonResult.error);
+          }
+          const season = seasonResult.value;
           const year = q.get('year') ? parseInt(q.get('year')!, 10) : undefined;
-          const format = q.get('format') as MediaFormat | null;
+          const formatResult = parseOptionalQueryValue(
+            'format',
+            q.get('format'),
+            mediaFormatSchema,
+          );
+          if (formatResult.error) {
+            return err(res, 400, formatResult.error);
+          }
+          const format = formatResult.value;
           const cacheKey = `meta:browse:${meta.id}:${kind}:${catalogType}:${page}:${perPage ?? ''}:${season ?? ''}:${year ?? ''}:${format ?? ''}`;
           const items = await cached(cacheKey, () =>
             meta.browse(kind, {
