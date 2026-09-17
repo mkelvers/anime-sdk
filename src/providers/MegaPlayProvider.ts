@@ -1,6 +1,7 @@
 import { BaseProvider, CallOptions } from './BaseProvider.js';
 import { HttpClient } from '../transport/http.js';
 import { DomRegistry } from '../transport/dom.js';
+import { aesDecrypt } from '../utils/crypto.js';
 import {
   IMediaSearchResult,
   IContentUnit,
@@ -14,6 +15,54 @@ import {
 
 export interface MegaPlayOptions {
   baseUrl?: string;
+}
+
+interface MegaPlaySourceTrack {
+  file: string;
+  label: string;
+  kind: string;
+}
+
+interface MegaPlaySource {
+  file: string;
+  tracks: MegaPlaySourceTrack[];
+}
+
+const megaPlayEncryptionKey = 'i?LMTAx0Q6,:}50U' + '\0'.repeat(16);
+const megaPlayEncryptionIv = "W0;27ToaUpl_P%'c";
+
+export function extractMegaPlayFileId(embedPage: string): string | null {
+  return (
+    embedPage.match(/\bdata-id=["'](\d+)["']/i)?.[1] ??
+    embedPage.match(/File\s+(\d+)\s+-/i)?.[1] ??
+    null
+  );
+}
+
+/** Parse both the legacy clear source and current encrypted MegaPlay payloads. */
+export async function parseMegaPlaySource(payload: any): Promise<MegaPlaySource | null> {
+  let file = payload?.sources?.file;
+
+  if (!file && typeof payload?.enc === 'string') {
+    try {
+      const base64 = payload.enc.replace(/-/g, '+').replace(/_/g, '/');
+      const decrypted = await aesDecrypt(
+        base64 + '='.repeat((4 - (base64.length % 4)) % 4),
+        megaPlayEncryptionKey,
+        megaPlayEncryptionIv,
+      );
+      file = JSON.parse(decrypted).file;
+    } catch {
+      return null;
+    }
+  }
+
+  if (typeof file !== 'string' || file.length === 0) return null;
+
+  return {
+    file,
+    tracks: Array.isArray(payload?.tracks) ? payload.tracks : [],
+  };
 }
 
 export class MegaPlayProvider extends BaseProvider {
@@ -154,11 +203,10 @@ export class MegaPlayProvider extends BaseProvider {
     }
 
     // The file ID is in the title: <title>File 174608 - MegaPlay</title>
-    const fileIdMatch = embedPage.match(/File\s+(\d+)\s+-/);
-    if (!fileIdMatch) {
+    const fileId = extractMegaPlayFileId(embedPage);
+    if (!fileId) {
       throw new Error('Could not find file ID on megaplay embed page');
     }
-    const fileId = fileIdMatch[1];
 
     // Step 2: Fetch the sources using the file ID
     const sourcesResponse = await this.http.get(`${this.baseUrl}/stream/getSources?id=${fileId}`, {
@@ -169,15 +217,15 @@ export class MegaPlayProvider extends BaseProvider {
       },
     });
 
-    const sourcesJson = (await sourcesResponse.json()) as any;
-    if (!sourcesJson.sources || !sourcesJson.sources.file) {
+    const source = await parseMegaPlaySource(await sourcesResponse.json());
+    if (!source) {
       throw new Error('No video sources found in megaplay response');
     }
 
     const streams: IVideoPayload[] = [
       {
-        sourceUrl: sourcesJson.sources.file,
-        isHLS: sourcesJson.sources.file.includes('.m3u8'),
+        sourceUrl: source.file,
+        isHLS: source.file.includes('.m3u8'),
         quality: 'auto',
         language,
         headers: {
@@ -186,7 +234,7 @@ export class MegaPlayProvider extends BaseProvider {
       },
     ];
 
-    const subtitles: ISubtitleTrack[] = (sourcesJson.tracks || [])
+    const subtitles: ISubtitleTrack[] = source.tracks
       .filter((t: any) => t.kind === 'captions')
       .map((t: any) => ({
         url: t.file,

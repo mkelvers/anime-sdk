@@ -1,6 +1,7 @@
 import { BaseProvider, CallOptions } from './BaseProvider.js';
 import { HttpClient } from '../transport/http.js';
 import { DomRegistry } from '../transport/dom.js';
+import { extractMegaPlayFileId, parseMegaPlaySource } from './MegaPlayProvider.js';
 import {
   IMediaSearchResult,
   IContentUnit,
@@ -105,11 +106,10 @@ export class AnikotoProvider extends BaseProvider {
     const embedPage = await embedResponse.text();
 
     // The file ID is usually in the title: <title>File 174608 - MegaPlay</title>
-    const fileIdMatch = embedPage.match(/File\s+(\d+)\s+-/);
-    if (!fileIdMatch) {
+    const fileId = extractMegaPlayFileId(embedPage);
+    if (!fileId) {
       throw new Error('Could not find file ID on megaplay embed page');
     }
-    const fileId = fileIdMatch[1];
 
     // Step 2: Fetch the sources using the file ID
     const sourcesResponse = await this.http.get(
@@ -123,15 +123,15 @@ export class AnikotoProvider extends BaseProvider {
       },
     );
 
-    const sourcesJson = (await sourcesResponse.json()) as any;
-    if (!sourcesJson.sources || !sourcesJson.sources.file) {
+    const source = await parseMegaPlaySource(await sourcesResponse.json());
+    if (!source) {
       throw new Error('No video sources found in megaplay response');
     }
 
     const streams: IVideoPayload[] = [
       {
-        sourceUrl: sourcesJson.sources.file,
-        isHLS: sourcesJson.sources.file.includes('.m3u8'),
+        sourceUrl: source.file,
+        isHLS: source.file.includes('.m3u8'),
         quality: 'auto',
         language,
         headers: {
@@ -140,7 +140,7 @@ export class AnikotoProvider extends BaseProvider {
       },
     ];
 
-    const subtitles: ISubtitleTrack[] = (sourcesJson.tracks || [])
+    const subtitles: ISubtitleTrack[] = source.tracks
       .filter((t: any) => t.kind === 'captions')
       .map((t: any) => ({
         url: t.file,
