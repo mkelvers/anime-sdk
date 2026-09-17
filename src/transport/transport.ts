@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { versions as nodeVersions } from 'node:process';
 
 /**
  * Pluggable transport interface for `HttpClient`.
@@ -71,7 +72,7 @@ export class CurlFallbackTransport implements HttpTransport {
         throw err;
       }
       // Only attempt curl in Node.
-      if (!globalThis.process?.versions?.node) {
+      if (!nodeVersions.node) {
         throw err;
       }
       try {

@@ -1,11 +1,6 @@
-const getCryptoSubtle = (): SubtleCrypto => {
-  if (globalThis.crypto?.subtle) {
-    return globalThis.crypto.subtle;
-  }
-  throw new Error(
-    'Web Crypto API (subtle) is not available in this environment.',
-  );
-};
+import { webcrypto } from 'node:crypto';
+
+const getCryptoSubtle = () => webcrypto.subtle;
 
 export async function aesDecrypt(
   ciphertextBase64: string,
