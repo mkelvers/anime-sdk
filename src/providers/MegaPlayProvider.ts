@@ -14,6 +14,11 @@ import {
   ISubtitleTrack,
 } from '../types/index';
 import { parseJson } from '../utils/validation';
+import {
+  AniListMediaEpisodesDocument,
+  AniListSearchDocument,
+} from '../graphql/anilist/generated/graphql';
+import { postGraphQL } from '../graphql/request';
 
 export interface MegaPlayOptions {
   baseUrl?: string;
@@ -48,35 +53,6 @@ const megaPlayPayloadSchema = z.object({
 
 const megaPlayDecryptedSourceSchema = z.object({
   file: z.string(),
-});
-
-const anilistSearchResponseSchema = z.object({
-  data: z
-    .object({
-      Page: z
-        .object({
-          media: z.array(
-            z.object({
-              id: z.number(),
-              title: z.object({
-                romaji: z.string().nullish(),
-                english: z.string().nullish(),
-              }),
-              coverImage: z.object({
-                large: z.string().nullish(),
-              }),
-              episodes: z.number().nullish(),
-            }),
-          ),
-        })
-        .optional(),
-      Media: z
-        .object({
-          episodes: z.number().nullish(),
-        })
-        .optional(),
-    })
-    .optional(),
 });
 
 const megaPlayEncryptionKey = 'i?LMTAx0Q6,:}50U' + '\0'.repeat(16);
@@ -159,49 +135,33 @@ export class MegaPlayProvider extends BaseProvider {
     query: string,
     options: CallOptions = {},
   ): Promise<IMediaSearchResult[]> {
-    const graphqlQuery = `
-      query ($search: String) {
-        Page (page: 1, perPage: 15) {
-          media (search: $search, type: ANIME) {
-            id
-            title {
-              romaji
-              english
-            }
-            coverImage {
-              large
-            }
-            episodes
-          }
-        }
-      }
-    `;
-
-    const response = await this.http.post(
+    const { response, body } = await postGraphQL(
+      this.http,
       this.anilistApi,
+      AniListSearchDocument,
       {
-        query: graphqlQuery,
-        variables: {
-          search: query,
-        },
+        search: query,
+        perPage: 15,
+        type: 'ANIME',
       },
       {
         signal: options.signal,
       },
     );
 
-    const json = await parseJson(response, anilistSearchResponseSchema);
-    if (!json.data?.Page) {
+    if (response.status !== 200 || !body.data?.Page) {
       return [];
     }
 
-    return json.data.Page.media.map((media): IMediaSearchResult => ({
-      id: String(media.id),
-      title: media.title.english ?? media.title.romaji ?? String(media.id),
-      thumbnailUrl: media.coverImage.large ?? undefined,
-      catalogType: 'ANIME',
-      providerId: this.id,
-    }));
+    return (body.data.Page.media ?? [])
+      .filter((media) => media !== null)
+      .map((media): IMediaSearchResult => ({
+        id: String(media.id),
+        title: media.title?.english ?? media.title?.romaji ?? String(media.id),
+        thumbnailUrl: media.coverImage?.large ?? undefined,
+        catalogType: 'ANIME',
+        providerId: this.id,
+      }));
   }
 
   protected override async fetchContentUnitsRaw(
@@ -209,29 +169,17 @@ export class MegaPlayProvider extends BaseProvider {
     options: CallOptions = {},
   ): Promise<IContentUnit[]> {
     // Fetch episode count from AniList if not provided
-    const graphqlQuery = `
-      query ($id: Int) {
-        Media (id: $id) {
-          episodes
-        }
-      }
-    `;
-
-    const response = await this.http.post(
+    const { body } = await postGraphQL(
+      this.http,
       this.anilistApi,
-      {
-        query: graphqlQuery,
-        variables: {
-          id: parseInt(mediaId),
-        },
-      },
+      AniListMediaEpisodesDocument,
+      { id: parseInt(mediaId) },
       {
         signal: options.signal,
       },
     );
 
-    const json = await parseJson(response, anilistSearchResponseSchema);
-    const episodesCount = json.data?.Media?.episodes ?? 1;
+    const episodesCount = body.data?.Media?.episodes ?? 1;
 
     const units: IContentUnit[] = [];
     for (let i = 1; i <= episodesCount; i++) {
