@@ -71,13 +71,13 @@ export class AnimeParadiseProvider extends BaseProvider {
     query: string,
     options: CallOptions = {},
   ): Promise<IMediaSearchResult[]> {
-    const res = await this.http.get(
+    const response = await this.http.get(
       `${API_BASE}/search?q=${encodeURIComponent(query)}&limit=20`,
       {
         signal: options.signal,
       },
     );
-    const json = await parseJson(res, animeParadiseSearchResponseSchema);
+    const json = await parseJson(response, animeParadiseSearchResponseSchema);
     const items = json.data;
     return items.map((item) => ({
       id: item._id,
@@ -87,11 +87,8 @@ export class AnimeParadiseProvider extends BaseProvider {
       catalogType: 'ANIME' as const,
       providerId: this.id,
       year:
-        typeof item.year === 'number'
-          ? item.year
-          : item.released
-            ? new Date(item.released).getUTCFullYear()
-            : undefined,
+        item.year ??
+        (item.released ? new Date(item.released).getUTCFullYear() : undefined),
     }));
   }
 
@@ -99,10 +96,13 @@ export class AnimeParadiseProvider extends BaseProvider {
     mediaId: string,
     options: CallOptions = {},
   ): Promise<IContentUnit[]> {
-    const res = await this.http.get(`${API_BASE}/anime/${mediaId}/episode`, {
-      signal: options.signal,
-    });
-    const json = await parseJson(res, animeParadiseEpisodesResponseSchema);
+    const response = await this.http.get(
+      `${API_BASE}/anime/${mediaId}/episode`,
+      {
+        signal: options.signal,
+      },
+    );
+    const json = await parseJson(response, animeParadiseEpisodesResponseSchema);
     const episodes = json.data;
     return episodes.map((ep) => ({
       // encode uid and animeId so resolveStream can call /ep/{uid}?origin={animeId}
@@ -125,10 +125,13 @@ export class AnimeParadiseProvider extends BaseProvider {
     const uid = unitId.slice(0, sep);
     const animeId = unitId.slice(sep + 1);
 
-    const res = await this.http.get(`${API_BASE}/ep/${uid}?origin=${animeId}`, {
-      signal: options.signal,
-    });
-    const json = await parseJson(res, animeParadiseEpisodeResponseSchema);
+    const response = await this.http.get(
+      `${API_BASE}/ep/${uid}?origin=${animeId}`,
+      {
+        signal: options.signal,
+      },
+    );
+    const json = await parseJson(response, animeParadiseEpisodeResponseSchema);
     const episode = json.data?.episode;
     if (!episode?.streamLink) {
       throw new Error('AnimeParadise: no streamLink in response');
@@ -170,10 +173,13 @@ export class AnimeParadiseProvider extends BaseProvider {
     const uid = unitId.slice(0, sep);
     const animeId = unitId.slice(sep + 1);
 
-    const res = await this.http.get(`${API_BASE}/ep/${uid}?origin=${animeId}`, {
-      signal: options.signal,
-    });
-    const json = await parseJson(res, animeParadiseEpisodeResponseSchema);
+    const response = await this.http.get(
+      `${API_BASE}/ep/${uid}?origin=${animeId}`,
+      {
+        signal: options.signal,
+      },
+    );
+    const json = await parseJson(response, animeParadiseEpisodeResponseSchema);
     const subtitles = normalizeSubtitleEntries(json?.data?.episode?.subData);
     // AnimeParadise serves a single auto-ladder HLS manifest per episode — we
     // don't know the rendition list without fetching the master, so 'auto' is

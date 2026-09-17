@@ -165,12 +165,12 @@ export class AnikotoProvider extends BaseProvider {
     ];
 
     const subtitles: ISubtitleTrack[] = source.tracks
-      .filter((t) => t.kind === 'captions')
-      .map((t) => ({
-        url: t.file,
-        label: t.label,
-        language: t.label.toLowerCase(),
-        format: t.file.endsWith('.vtt') ? 'vtt' : 'srt',
+      .filter((track) => track.kind === 'captions')
+      .map((track) => ({
+        url: track.file,
+        label: track.label,
+        language: track.label.toLowerCase(),
+        format: track.file.endsWith('.vtt') ? 'vtt' : 'srt',
       }));
 
     if (subtitles.length > 0) {
