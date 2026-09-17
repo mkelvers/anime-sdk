@@ -17,13 +17,24 @@ import {
 } from '../types/index';
 import { buildUrn } from '../utils/urn';
 import {
+  AniListBrowseDocument,
+  AniListMediaDocument,
+  AniListSearchDocument,
+} from '../graphql/anilist/generated/graphql';
+import type {
+  AniListBrowseQueryVariables,
+  MediaFormat as AniListMediaFormat,
+  MediaSeason as AniListMediaSeason,
+  MediaSort,
+  MediaType,
+} from '../graphql/anilist/generated/graphql';
+import { postGraphQL } from '../graphql/request';
+import {
   BaseMetadataProvider,
   BaseMetadataProviderOptions,
   BrowseKind,
   BrowseOptions,
 } from './BaseMetadataProvider';
-
-const ANILIST_API = 'https://graphql.anilist.co';
 
 /**
  * AniList GraphQL metadata provider.
@@ -49,7 +60,7 @@ export class AnilistMeta extends BaseMetadataProvider {
 
   constructor(http: HttpClient, options: AnilistMetaOptions = {}) {
     super(http, options);
-    this.apiUrl = options.apiUrl ?? ANILIST_API;
+    this.apiUrl = options.apiUrl ?? 'https://graphql.anilist.co';
   }
 
   public override supportsBrowseKind(kind: BrowseKind): boolean {
@@ -71,79 +82,35 @@ export class AnilistMeta extends BaseMetadataProvider {
     if (kind === 'seasonal' && (!options.season || !options.year)) {
       throw new Error('AniList browse(seasonal): season and year are required');
     }
-    const gql = /* GraphQL */ `
-      query (
-        $page: Int
-        $perPage: Int
-        $type: MediaType
-        $sort: [MediaSort]
-        $season: MediaSeason
-        $seasonYear: Int
-        $format: MediaFormat
-      ) {
-        Page(page: $page, perPage: $perPage) {
-          media(
-            type: $type
-            sort: $sort
-            season: $season
-            seasonYear: $seasonYear
-            format: $format
-          ) {
-            id
-            type
-            format
-            seasonYear
-            startDate {
-              year
-            }
-            averageScore
-            isAdult
-            idMal
-            title {
-              romaji
-              english
-              native
-              userPreferred
-            }
-            coverImage {
-              extraLarge
-              large
-              medium
-              color
-            }
-          }
-        }
-      }
-    `;
-    const variables: Record<string, unknown> = {
+    const variables: AniListBrowseQueryVariables = {
       page: options.page ?? 1,
       perPage: Math.min(options.perPage ?? 20, 50),
-      type,
-      sort,
+      type: type as MediaType,
+      sort: sort as MediaSort[],
     };
     if (kind === 'seasonal') {
-      variables.season = options.season;
+      variables.season = options.season as AniListMediaSeason;
       variables.seasonYear = options.year;
     }
     if (options.format) {
-      variables.format = options.format;
+      variables.format = options.format as AniListMediaFormat;
     }
 
-    const res = await this.http.post(
+    const { response, body } = await postGraphQL(
+      this.http,
       this.apiUrl,
-      {
-        query: gql,
-        variables,
-      },
+      AniListBrowseDocument,
+      variables,
       {
         signal: options.signal,
       },
     );
-    if (res.status !== 200) {
-      throw new Error(`AniList browse failed with status ${res.status}`);
+    if (response.status !== 200) {
+      throw new Error(`AniList browse failed with status ${response.status}`);
     }
-    const json = (await res.json()) as any;
-    const media: any[] = json?.data?.Page?.media ?? [];
+    const media = (body.data?.Page?.media ?? []).filter(
+      (item): item is NonNullable<typeof item> => item !== null,
+    );
     return media.map((m) => ({
       id: String(m.id),
       providerId: this.id,
@@ -176,54 +143,25 @@ export class AnilistMeta extends BaseMetadataProvider {
     query: string,
     options: CallOptions = {},
   ): Promise<IMetaSearchResult[]> {
-    const gql = /* GraphQL */ `
-      query ($q: String, $perPage: Int) {
-        Page(page: 1, perPage: $perPage) {
-          media(search: $q, sort: SEARCH_MATCH) {
-            id
-            type
-            format
-            seasonYear
-            startDate {
-              year
-            }
-            averageScore
-            isAdult
-            idMal
-            title {
-              romaji
-              english
-              native
-              userPreferred
-            }
-            coverImage {
-              extraLarge
-              large
-              medium
-              color
-            }
-          }
-        }
-      }
-    `;
-    const res = await this.http.post(
+    const { response, body } = await postGraphQL(
+      this.http,
       this.apiUrl,
+      AniListSearchDocument,
       {
-        query: gql,
-        variables: {
-          q: query,
-          perPage: 25,
-        },
+        search: query,
+        perPage: 25,
+        sort: 'SEARCH_MATCH',
       },
       {
         signal: options.signal,
       },
     );
-    if (res.status !== 200) {
-      throw new Error(`AniList search failed with status ${res.status}`);
+    if (response.status !== 200) {
+      throw new Error(`AniList search failed with status ${response.status}`);
     }
-    const json = (await res.json()) as any;
-    const media: any[] = json?.data?.Page?.media ?? [];
+    const media = (body.data?.Page?.media ?? []).filter(
+      (item): item is NonNullable<typeof item> => item !== null,
+    );
     return media.map((m) => ({
       id: String(m.id),
       providerId: this.id,
@@ -260,183 +198,21 @@ export class AnilistMeta extends BaseMetadataProvider {
     if (!Number.isFinite(id)) {
       throw new Error(`Invalid AniList ID: ${nativeId}`);
     }
-    const gql = /* GraphQL */ `
-      query ($id: Int) {
-        Media(id: $id) {
-          id
-          type
-          format
-          status
-          episodes
-          chapters
-          duration
-          season
-          seasonYear
-          startDate {
-            year
-            month
-            day
-          }
-          endDate {
-            year
-            month
-            day
-          }
-          averageScore
-          isAdult
-          idMal
-          description(asHtml: false)
-          synonyms
-          genres
-          studios(isMain: true) {
-            nodes {
-              name
-            }
-          }
-          tags {
-            name
-            rank
-          }
-          title {
-            romaji
-            english
-            native
-            userPreferred
-          }
-          coverImage {
-            extraLarge
-            large
-            medium
-            color
-          }
-          bannerImage
-          trailer {
-            id
-            site
-          }
-          externalLinks {
-            site
-            url
-            language
-            type
-          }
-          streamingEpisodes {
-            title
-            thumbnail
-            url
-            site
-          }
-          relations {
-            edges {
-              relationType(version: 2)
-              node {
-                id
-                type
-                format
-                status
-                title {
-                  romaji
-                  english
-                  native
-                  userPreferred
-                }
-                coverImage {
-                  extraLarge
-                  large
-                  medium
-                  color
-                }
-              }
-            }
-          }
-          characters(sort: [ROLE, RELEVANCE, ID], perPage: 25) {
-            edges {
-              role
-              node {
-                id
-                name {
-                  full
-                  native
-                }
-                image {
-                  large
-                  medium
-                }
-              }
-              voiceActors(sort: [RELEVANCE, ID]) {
-                id
-                name {
-                  full
-                  native
-                }
-                language: languageV2
-                image {
-                  large
-                  medium
-                }
-              }
-            }
-          }
-          staff(sort: [RELEVANCE, ID], perPage: 25) {
-            edges {
-              role
-              node {
-                id
-                name {
-                  full
-                  native
-                }
-                image {
-                  large
-                  medium
-                }
-              }
-            }
-          }
-          recommendations(sort: [RATING_DESC], perPage: 12) {
-            nodes {
-              rating
-              mediaRecommendation {
-                id
-                type
-                format
-                title {
-                  romaji
-                  english
-                  native
-                  userPreferred
-                }
-                coverImage {
-                  extraLarge
-                  large
-                  medium
-                  color
-                }
-              }
-            }
-          }
-        }
-      }
-    `;
-    const res = await this.http.post(
+    const { response, body } = await postGraphQL(
+      this.http,
       this.apiUrl,
-      {
-        query: gql,
-        variables: {
-          id,
-        },
-      },
+      AniListMediaDocument,
+      { id },
       {
         signal: options.signal,
       },
     );
-    if (res.status !== 200) {
+    if (response.status !== 200) {
       throw new Error(
-        `AniList fetchMediaInfo failed with status ${res.status}`,
+        `AniList fetchMediaInfo failed with status ${response.status}`,
       );
     }
-    const json = (await res.json()) as any;
-    const m = json?.data?.Media;
+    const m = body.data?.Media;
     if (!m) {
       throw new Error(`AniList: no media for id ${id}`);
     }
@@ -470,7 +246,7 @@ export class AnilistMeta extends BaseMetadataProvider {
       episodeCount: m.episodes ?? undefined,
       chapterCount: m.chapters ?? undefined,
       durationMinutes: m.duration ?? undefined,
-      genres: m.genres ?? undefined,
+      genres: m.genres?.filter((genre): genre is string => genre !== null),
       tags:
         Array.isArray(m.tags) && m.tags.length > 0
           ? m.tags.map((t: any) => t.name).filter(Boolean)
@@ -486,9 +262,9 @@ export class AnilistMeta extends BaseMetadataProvider {
       score: typeof m.averageScore === 'number' ? m.averageScore : undefined,
       trailer: trailerUrl,
       isAdult: !!m.isAdult,
-      synonyms: Array.isArray(m.synonyms)
-        ? m.synonyms.filter(Boolean)
-        : undefined,
+      synonyms: m.synonyms?.filter(
+        (synonym): synonym is string => synonym !== null,
+      ),
       mappings: {
         anilist: m.id,
         mal: m.idMal ?? undefined,
@@ -501,8 +277,6 @@ export class AnilistMeta extends BaseMetadataProvider {
       streamingEpisodes: this.mapStreamingEpisodes(m.streamingEpisodes),
     };
   }
-
-  // ── AniList enrichment mappers ──────────────────────────────────────────
 
   private mapRelations(edges: unknown): IMediaRelation[] | undefined {
     if (!Array.isArray(edges) || edges.length === 0) {
