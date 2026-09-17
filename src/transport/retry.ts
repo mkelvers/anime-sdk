@@ -58,7 +58,7 @@ export async function withRetry<T>(
   const initial = config.initialDelayMs ?? 250;
   const max = config.maxDelayMs ?? 8_000;
   const factor = config.factor ?? 2;
-  const jitter = clamp01(config.jitter ?? 0.25);
+  const jitter = Math.max(0, Math.min(1, config.jitter ?? 0.25));
 
   let attempt = 0;
   let lastErr: unknown;
@@ -189,10 +189,6 @@ function sleep(ms: number, signal?: AbortSignal): Promise<void> {
       signal.addEventListener('abort', onAbort, { once: true });
     }
   });
-}
-
-function clamp01(n: number): number {
-  return Math.max(0, Math.min(1, n));
 }
 
 function abortError(signal: AbortSignal): Error {
