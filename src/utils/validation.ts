@@ -38,6 +38,9 @@ export const mediaFormatSchema = z.enum([
 export const mediaSeasonSchema = z.enum(['WINTER', 'SPRING', 'SUMMER', 'FALL']);
 
 export const proxyHeadersSchema = z.record(z.string(), z.string());
+const errorMessageSchema = z.object({
+  message: z.string(),
+});
 
 /** Parse an HTTP JSON response and return the schema-inferred output type. */
 export async function parseJson<T extends z.ZodType>(
@@ -45,6 +48,12 @@ export async function parseJson<T extends z.ZodType>(
   schema: T,
 ): Promise<z.output<T>> {
   return schema.parse(await response.json());
+}
+
+/** Read an error message through a small runtime schema. */
+export function getErrorMessage(error: unknown): string {
+  const parsedError = errorMessageSchema.safeParse(error);
+  return parsedError.success ? parsedError.data.message : 'Unknown error';
 }
 
 export interface ParsedQueryValue<T> {

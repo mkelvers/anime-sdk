@@ -2,6 +2,7 @@ import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import { IVideoPayload, IMangaPayload } from '../types/index';
+import { getErrorMessage } from '../utils/validation';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -225,8 +226,10 @@ export async function downloadVideo(
       options?.onProgress?.({ phase: 'complete', detail: outputPath });
       return { outputPath, stream: candidate, fileSize: stat.size };
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      errors.push(`#${i + 1} (${candidate.sourceUrl.slice(0, 60)}…): ${msg}`);
+      const message = getErrorMessage(e);
+      errors.push(
+        `#${i + 1} (${candidate.sourceUrl.slice(0, 60)}…): ${message}`,
+      );
     }
   }
 
@@ -440,7 +443,7 @@ async function downloadHlsSegments(
       maxBuffer: 50 * 1024 * 1024,
     });
   } catch (e) {
-    const message = e instanceof Error ? e.message : String(e);
+    const message = getErrorMessage(e);
     throw new Error(`ffmpeg failed: ${message}`);
   }
 
