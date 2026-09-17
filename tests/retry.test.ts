@@ -23,7 +23,9 @@ describe('withRetry', () => {
     const out = await withRetry(
       async () => {
         calls += 1;
-        if (calls < 3) throw new HttpRetryableError(503);
+        if (calls < 3) {
+          throw new HttpRetryableError(503);
+        }
         return 'ok';
       },
       { initialDelayMs: 1, factor: 1, jitter: 0, maxAttempts: 5 },

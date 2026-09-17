@@ -35,7 +35,9 @@ beforeAll(async () => {
     port: await getFreePort(),
   });
   const addr = server.address();
-  if (!addr || typeof addr === 'string') throw new Error('no address');
+  if (!addr || typeof addr === 'string') {
+    throw new Error('no address');
+  }
   baseUrl = `http://127.0.0.1:${addr.port}`;
 });
 
@@ -46,7 +48,9 @@ afterAll(async () => {
 function sign(url: string, h?: string): string {
   const hmac = crypto.createHmac('sha256', SECRET);
   hmac.update(url);
-  if (h) hmac.update('|h=' + h);
+  if (h) {
+    hmac.update('|h=' + h);
+  }
   return hmac.digest('hex');
 }
 

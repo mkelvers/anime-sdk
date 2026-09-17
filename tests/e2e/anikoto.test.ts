@@ -27,7 +27,9 @@ describe('Anikoto E2E', () => {
     const ep1 = units[0];
     const stream = await provider.resolveStream(ep1.id, 'sub');
     expect(stream.type).toBe('video');
-    if (stream.type !== 'video') return;
+    if (stream.type !== 'video') {
+      return;
+    }
     expect(stream.streams.length).toBeGreaterThan(0);
 
     console.log(
@@ -57,7 +59,9 @@ describe('Anikoto E2E', () => {
 
     const stream = await provider.resolveStream(ep1.id, 'dub');
     expect(stream.type).toBe('video');
-    if (stream.type !== 'video') return;
+    if (stream.type !== 'video') {
+      return;
+    }
     expect(stream.streams.length).toBeGreaterThan(0);
 
     console.log(

@@ -25,7 +25,9 @@ beforeAll(async () => {
   server = http.createServer((req, res) => currentHandler(req, res));
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
   const addr = server.address();
-  if (!addr || typeof addr === 'string') throw new Error('no address');
+  if (!addr || typeof addr === 'string') {
+    throw new Error('no address');
+  }
   baseUrl = `http://127.0.0.1:${addr.port}`;
 });
 

@@ -38,7 +38,9 @@ describe('Goyabu E2E', () => {
     const ep1 = units[0];
     const stream = await provider.resolveStream(ep1.id);
     expect(stream.type).toBe('video');
-    if (stream.type !== 'video') return;
+    if (stream.type !== 'video') {
+      return;
+    }
     expect(stream.streams.length).toBeGreaterThan(0);
 
     console.log(

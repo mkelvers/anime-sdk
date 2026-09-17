@@ -27,7 +27,9 @@ describe('Mangadex E2E', () => {
     const ep1 = units[0];
     const stream = await provider.resolveStream(ep1.id);
     expect(stream.type).toBe('manga');
-    if (stream.type !== 'manga') return;
+    if (stream.type !== 'manga') {
+      return;
+    }
 
     expect(stream.pages.imageUrls.length).toBeGreaterThan(0);
 

@@ -22,7 +22,9 @@ beforeAll(async () => {
     port: await freePort(),
   });
   const addr = server.address();
-  if (!addr || typeof addr === 'string') throw new Error('no address');
+  if (!addr || typeof addr === 'string') {
+    throw new Error('no address');
+  }
   baseUrl = `http://127.0.0.1:${addr.port}`;
 });
 

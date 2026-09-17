@@ -13,7 +13,9 @@ interface Segment {
 function parseM3U8Variants(content: string, baseUrl: string): string[] {
   const out: string[] = [];
   for (const line of content.split('\n').map((l) => l.trim())) {
-    if (!line || line.startsWith('#')) continue;
+    if (!line || line.startsWith('#')) {
+      continue;
+    }
     try {
       out.push(new URL(line, baseUrl).toString());
     } catch {
@@ -29,7 +31,9 @@ function parseSegments(playlist: string, playlistUrl: string): Segment[] {
   for (const line of playlist.split('\n').map((l) => l.trim())) {
     if (line.startsWith('#EXTINF:')) {
       const m = line.match(/#EXTINF:([0-9.]+)/);
-      if (m) dur = parseFloat(m[1]);
+      if (m) {
+        dur = parseFloat(m[1]);
+      }
     } else if (line && !line.startsWith('#')) {
       try {
         out.push({ url: new URL(line, playlistUrl).toString(), duration: dur });
@@ -49,7 +53,9 @@ function stripPngHeader(buffer: Buffer): Buffer {
     const idx = buffer.indexOf(IEND_MAGIC);
     if (idx !== -1) {
       const offset = idx + 8;
-      if (offset < buffer.length) return buffer.subarray(offset);
+      if (offset < buffer.length) {
+        return buffer.subarray(offset);
+      }
     }
   }
   return buffer;
@@ -104,7 +110,9 @@ async function probeIsVideoBytes(url: string, headers: Record<string, string>): 
       headers: { ...fetchHeaders(headers), Range: 'bytes=0-2048' },
       // node fetch follows redirects by default
     });
-    if (res.status !== 200 && res.status !== 206) return false;
+    if (res.status !== 200 && res.status !== 206) {
+      return false;
+    }
     const ct = (res.headers.get('content-type') ?? '').toLowerCase();
     if (ct.startsWith('text/html') || ct.startsWith('application/xhtml')) {
       return false;
@@ -121,7 +129,9 @@ async function probeIsVideoBytes(url: string, headers: Record<string, string>): 
     }
     // Unknown content-type — check first bytes for MP4 ISO BMFF signature.
     const buf = Buffer.from(await res.arrayBuffer());
-    if (buf.length >= 12 && buf.subarray(4, 8).toString('ascii') === 'ftyp') return true;
+    if (buf.length >= 12 && buf.subarray(4, 8).toString('ascii') === 'ftyp') {
+      return true;
+    }
     return false;
   } catch {
     return false;
@@ -149,20 +159,26 @@ async function scrapeEmbedForStream(
     html,
     /https?:\/\/[^"'\s<>\\]+?\/[^"'\s<>\\/]+\.m3u8(?:[?#][^"'\s<>\\]*)?/i,
   );
-  if (m3u8) return { url: m3u8.replace(/&amp;/g, '&'), isHls: true };
+  if (m3u8) {
+    return { url: m3u8.replace(/&amp;/g, '&'), isHls: true };
+  }
 
   const mp4 = pickFirstUrl(
     html,
     /https?:\/\/[^"'\s<>\\]+?\/[^"'\s<>\\/]+\.mp4(?:[?#][^"'\s<>\\]*)?/i,
   );
-  if (mp4) return { url: mp4.replace(/&amp;/g, '&'), isHls: false };
+  if (mp4) {
+    return { url: mp4.replace(/&amp;/g, '&'), isHls: false };
+  }
 
   return null;
 }
 
 function pickFirstUrl(html: string, re: RegExp): string | null {
   const a = html.match(re);
-  if (a) return a[0];
+  if (a) {
+    return a[0];
+  }
   const b = html.replace(/\\\//g, '/').match(re);
   return b ? b[0] : null;
 }
@@ -182,15 +198,21 @@ async function captureFromHls(
   // Walk down master → variant playlists (max 2 hops)
   for (let hops = 0; hops < 2 && playlist.includes('#EXT-X-STREAM-INF'); hops++) {
     const variants = parseM3U8Variants(playlist, currentUrl);
-    if (variants.length === 0) throw new Error('Master playlist has no variants');
+    if (variants.length === 0) {
+      throw new Error('Master playlist has no variants');
+    }
     currentUrl = variants[variants.length - 1]; // pick highest quality (last)
     res = await fetch(currentUrl, { headers: fetchHeaders(headers) });
-    if (!res.ok) throw new Error(`Variant ${res.status} (${currentUrl.slice(0, 120)})`);
+    if (!res.ok) {
+      throw new Error(`Variant ${res.status} (${currentUrl.slice(0, 120)})`);
+    }
     playlist = await res.text();
   }
 
   const segments = parseSegments(playlist, currentUrl);
-  if (segments.length === 0) throw new Error('No segments in playlist');
+  if (segments.length === 0) {
+    throw new Error('No segments in playlist');
+  }
 
   // Find segment ~5s in
   let target = segments[0];
@@ -204,7 +226,9 @@ async function captureFromHls(
   }
 
   const segRes = await fetch(target.url, { headers: fetchHeaders(headers) });
-  if (!segRes.ok) throw new Error(`Segment ${segRes.status} (${target.url.slice(0, 120)})`);
+  if (!segRes.ok) {
+    throw new Error(`Segment ${segRes.status} (${target.url.slice(0, 120)})`);
+  }
   let bytes = Buffer.from(await segRes.arrayBuffer());
   bytes = stripPngHeader(bytes);
 
@@ -302,10 +326,14 @@ export async function captureStreamScreenshot(
   streams: IVideoPayload | IVideoPayload[],
 ): Promise<ScreenshotResult> {
   const list = Array.isArray(streams) ? streams : [streams];
-  if (list.length === 0) throw new Error('captureStreamScreenshot: streams array is empty');
+  if (list.length === 0) {
+    throw new Error('captureStreamScreenshot: streams array is empty');
+  }
 
   const localDir = path.resolve(process.cwd(), 'scratch/screenshots');
-  if (!fs.existsSync(localDir)) fs.mkdirSync(localDir, { recursive: true });
+  if (!fs.existsSync(localDir)) {
+    fs.mkdirSync(localDir, { recursive: true });
+  }
 
   const outputPath = path.join(localDir, `screenshot_${providerId}.png`);
   // Clear any stale screenshot from a previous run.

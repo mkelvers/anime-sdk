@@ -32,7 +32,9 @@ import { BaseProvider } from '../../src/providers/BaseProvider';
 const DOWNLOAD_DIR = path.resolve(process.cwd(), 'scratch/downloads');
 
 beforeAll(() => {
-  if (!fs.existsSync(DOWNLOAD_DIR)) fs.mkdirSync(DOWNLOAD_DIR, { recursive: true });
+  if (!fs.existsSync(DOWNLOAD_DIR)) {
+    fs.mkdirSync(DOWNLOAD_DIR, { recursive: true });
+  }
 });
 
 // ─── Helper: resolve a video stream for an anime provider ────────────────────
@@ -160,7 +162,9 @@ describe('Anime Downloads (JJK Episode 1)', () => {
     const provider = new AllmangaProvider(http);
     const { stream } = await resolveAnimeStream(provider, 'Jujutsu Kaisen');
     expect(stream.type).toBe('video');
-    if (stream.type !== 'video') return;
+    if (stream.type !== 'video') {
+      return;
+    }
 
     const outPath = path.join(DOWNLOAD_DIR, 'allmanga_jjk_ep1.mp4');
     await downloadVideo(stream.streams, outPath, { timeoutMs: 1_200_000 });
@@ -171,7 +175,9 @@ describe('Anime Downloads (JJK Episode 1)', () => {
     const provider = new GogoanimeProvider(http);
     const { stream } = await resolveAnimeStream(provider, 'Jujutsu Kaisen');
     expect(stream.type).toBe('video');
-    if (stream.type !== 'video') return;
+    if (stream.type !== 'video') {
+      return;
+    }
 
     const outPath = path.join(DOWNLOAD_DIR, 'gogoanime_jjk_ep1.mp4');
     await downloadVideo(stream.streams, outPath, { timeoutMs: 1_200_000 });
@@ -182,7 +188,9 @@ describe('Anime Downloads (JJK Episode 1)', () => {
     const provider = new GoyabuProvider(http);
     const { stream } = await resolveAnimeStream(provider, 'Jujutsu Kaisen');
     expect(stream.type).toBe('video');
-    if (stream.type !== 'video') return;
+    if (stream.type !== 'video') {
+      return;
+    }
 
     const outPath = path.join(DOWNLOAD_DIR, 'goyabu_jjk_ep1.mp4');
     await downloadVideo(stream.streams, outPath, { timeoutMs: 1_200_000 });
@@ -193,7 +201,9 @@ describe('Anime Downloads (JJK Episode 1)', () => {
     const provider = new AnikotoProvider(http);
     const { stream } = await resolveAnimeStream(provider, 'Jujutsu Kaisen');
     expect(stream.type).toBe('video');
-    if (stream.type !== 'video') return;
+    if (stream.type !== 'video') {
+      return;
+    }
 
     const outPath = path.join(DOWNLOAD_DIR, 'anikoto_jjk_ep1.mp4');
     await downloadVideo(stream.streams, outPath, { timeoutMs: 1_200_000 });
@@ -204,7 +214,9 @@ describe('Anime Downloads (JJK Episode 1)', () => {
     const provider = new MegaPlayProvider(http);
     const { stream } = await resolveAnimeStream(provider, 'Jujutsu Kaisen');
     expect(stream.type).toBe('video');
-    if (stream.type !== 'video') return;
+    if (stream.type !== 'video') {
+      return;
+    }
 
     const outPath = path.join(DOWNLOAD_DIR, 'megaplay_jjk_ep1.mp4');
     await downloadVideo(stream.streams, outPath, { timeoutMs: 1_200_000 });
@@ -215,7 +227,9 @@ describe('Anime Downloads (JJK Episode 1)', () => {
     const provider = new AnimeParadiseProvider(http);
     const { stream } = await resolveAnimeStream(provider, 'Jujutsu Kaisen', 'sub');
     expect(stream.type).toBe('video');
-    if (stream.type !== 'video') return;
+    if (stream.type !== 'video') {
+      return;
+    }
 
     const outPath = path.join(DOWNLOAD_DIR, 'animeparadise_jjk_ep1.mp4');
     await downloadVideo(stream.streams, outPath, { timeoutMs: 1_200_000 });
@@ -232,7 +246,9 @@ describe('Manga Downloads (JJK Chapter)', () => {
     const provider = new MangadexProvider(http);
     const { stream } = await resolveMangaStream(provider, 'Jujutsu Kaisen');
     expect(stream.type).toBe('manga');
-    if (stream.type !== 'manga') return;
+    if (stream.type !== 'manga') {
+      return;
+    }
 
     // Download single page
     const pageResult = await downloadMangaPage(stream.pages, 0, DOWNLOAD_DIR);
@@ -257,7 +273,9 @@ describe('Manga Downloads (JJK Chapter)', () => {
     const provider = new WeebcentralProvider(http);
     const { stream } = await resolveMangaStream(provider, 'Jujutsu Kaisen');
     expect(stream.type).toBe('manga');
-    if (stream.type !== 'manga') return;
+    if (stream.type !== 'manga') {
+      return;
+    }
 
     // Download single page
     const pageResult = await downloadMangaPage(stream.pages, 0, DOWNLOAD_DIR);
@@ -281,7 +299,9 @@ describe('Manga Downloads (JJK Chapter)', () => {
     const provider = new MangapillProvider(http);
     const { stream } = await resolveMangaStream(provider, 'Jujutsu Kaisen');
     expect(stream.type).toBe('manga');
-    if (stream.type !== 'manga') return;
+    if (stream.type !== 'manga') {
+      return;
+    }
 
     // Download single page
     const pageResult = await downloadMangaPage(stream.pages, 0, DOWNLOAD_DIR);

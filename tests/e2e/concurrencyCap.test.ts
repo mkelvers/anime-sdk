@@ -29,7 +29,9 @@ const reset = () => {
 beforeAll(async () => {
   server = http.createServer(async (_req, res) => {
     inFlight += 1;
-    if (inFlight > maxInFlight) maxInFlight = inFlight;
+    if (inFlight > maxInFlight) {
+      maxInFlight = inFlight;
+    }
     // hold the connection long enough for parallel requests to overlap
     await new Promise<void>((r) => setTimeout(r, 60));
     inFlight -= 1;
@@ -37,7 +39,9 @@ beforeAll(async () => {
   });
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
   const addr = server.address();
-  if (!addr || typeof addr === 'string') throw new Error('no address');
+  if (!addr || typeof addr === 'string') {
+    throw new Error('no address');
+  }
   baseUrl = `http://127.0.0.1:${addr.port}`;
 });
 

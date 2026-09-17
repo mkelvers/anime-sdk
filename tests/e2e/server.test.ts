@@ -43,7 +43,9 @@ beforeAll(async () => {
     port: await getFreePort(),
   });
   const addr = server.address();
-  if (!addr || typeof addr === 'string') throw new Error('failed to bind');
+  if (!addr || typeof addr === 'string') {
+    throw new Error('failed to bind');
+  }
   baseUrl = `http://127.0.0.1:${addr.port}`;
 });
 

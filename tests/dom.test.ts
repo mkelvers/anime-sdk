@@ -5,11 +5,15 @@ import { IDomParser, IDomElement } from '../src/types/index';
 class MockElement implements IDomElement {
   constructor(public text: string) {}
   querySelector(selector: string): IDomElement | null {
-    if (selector === 'span') return new MockElement('inner');
+    if (selector === 'span') {
+      return new MockElement('inner');
+    }
     return null;
   }
   querySelectorAll(selector: string): IDomElement[] {
-    if (selector === 'div') return [new MockElement('div1'), new MockElement('div2')];
+    if (selector === 'div') {
+      return [new MockElement('div1'), new MockElement('div2')];
+    }
     return [];
   }
   getAttribute(name: string): string | null {
