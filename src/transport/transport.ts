@@ -60,9 +60,12 @@ export class CurlFallbackTransport implements HttpTransport {
   async fetch(url: string, init: RequestInit): Promise<Response> {
     try {
       return await fetch(url, init);
-    } catch (err: any) {
+    } catch (err) {
       // Explicit aborts must propagate immediately.
-      if (init.signal?.aborted || (err?.name === 'AbortError' && init.signal)) {
+      if (
+        init.signal?.aborted ||
+        (err instanceof Error && err.name === 'AbortError' && init.signal)
+      ) {
         throw err;
       }
       // Only attempt curl in Node.

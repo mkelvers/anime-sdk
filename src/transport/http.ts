@@ -220,7 +220,7 @@ export class HttpClient {
 
   public async post(
     url: string,
-    body?: any,
+    body?: Record<string, unknown> | URLSearchParams | string,
     options: RequestInit = {},
   ): Promise<Response> {
     const headers: Record<string, string> = {};
@@ -237,13 +237,12 @@ export class HttpClient {
         Object.assign(headers, options.headers);
       }
     }
-    let finalBody = body;
-    if (
-      body &&
-      typeof body === 'object' &&
-      !(body instanceof FormData) &&
-      !(body instanceof URLSearchParams)
-    ) {
+    let finalBody: string | URLSearchParams | undefined;
+    if (body === undefined) {
+      finalBody = undefined;
+    } else if (typeof body === 'string' || body instanceof URLSearchParams) {
+      finalBody = body;
+    } else {
       if (!headers['Content-Type']) {
         headers['Content-Type'] = 'application/json';
       }

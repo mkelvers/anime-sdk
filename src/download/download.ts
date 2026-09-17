@@ -225,7 +225,7 @@ export async function downloadVideo(
       options?.onProgress?.({ phase: 'complete', detail: outputPath });
       return { outputPath, stream: candidate, fileSize: stat.size };
     } catch (e) {
-      const msg = (e as Error).message;
+      const msg = e instanceof Error ? e.message : String(e);
       errors.push(`#${i + 1} (${candidate.sourceUrl.slice(0, 60)}…): ${msg}`);
     }
   }
@@ -439,9 +439,9 @@ async function downloadHlsSegments(
       timeout: timeoutMs,
       maxBuffer: 50 * 1024 * 1024,
     });
-  } catch (e: any) {
-    const stderr = e.stderr ? e.stderr.toString() : '';
-    throw new Error(`ffmpeg failed: ${e.message}\n${stderr}`);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    throw new Error(`ffmpeg failed: ${message}`);
   }
 
   if (fs.existsSync(tmpTs)) {

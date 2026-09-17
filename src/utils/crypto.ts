@@ -91,17 +91,20 @@ export async function aesDecryptCtr(
   iv: Uint8Array,
 ): Promise<Uint8Array> {
   const subtle = getCryptoSubtle();
+  const keyBytes = new Uint8Array(key);
+  const ivBytes = new Uint8Array(iv);
+  const ciphertextBytes = new Uint8Array(ciphertext);
   const importedKey = await subtle.importKey(
     'raw',
-    key as any,
+    keyBytes,
     { name: 'AES-CTR' },
     false,
     ['decrypt'],
   );
   const decryptedBuffer = await subtle.decrypt(
-    { name: 'AES-CTR', counter: iv as any, length: 64 },
+    { name: 'AES-CTR', counter: ivBytes, length: 64 },
     importedKey,
-    ciphertext as any,
+    ciphertextBytes,
   );
   return new Uint8Array(decryptedBuffer);
 }
