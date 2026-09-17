@@ -1,5 +1,5 @@
 import { BaseExtractor } from './BaseExtractor';
-import { IVideoPayload } from '../types/index';
+import { IVideoPayload } from '@/types';
 import { aesEncrypt, aesDecrypt } from '../utils/crypto';
 
 export class VidstreamingExtractor extends BaseExtractor {

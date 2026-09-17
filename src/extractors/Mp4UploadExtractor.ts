@@ -1,5 +1,5 @@
 import { BaseExtractor } from './BaseExtractor';
-import { IVideoPayload } from '../types/index';
+import { IVideoPayload } from '@/types';
 
 /**
  * Extracts the direct MP4 URL from an mp4upload.com / www.mp4upload.com embed page.

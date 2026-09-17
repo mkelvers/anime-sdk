@@ -10,7 +10,7 @@ import {
   MediaRelationType,
   MediaSeason,
   MediaStatus,
-} from '../types/index';
+} from '@/types';
 import { buildTypedUrn } from '../utils/urn';
 import {
   BaseMetadataProvider,

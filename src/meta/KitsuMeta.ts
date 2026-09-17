@@ -7,7 +7,7 @@ import {
   MediaFormat,
   MediaSeason,
   MediaStatus,
-} from '../types/index';
+} from '@/types';
 import {
   BaseMetadataProvider,
   BaseMetadataProviderOptions,

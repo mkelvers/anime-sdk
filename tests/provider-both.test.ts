@@ -6,7 +6,7 @@ import {
   IMediaSearchResult,
   MediaCatalogType,
   ResolvedMediaStream,
-} from '../src/types/index';
+} from '@/types';
 
 class TestProvider extends BaseProvider {
   public readonly id = 'test';

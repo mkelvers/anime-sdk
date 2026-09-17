@@ -6,7 +6,7 @@ import {
   IMediaSearchResult,
   IMediaTitle,
   SdkCache,
-} from '../types/index';
+} from '@/types';
 import { unwrapUrn } from '../utils/urn';
 import { bestSimilarity, normalizeTitle } from './similarity';
 

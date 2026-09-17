@@ -1,5 +1,5 @@
 import { DOMParser as LinkedomParser } from 'linkedom';
-import { IDomElement, IDomParser } from '../types/index';
+import { IDomElement, IDomParser } from '@/types';
 
 type LinkedomElement = NonNullable<
   ReturnType<

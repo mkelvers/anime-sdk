@@ -11,11 +11,11 @@ import {
   IMediaMappings,
   IUnitTracks,
   Urn,
-} from '../types/index';
+} from '@/types';
 import { buildUrn, unwrapUrn } from '../utils/urn';
 
 // Re-export so subclasses can stay close to the type they need.
-export type { CallOptions } from '../types/index';
+export type { CallOptions } from '@/types';
 
 /**
  * @deprecated Use {@link CallOptions} from `src/types/index.ts` — the

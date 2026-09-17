@@ -4,8 +4,8 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import * as nodeCrypto from 'node:crypto';
 import { Readable } from 'node:stream';
-import { BaseProvider } from '../providers/BaseProvider';
-import { BaseMetadataProvider, BrowseKind } from '../meta/BaseMetadataProvider';
+import { BaseProvider } from './providers/BaseProvider';
+import { BaseMetadataProvider, BrowseKind } from './meta/BaseMetadataProvider';
 import {
   ContentLanguage,
   IUnitTracks,
@@ -14,9 +14,9 @@ import {
   MediaSeason,
   ResolvedMediaStream,
   SdkCache,
-} from '../types/index';
-import { proxifySubtitleUrl } from '../utils/subtitles';
-import { strictUnwrapUrn } from '../utils/urn';
+} from './types';
+import { proxifySubtitleUrl } from './utils/subtitles';
+import { strictUnwrapUrn } from './utils/urn';
 import {
   browseKindSchema,
   contentLanguageSchema,
@@ -25,13 +25,13 @@ import {
   mediaSeasonSchema,
   parseOptionalQueryValue,
   proxyHeadersSchema,
-} from '../utils/validation';
+} from './utils/validation';
 import {
   downloadVideo,
   downloadMangaPage,
   downloadMangaChapter,
   detectImageExtension,
-} from '../download/index';
+} from './download/index';
 
 export interface ServerOptions {
   providers: BaseProvider[];

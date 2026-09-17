@@ -20,7 +20,7 @@ import * as http from 'node:http';
 import { HttpClient } from '../../src/transport/http';
 import { AnilistMeta } from '../../src/meta/AnilistMeta';
 import { AllmangaProvider } from '../../src/providers/AllmangaProvider';
-import { startServer } from '../../src/server/index';
+import { startServer } from '@/server';
 
 let server: http.Server;
 let baseUrl: string;

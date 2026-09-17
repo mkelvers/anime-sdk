@@ -10,7 +10,7 @@ import {
   MediaCatalogType,
   IVideoPayload,
   ContentLanguage,
-} from '../types/index';
+} from '@/types';
 import {
   AllAnimeEpisodeSourcesDocument,
   AllAnimeSearchDocument,

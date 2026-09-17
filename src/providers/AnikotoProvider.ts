@@ -11,7 +11,7 @@ import {
   ContentLanguage,
   IVideoPayload,
   ISubtitleTrack,
-} from '../types/index';
+} from '@/types';
 import { parseJson } from '../utils/validation';
 
 const anikotoEpisodeSchema = z.object({

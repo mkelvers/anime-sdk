@@ -7,7 +7,7 @@ import {
   ResolvedMediaStream,
   MediaCatalogType,
   IUnitTracks,
-} from '../types/index';
+} from '@/types';
 import { normalizeSubtitleEntries } from '../utils/subtitles';
 import { parseJson } from '../utils/validation';
 
@@ -112,7 +112,7 @@ export class AnimeParadiseProvider extends BaseProvider {
 
   protected async resolveStreamRaw(
     unitId: string,
-    _language?: import('../types/index').ContentLanguage,
+    _language?: import('@/types').ContentLanguage,
     options: CallOptions = {},
   ): Promise<ResolvedMediaStream> {
     const sep = unitId.lastIndexOf(':');
@@ -166,7 +166,7 @@ export class AnimeParadiseProvider extends BaseProvider {
    */
   protected async fetchUnitTracksRaw(
     unitId: string,
-    _language?: import('../types/index').ContentLanguage,
+    _language?: import('@/types').ContentLanguage,
     options: CallOptions = {},
   ): Promise<IUnitTracks> {
     const sep = unitId.lastIndexOf(':');

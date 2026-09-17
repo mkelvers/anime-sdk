@@ -6,7 +6,7 @@ import {
   ResolvedMediaStream,
   MediaCatalogType,
   ContentLanguage,
-} from '../types/index';
+} from '@/types';
 import { BaseProvider, CallOptions } from './BaseProvider';
 
 export class MangapillProvider extends BaseProvider {

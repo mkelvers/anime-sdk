@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-import { IVideoPayload, IMangaPayload } from '../types/index';
+import { IVideoPayload, IMangaPayload } from '@/types';
 import { getErrorMessage } from '../utils/validation';
 
 export interface DownloadVideoProgress {

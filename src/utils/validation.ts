@@ -5,7 +5,7 @@ import type {
   MediaCatalogType,
   MediaFormat,
   MediaSeason,
-} from '../types/index';
+} from '@/types';
 
 /**
  * Runtime schemas for values that cross an SDK boundary.

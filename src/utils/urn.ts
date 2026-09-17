@@ -16,7 +16,7 @@
  * without out-of-band knowledge of which provider it came from.
  */
 
-import type { Urn } from '../types/index';
+import type { Urn } from '@/types';
 
 /** True when the string looks like `providerId:rawId` for the given provider. */
 export function isUrn(value: string, providerId?: string): boolean {

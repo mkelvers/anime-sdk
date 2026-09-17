@@ -1,5 +1,5 @@
 // Types
-export * from './types/index';
+export * from './types';
 
 // Transport
 export * from './transport/http';
@@ -42,4 +42,4 @@ export * from './meta/index';
 export * from './download/index';
 
 // HTTP server
-export * from './server/index';
+export * from './server';

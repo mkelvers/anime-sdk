@@ -15,7 +15,7 @@ import {
   IMediaSearchResult,
   MediaCatalogType,
   ResolvedMediaStream,
-} from '../../src/types/index';
+} from '@/types';
 
 let server: http.Server;
 let baseUrl: string;

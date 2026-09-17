@@ -13,7 +13,7 @@ import {
   MediaSeason,
   ResolvedMediaStream,
   Urn,
-} from '../types/index';
+} from '@/types';
 
 import { buildUrn, unwrapUrn } from '../utils/urn';
 import { MappingClient } from './MappingClient';

@@ -14,7 +14,7 @@ import {
   MediaRelationType,
   MediaSeason,
   MediaStatus,
-} from '../types/index';
+} from '@/types';
 import { buildUrn } from '../utils/urn';
 import {
   AniListBrowseDocument,

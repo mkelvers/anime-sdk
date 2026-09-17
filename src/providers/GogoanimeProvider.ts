@@ -8,7 +8,7 @@ import {
   ResolvedMediaStream,
   MediaCatalogType,
   IVideoPayload,
-} from '../types/index';
+} from '@/types';
 
 export interface GogoanimeOptions {
   baseUrl?: string;
@@ -167,7 +167,7 @@ export class GogoanimeProvider extends BaseProvider {
    */
   protected async resolveStreamRaw(
     unitId: string,
-    _language?: import('../types/index').ContentLanguage,
+    _language?: import('@/types').ContentLanguage,
     options: CallOptions = {},
   ): Promise<ResolvedMediaStream> {
     const fullUrl = `${this.baseUrl}${unitId.startsWith('/') ? '' : '/'}${unitId}`;

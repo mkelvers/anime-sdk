@@ -1,6 +1,6 @@
 import * as crypto from 'node:crypto';
 import { z } from 'zod';
-import { ISubtitleTrack } from '../types/index';
+import { ISubtitleTrack } from '@/types';
 
 const LABEL_TO_BCP47: Record<string, string> = {
   english: 'en',
