@@ -11,6 +11,12 @@ import {
   IVideoPayload,
   ContentLanguage,
 } from '../types/index';
+import {
+  AllAnimeEpisodeSourcesDocument,
+  AllAnimeSearchDocument,
+  AllAnimeShowDocument,
+} from '../graphql/allanime/generated/graphql';
+import { postGraphQL } from '../graphql/request';
 
 export interface AllmangaOptions {
   baseUrl?: string;
@@ -61,18 +67,10 @@ export class AllmangaProvider extends BaseProvider {
     this.genericExtractor = new GenericHlsExtractor(this.http);
   }
 
-  // ─── Search ────────────────────────────────────────────────────────────────
-
   protected async searchRaw(
     query: string,
     options: CallOptions = {},
   ): Promise<IMediaSearchResult[]> {
-    const searchGql = `query($search: SearchInput, $limit: Int, $page: Int, $countryOrigin: VaildCountryOriginEnumType) {
-      shows(search: $search, limit: $limit, page: $page, countryOrigin: $countryOrigin) {
-        edges { _id name englishName availableEpisodes __typename }
-      }
-    }`;
-
     const variables = {
       search: {
         allowAdult: false,
@@ -81,27 +79,25 @@ export class AllmangaProvider extends BaseProvider {
       },
       limit: 40,
       page: 1,
-      countryOrigin: 'ALL',
+      countryOrigin: 'ALL' as const,
     };
 
-    const res = await this.http.post(
+    const { response, body } = await postGraphQL(
+      this.http,
       this.apiBase,
-      {
-        variables,
-        query: searchGql,
-      },
+      AllAnimeSearchDocument,
+      variables,
       {
         headers: this.apiHeaders(),
         signal: options.signal,
       },
     );
 
-    if (res.status !== 200) {
-      throw new Error(`AllManga search failed with status ${res.status}`);
+    if (response.status !== 200) {
+      throw new Error(`AllManga search failed with status ${response.status}`);
     }
 
-    const json = (await res.json()) as any;
-    const edges = json?.data?.shows?.edges ?? [];
+    const edges = body.data?.shows?.edges ?? [];
     const out: IMediaSearchResult[] = [];
 
     for (const edge of edges) {
@@ -132,33 +128,29 @@ export class AllmangaProvider extends BaseProvider {
     return out;
   }
 
-  // ─── Episodes ──────────────────────────────────────────────────────────────
-
   protected async fetchContentUnitsRaw(
     mediaId: string,
     options: CallOptions = {},
   ): Promise<IContentUnit[]> {
-    const gql = `query ($showId: String!) { show( _id: $showId ) { _id availableEpisodesDetail }}`;
-
-    const res = await this.http.post(
+    const { response, body } = await postGraphQL(
+      this.http,
       this.apiBase,
-      {
-        variables: {
-          showId: mediaId,
-        },
-        query: gql,
-      },
+      AllAnimeShowDocument,
+      { showId: mediaId },
       {
         headers: this.apiHeaders(),
         signal: options.signal,
       },
     );
-    if (res.status !== 200) {
-      throw new Error(`Failed to fetch AllManga episodes: ${res.status}`);
+    if (response.status !== 200) {
+      throw new Error(`Failed to fetch AllManga episodes: ${response.status}`);
     }
 
-    const json = (await res.json()) as any;
-    const detail = json?.data?.show?.availableEpisodesDetail ?? {};
+    const rawDetail = body.data?.show?.availableEpisodesDetail;
+    const detail =
+      rawDetail && typeof rawDetail === 'object'
+        ? (rawDetail as Record<string, unknown>)
+        : {};
 
     // Merge sub/dub/raw episode lists into one canonical list keyed by episode
     // number; each unit advertises which translations include it.
@@ -170,7 +162,11 @@ export class AllmangaProvider extends BaseProvider {
       }
     >();
     for (const lang of ['sub', 'dub', 'raw'] as const) {
-      const list: string[] = Array.isArray(detail[lang]) ? detail[lang] : [];
+      const list: string[] = Array.isArray(detail[lang])
+        ? detail[lang].filter(
+            (value): value is string => typeof value === 'string',
+          )
+        : [];
       for (const epStr of list) {
         const num = parseFloat(epStr);
         if (isNaN(num)) {
@@ -198,8 +194,6 @@ export class AllmangaProvider extends BaseProvider {
     }
     return units.sort((a, b) => a.number - b.number);
   }
-
-  // ─── Streams ───────────────────────────────────────────────────────────────
 
   protected async resolveStreamRaw(
     unitId: string,
@@ -263,8 +257,6 @@ export class AllmangaProvider extends BaseProvider {
     };
   }
 
-  // ─── Internals ─────────────────────────────────────────────────────────────
-
   private apiHeaders(): Record<string, string> {
     return {
       'Content-Type': 'application/json',
@@ -318,13 +310,11 @@ export class AllmangaProvider extends BaseProvider {
     }
 
     // Fallback to non-persisted GraphQL request
-    const fallbackQuery = `query ($showId: String!, $translationType: VaildTranslationTypeEnumType!, $episodeString: String!) { episode(showId: $showId translationType: $translationType episodeString: $episodeString) { episodeString sourceUrls } }`;
-    const fbRes = await this.http.post(
+    const { response: fbRes, body: fbBody } = await postGraphQL(
+      this.http,
       this.apiBase,
-      {
-        variables,
-        query: fallbackQuery,
-      },
+      AllAnimeEpisodeSourcesDocument,
+      variables,
       {
         headers: this.apiHeaders(),
         signal,
@@ -335,8 +325,14 @@ export class AllmangaProvider extends BaseProvider {
         `AllManga fallback GraphQL failed with status ${fbRes.status}`,
       );
     }
-    const fbJson = (await fbRes.json()) as any;
-    return fbJson?.data?.episode?.sourceUrls ?? [];
+    const sourceUrls = fbBody.data?.episode?.sourceUrls;
+    return Array.isArray(sourceUrls)
+      ? (sourceUrls as Array<{
+          sourceUrl: string;
+          sourceName?: string;
+          priority?: number;
+        }>)
+      : [];
   }
 
   private async decryptTobeparsed(blob: string): Promise<any[]> {
