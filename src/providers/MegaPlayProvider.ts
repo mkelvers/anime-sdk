@@ -181,9 +181,13 @@ export class MegaPlayProvider extends BaseProvider {
       this.anilistApi,
       {
         query: graphqlQuery,
-        variables: { search: query },
+        variables: {
+          search: query,
+        },
       },
-      { signal: options.signal },
+      {
+        signal: options.signal,
+      },
     );
 
     const json = await parseJson(response, anilistSearchResponseSchema);
@@ -217,9 +221,13 @@ export class MegaPlayProvider extends BaseProvider {
       this.anilistApi,
       {
         query: graphqlQuery,
-        variables: { id: parseInt(mediaId) },
+        variables: {
+          id: parseInt(mediaId),
+        },
       },
-      { signal: options.signal },
+      {
+        signal: options.signal,
+      },
     );
 
     const json = await parseJson(response, anilistSearchResponseSchema);

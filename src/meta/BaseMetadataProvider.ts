@@ -157,7 +157,11 @@ export abstract class BaseMetadataProvider {
   ): Promise<IMediaMetadata> {
     const raw = unwrapUrn(this.id, metaUrn);
     const meta = await this.fetchMediaInfoRawNative(raw, options);
-    return { ...meta, id: buildUrn(this.id, meta.id), providerId: this.id };
+    return {
+      ...meta,
+      id: buildUrn(this.id, meta.id),
+      providerId: this.id,
+    };
   }
 
   /**
@@ -301,13 +305,31 @@ export abstract class BaseMetadataProvider {
         // provider's "Episode 5" is barren; meta's "The Plan to Defeat …" is
         // what we actually want to surface).
         title: ext.title ?? u.title,
-        ...(ext.thumbnail ? { thumbnailUrl: ext.thumbnail } : {}),
-        ...(ext.description ? { description: ext.description } : {}),
-        ...(typeof ext.isFiller === 'boolean'
-          ? { isFiller: ext.isFiller }
+        ...(ext.thumbnail
+          ? {
+              thumbnailUrl: ext.thumbnail,
+            }
           : {}),
-        ...(typeof ext.isRecap === 'boolean' ? { isRecap: ext.isRecap } : {}),
-        ...(ext.airDate ? { airDate: ext.airDate } : {}),
+        ...(ext.description
+          ? {
+              description: ext.description,
+            }
+          : {}),
+        ...(typeof ext.isFiller === 'boolean'
+          ? {
+              isFiller: ext.isFiller,
+            }
+          : {}),
+        ...(typeof ext.isRecap === 'boolean'
+          ? {
+              isRecap: ext.isRecap,
+            }
+          : {}),
+        ...(ext.airDate
+          ? {
+              airDate: ext.airDate,
+            }
+          : {}),
       };
     });
   }

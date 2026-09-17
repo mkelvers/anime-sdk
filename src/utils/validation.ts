@@ -74,7 +74,9 @@ export function parseOptionalQueryValue<T>(
       error: `Param \`${name}\` has an invalid value`,
     };
   }
-  return { value: result.data };
+  return {
+    value: result.data,
+  };
 }
 
 /** Keep the relationship to the public interfaces explicit at call sites. */

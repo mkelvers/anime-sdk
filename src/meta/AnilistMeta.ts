@@ -131,8 +131,13 @@ export class AnilistMeta extends BaseMetadataProvider {
 
     const res = await this.http.post(
       this.apiUrl,
-      { query: gql, variables },
-      { signal: options.signal },
+      {
+        query: gql,
+        variables,
+      },
+      {
+        signal: options.signal,
+      },
     );
     if (res.status !== 200) {
       throw new Error(`AniList browse failed with status ${res.status}`);
@@ -160,7 +165,10 @@ export class AnilistMeta extends BaseMetadataProvider {
       format: anilistFormat(m.format),
       score: typeof m.averageScore === 'number' ? m.averageScore : undefined,
       isAdult: !!m.isAdult,
-      mappings: { anilist: m.id, mal: m.idMal ?? undefined },
+      mappings: {
+        anilist: m.id,
+        mal: m.idMal ?? undefined,
+      },
     }));
   }
 
@@ -200,8 +208,16 @@ export class AnilistMeta extends BaseMetadataProvider {
     `;
     const res = await this.http.post(
       this.apiUrl,
-      { query: gql, variables: { q: query, perPage: 25 } },
-      { signal: options.signal },
+      {
+        query: gql,
+        variables: {
+          q: query,
+          perPage: 25,
+        },
+      },
+      {
+        signal: options.signal,
+      },
     );
     if (res.status !== 200) {
       throw new Error(`AniList search failed with status ${res.status}`);
@@ -404,8 +420,15 @@ export class AnilistMeta extends BaseMetadataProvider {
     `;
     const res = await this.http.post(
       this.apiUrl,
-      { query: gql, variables: { id } },
-      { signal: options.signal },
+      {
+        query: gql,
+        variables: {
+          id,
+        },
+      },
+      {
+        signal: options.signal,
+      },
     );
     if (res.status !== 200) {
       throw new Error(

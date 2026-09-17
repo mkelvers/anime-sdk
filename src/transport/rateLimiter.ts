@@ -83,7 +83,11 @@ export class RateLimiter {
     }
 
     return new Promise<void>((resolve, reject) => {
-      const entry = { resolve, reject, signal };
+      const entry = {
+        resolve,
+        reject,
+        signal,
+      };
       bucket.queue.push(entry);
       if (signal) {
         const onAbort = () => {
@@ -96,7 +100,9 @@ export class RateLimiter {
         if (signal.aborted) {
           return onAbort();
         }
-        signal.addEventListener('abort', onAbort, { once: true });
+        signal.addEventListener('abort', onAbort, {
+          once: true,
+        });
       }
       this.schedulePump(bucket);
     });
@@ -114,7 +120,10 @@ export class RateLimiter {
       return null;
     }
     this.refill(bucket);
-    return { tokens: bucket.tokens, queued: bucket.queue.length };
+    return {
+      tokens: bucket.tokens,
+      queued: bucket.queue.length,
+    };
   }
 
   // ── internals ─────────────────────────────────────────────────────────────
@@ -213,14 +222,32 @@ function abortError(signal: AbortSignal): Error {
  * needs that the provider/extractor knows better than us.
  */
 export const DEFAULT_RATE_LIMITS: PerHostRateLimits = {
-  'graphql.anilist.co': { capacity: 85, intervalMs: 60_000 },
+  'graphql.anilist.co': {
+    capacity: 85,
+    intervalMs: 60_000,
+  },
   'api.jikan.moe': {
     capacity: 55,
     intervalMs: 60_000,
-    burst: { capacity: 3, intervalMs: 1_000 },
+    burst: {
+      capacity: 3,
+      intervalMs: 1_000,
+    },
   },
-  'kitsu.io': { capacity: 100, intervalMs: 60_000 },
-  'api.malsync.moe': { capacity: 30, intervalMs: 60_000 },
-  'api.anify.tv': { capacity: 30, intervalMs: 60_000 },
-  'arm.haglund.dev': { capacity: 60, intervalMs: 60_000 },
+  'kitsu.io': {
+    capacity: 100,
+    intervalMs: 60_000,
+  },
+  'api.malsync.moe': {
+    capacity: 30,
+    intervalMs: 60_000,
+  },
+  'api.anify.tv': {
+    capacity: 30,
+    intervalMs: 60_000,
+  },
+  'arm.haglund.dev': {
+    capacity: 60,
+    intervalMs: 60_000,
+  },
 };

@@ -66,14 +66,19 @@ export class HttpClient {
     this.timeoutMs = config.timeoutMs || 10000;
     if (!config.disableRateLimit) {
       this.rateLimiter = new RateLimiter(
-        { ...DEFAULT_RATE_LIMITS, ...(config.rateLimits ?? {}) },
+        {
+          ...DEFAULT_RATE_LIMITS,
+          ...(config.rateLimits ?? {}),
+        },
         config.defaultRateLimit,
       );
     }
     this.retryConfig = config.retry === false ? false : (config.retry ?? {});
     this.transport =
       config.transport ??
-      new CurlFallbackTransport({ timeoutMs: this.timeoutMs });
+      new CurlFallbackTransport({
+        timeoutMs: this.timeoutMs,
+      });
   }
 
   /** Live rate-limiter; useful for tests and observability. May be undefined when disabled. */
@@ -162,7 +167,9 @@ export class HttpClient {
     options: RequestInit = {},
   ): Promise<Response> {
     const targetUrl = this.requestUrl(url);
-    const headers: Record<string, string> = { ...this.defaultHeaders };
+    const headers: Record<string, string> = {
+      ...this.defaultHeaders,
+    };
     if (options.headers) {
       if (options.headers instanceof Headers) {
         options.headers.forEach((value, key) => {
@@ -192,7 +199,9 @@ export class HttpClient {
         throw abortReason(callerSignal);
       }
       onCallerAbort = () => controller.abort(callerSignal.reason);
-      callerSignal.addEventListener('abort', onCallerAbort, { once: true });
+      callerSignal.addEventListener('abort', onCallerAbort, {
+        once: true,
+      });
     }
     const cleanup = () => {
       clearTimeout(id);
@@ -216,7 +225,10 @@ export class HttpClient {
   }
 
   public async get(url: string, options: RequestInit = {}): Promise<Response> {
-    return this.request(url, { ...options, method: 'GET' });
+    return this.request(url, {
+      ...options,
+      method: 'GET',
+    });
   }
 
   public async post(

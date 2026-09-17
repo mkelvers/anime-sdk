@@ -103,7 +103,9 @@ function json(res: http.ServerResponse, status: number, body: unknown): void {
 }
 
 function err(res: http.ServerResponse, status: number, message: string): void {
-  json(res, status, { error: message });
+  json(res, status, {
+    error: message,
+  });
 }
 
 function timingSafeEquals(a: string, b: string): boolean {
@@ -228,7 +230,11 @@ function proxyifyStream(
       return {
         ...s,
         sourceUrl: buildProxyUrl(proxyBase, s.sourceUrl, hParam, signSecret),
-        ...(subtitles ? { subtitles } : {}),
+        ...(subtitles
+          ? {
+              subtitles,
+            }
+          : {}),
       };
     }),
   };
@@ -281,7 +287,11 @@ export function startServer(options: ServerOptions): http.Server {
     filename: string,
   ): string {
     const token = crypto.randomUUID();
-    pendingDownloads.set(token, { filePath, tmpDir, filename });
+    pendingDownloads.set(token, {
+      filePath,
+      tmpDir,
+      filename,
+    });
     setTimeout(
       () => {
         const info = pendingDownloads.get(token);
@@ -770,7 +780,11 @@ export function startServer(options: ServerOptions): http.Server {
             await downloadVideo(stream.streams, tmpFile, {
               timeoutMs: 1_200_000,
               onProgress: ({ phase, detail }) =>
-                send({ type: 'progress', phase, detail }),
+                send({
+                  type: 'progress',
+                  phase,
+                  detail,
+                }),
             });
             send({
               type: 'complete',
@@ -821,7 +835,11 @@ export function startServer(options: ServerOptions): http.Server {
 
         const send = openSse(res);
         try {
-          send({ type: 'progress', downloaded: 0, total: 0 });
+          send({
+            type: 'progress',
+            downloaded: 0,
+            total: 0,
+          });
           const stream = await cached(`stream:${provider.id}:${unitId}:`, () =>
             provider.resolveStream(unitId),
           );
@@ -842,7 +860,11 @@ export function startServer(options: ServerOptions): http.Server {
           try {
             await downloadMangaChapter(stream.pages, tmpFile, {
               onProgress: ({ downloaded, total }) =>
-                send({ type: 'progress', downloaded, total }),
+                send({
+                  type: 'progress',
+                  downloaded,
+                  total,
+                }),
             });
             send({
               type: 'complete',
@@ -1098,14 +1120,6 @@ export function startServer(options: ServerOptions): http.Server {
         return;
       }
 
-      // ── Metadata layer ───────────────────────────────────────────────
-      // Routes:
-      //   /meta/search   ?provider=anilist&q=<query>
-      //   /meta/info     ?provider=anilist&id=<metaUrn>
-      //   /meta/content  ?provider=anilist&id=<metaUrn>&contentProvider=<id>
-      //   /meta/stream   ?provider=anilist&id=<metaUrn>&episode=<n>&contentProvider=<id>[&language=]
-      //   /meta/tracks   ?provider=anilist&id=<metaUrn>&episode=<n>&contentProvider=<id>[&language=]
-      //   /meta/browse   ?provider=anilist&kind=trending|popular|seasonal|top[&catalogType=&page=&perPage=&season=&year=&format=]
       if (url.pathname.startsWith('/meta/')) {
         const meta = findMetaProvider(q.get('provider'));
         if (!meta) {
@@ -1350,16 +1364,25 @@ function buildOpenApiSpec(args: {
             name: 'q',
             in: 'query',
             required: true,
-            schema: { type: 'string' },
+            schema: {
+              type: 'string',
+            },
           },
           {
             name: 'provider',
             in: 'query',
             required: true,
-            schema: { type: 'string', enum: providerEnum },
+            schema: {
+              type: 'string',
+              enum: providerEnum,
+            },
           },
         ],
-        responses: { '200': { description: 'IMediaSearchResult[]' } },
+        responses: {
+          '200': {
+            description: 'IMediaSearchResult[]',
+          },
+        },
       },
     },
     '/content': {
@@ -1370,16 +1393,25 @@ function buildOpenApiSpec(args: {
             name: 'mediaId',
             in: 'query',
             required: true,
-            schema: { type: 'string' },
+            schema: {
+              type: 'string',
+            },
           },
           {
             name: 'provider',
             in: 'query',
             required: true,
-            schema: { type: 'string', enum: providerEnum },
+            schema: {
+              type: 'string',
+              enum: providerEnum,
+            },
           },
         ],
-        responses: { '200': { description: 'IContentUnit[]' } },
+        responses: {
+          '200': {
+            description: 'IContentUnit[]',
+          },
+        },
       },
     },
     '/stream': {
@@ -1390,21 +1422,33 @@ function buildOpenApiSpec(args: {
             name: 'unitId',
             in: 'query',
             required: true,
-            schema: { type: 'string' },
+            schema: {
+              type: 'string',
+            },
           },
           {
             name: 'provider',
             in: 'query',
             required: true,
-            schema: { type: 'string', enum: providerEnum },
+            schema: {
+              type: 'string',
+              enum: providerEnum,
+            },
           },
           {
             name: 'language',
             in: 'query',
-            schema: { type: 'string', enum: ['sub', 'dub', 'raw'] },
+            schema: {
+              type: 'string',
+              enum: ['sub', 'dub', 'raw'],
+            },
           },
         ],
-        responses: { '200': { description: 'ResolvedMediaStream' } },
+        responses: {
+          '200': {
+            description: 'ResolvedMediaStream',
+          },
+        },
       },
     },
     '/tracks': {
@@ -1415,30 +1459,46 @@ function buildOpenApiSpec(args: {
             name: 'unitId',
             in: 'query',
             required: true,
-            schema: { type: 'string' },
+            schema: {
+              type: 'string',
+            },
           },
           {
             name: 'provider',
             in: 'query',
             required: true,
-            schema: { type: 'string', enum: providerEnum },
+            schema: {
+              type: 'string',
+              enum: providerEnum,
+            },
           },
           {
             name: 'language',
             in: 'query',
-            schema: { type: 'string', enum: ['sub', 'dub', 'raw'] },
+            schema: {
+              type: 'string',
+              enum: ['sub', 'dub', 'raw'],
+            },
           },
         ],
         responses: {
-          '200': { description: 'IUnitTracks' },
-          '501': { description: 'Provider does not expose tracks' },
+          '200': {
+            description: 'IUnitTracks',
+          },
+          '501': {
+            description: 'Provider does not expose tracks',
+          },
         },
       },
     },
     '/health': {
       get: {
         summary: 'Health + capability check',
-        responses: { '200': { description: 'OK' } },
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
       },
     },
   };
@@ -1451,16 +1511,25 @@ function buildOpenApiSpec(args: {
             name: 'q',
             in: 'query',
             required: true,
-            schema: { type: 'string' },
+            schema: {
+              type: 'string',
+            },
           },
           {
             name: 'provider',
             in: 'query',
             required: true,
-            schema: { type: 'string', enum: metaEnum },
+            schema: {
+              type: 'string',
+              enum: metaEnum,
+            },
           },
         ],
-        responses: { '200': { description: 'IMetaSearchResult[]' } },
+        responses: {
+          '200': {
+            description: 'IMetaSearchResult[]',
+          },
+        },
       },
     };
     paths['/meta/info'] = {
@@ -1471,16 +1540,25 @@ function buildOpenApiSpec(args: {
             name: 'id',
             in: 'query',
             required: true,
-            schema: { type: 'string' },
+            schema: {
+              type: 'string',
+            },
           },
           {
             name: 'provider',
             in: 'query',
             required: true,
-            schema: { type: 'string', enum: metaEnum },
+            schema: {
+              type: 'string',
+              enum: metaEnum,
+            },
           },
         ],
-        responses: { '200': { description: 'IMediaMetadata' } },
+        responses: {
+          '200': {
+            description: 'IMediaMetadata',
+          },
+        },
       },
     };
     paths['/meta/content'] = {
@@ -1491,22 +1569,34 @@ function buildOpenApiSpec(args: {
             name: 'id',
             in: 'query',
             required: true,
-            schema: { type: 'string' },
+            schema: {
+              type: 'string',
+            },
           },
           {
             name: 'provider',
             in: 'query',
             required: true,
-            schema: { type: 'string', enum: metaEnum },
+            schema: {
+              type: 'string',
+              enum: metaEnum,
+            },
           },
           {
             name: 'contentProvider',
             in: 'query',
             required: true,
-            schema: { type: 'string', enum: providerEnum },
+            schema: {
+              type: 'string',
+              enum: providerEnum,
+            },
           },
         ],
-        responses: { '200': { description: 'IContentUnit[]' } },
+        responses: {
+          '200': {
+            description: 'IContentUnit[]',
+          },
+        },
       },
     };
     paths['/meta/stream'] = {
@@ -1517,33 +1607,50 @@ function buildOpenApiSpec(args: {
             name: 'id',
             in: 'query',
             required: true,
-            schema: { type: 'string' },
+            schema: {
+              type: 'string',
+            },
           },
           {
             name: 'episode',
             in: 'query',
             required: true,
-            schema: { type: 'number' },
+            schema: {
+              type: 'number',
+            },
           },
           {
             name: 'provider',
             in: 'query',
             required: true,
-            schema: { type: 'string', enum: metaEnum },
+            schema: {
+              type: 'string',
+              enum: metaEnum,
+            },
           },
           {
             name: 'contentProvider',
             in: 'query',
             required: true,
-            schema: { type: 'string', enum: providerEnum },
+            schema: {
+              type: 'string',
+              enum: providerEnum,
+            },
           },
           {
             name: 'language',
             in: 'query',
-            schema: { type: 'string', enum: ['sub', 'dub', 'raw'] },
+            schema: {
+              type: 'string',
+              enum: ['sub', 'dub', 'raw'],
+            },
           },
         ],
-        responses: { '200': { description: 'ResolvedMediaStream' } },
+        responses: {
+          '200': {
+            description: 'ResolvedMediaStream',
+          },
+        },
       },
     };
     paths['/meta/tracks'] = {
@@ -1555,35 +1662,52 @@ function buildOpenApiSpec(args: {
             name: 'id',
             in: 'query',
             required: true,
-            schema: { type: 'string' },
+            schema: {
+              type: 'string',
+            },
           },
           {
             name: 'episode',
             in: 'query',
             required: true,
-            schema: { type: 'number' },
+            schema: {
+              type: 'number',
+            },
           },
           {
             name: 'provider',
             in: 'query',
             required: true,
-            schema: { type: 'string', enum: metaEnum },
+            schema: {
+              type: 'string',
+              enum: metaEnum,
+            },
           },
           {
             name: 'contentProvider',
             in: 'query',
             required: true,
-            schema: { type: 'string', enum: providerEnum },
+            schema: {
+              type: 'string',
+              enum: providerEnum,
+            },
           },
           {
             name: 'language',
             in: 'query',
-            schema: { type: 'string', enum: ['sub', 'dub', 'raw'] },
+            schema: {
+              type: 'string',
+              enum: ['sub', 'dub', 'raw'],
+            },
           },
         ],
         responses: {
-          '200': { description: 'IUnitTracks' },
-          '501': { description: 'Provider does not expose tracks' },
+          '200': {
+            description: 'IUnitTracks',
+          },
+          '501': {
+            description: 'Provider does not expose tracks',
+          },
         },
       },
     };
@@ -1604,22 +1728,35 @@ function buildOpenApiSpec(args: {
             name: 'provider',
             in: 'query',
             required: true,
-            schema: { type: 'string', enum: metaEnum },
+            schema: {
+              type: 'string',
+              enum: metaEnum,
+            },
           },
           {
             name: 'catalogType',
             in: 'query',
-            schema: { type: 'string', enum: ['ANIME', 'MANGA'] },
+            schema: {
+              type: 'string',
+              enum: ['ANIME', 'MANGA'],
+            },
           },
           {
             name: 'page',
             in: 'query',
-            schema: { type: 'integer', minimum: 1 },
+            schema: {
+              type: 'integer',
+              minimum: 1,
+            },
           },
           {
             name: 'perPage',
             in: 'query',
-            schema: { type: 'integer', minimum: 1, maximum: 50 },
+            schema: {
+              type: 'integer',
+              minimum: 1,
+              maximum: 50,
+            },
           },
           {
             name: 'season',
@@ -1629,12 +1766,28 @@ function buildOpenApiSpec(args: {
               enum: ['WINTER', 'SPRING', 'SUMMER', 'FALL'],
             },
           },
-          { name: 'year', in: 'query', schema: { type: 'integer' } },
-          { name: 'format', in: 'query', schema: { type: 'string' } },
+          {
+            name: 'year',
+            in: 'query',
+            schema: {
+              type: 'integer',
+            },
+          },
+          {
+            name: 'format',
+            in: 'query',
+            schema: {
+              type: 'string',
+            },
+          },
         ],
         responses: {
-          '200': { description: 'IMetaSearchResult[]' },
-          '501': { description: 'Browse kind not supported' },
+          '200': {
+            description: 'IMetaSearchResult[]',
+          },
+          '501': {
+            description: 'Browse kind not supported',
+          },
         },
       },
     };
@@ -1648,17 +1801,25 @@ function buildOpenApiSpec(args: {
             name: 'url',
             in: 'query',
             required: true,
-            schema: { type: 'string' },
+            schema: {
+              type: 'string',
+            },
           },
           {
             name: 'h',
             in: 'query',
-            schema: { type: 'string', description: 'base64-JSON headers' },
+            schema: {
+              type: 'string',
+              description: 'base64-JSON headers',
+            },
           },
           {
             name: 'ct',
             in: 'query',
-            schema: { type: 'string', description: 'Content-Type override' },
+            schema: {
+              type: 'string',
+              description: 'Content-Type override',
+            },
           },
           {
             name: 'sig',
@@ -1671,9 +1832,15 @@ function buildOpenApiSpec(args: {
           },
         ],
         responses: {
-          '200': { description: 'Streamed upstream body' },
-          '401': { description: 'Bad/missing signature' },
-          '403': { description: 'Host not in allowlist' },
+          '200': {
+            description: 'Streamed upstream body',
+          },
+          '401': {
+            description: 'Bad/missing signature',
+          },
+          '403': {
+            description: 'Host not in allowlist',
+          },
         },
       },
     };
@@ -1685,7 +1852,11 @@ function buildOpenApiSpec(args: {
       version: '1.0.1',
       description: 'Universal media SDK server',
     },
-    servers: [{ url: args.proxyBase.replace(/\/proxy$/, '') }],
+    servers: [
+      {
+        url: args.proxyBase.replace(/\/proxy$/, ''),
+      },
+    ],
     paths,
   };
 }

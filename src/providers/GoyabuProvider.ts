@@ -288,7 +288,10 @@ export class GoyabuProvider extends BaseProvider {
       );
     }
 
-    return { type: 'video', streams: videoSources };
+    return {
+      type: 'video',
+      streams: videoSources,
+    };
   }
 
   private collectBloggerUrls(html: string): string[] {
@@ -363,7 +366,9 @@ export class GoyabuProvider extends BaseProvider {
           sourceUrl: m[1],
           isHLS: m[1].includes('.m3u8'),
           quality: mapQuality(q),
-          headers: { Referer: refererUrl },
+          headers: {
+            Referer: refererUrl,
+          },
         });
       }
     }

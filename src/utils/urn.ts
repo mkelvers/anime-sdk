@@ -52,9 +52,15 @@ export function parseUrn(urn: string): {
 } {
   const sep = urn.indexOf(':');
   if (sep < 0) {
-    return { providerId: '', rawId: urn };
+    return {
+      providerId: '',
+      rawId: urn,
+    };
   }
-  return { providerId: urn.slice(0, sep), rawId: urn.slice(sep + 1) };
+  return {
+    providerId: urn.slice(0, sep),
+    rawId: urn.slice(sep + 1),
+  };
 }
 
 /**
@@ -138,20 +144,31 @@ export function parseTypedUrn(
 } {
   const sep = urn.indexOf(':');
   if (sep < 0) {
-    return { rawId: urn };
+    return {
+      rawId: urn,
+    };
   }
   const prefix = urn.slice(0, sep);
   const rest = urn.slice(sep + 1);
   if (prefix !== providerId) {
-    return { rawId: urn };
+    return {
+      rawId: urn,
+    };
   }
   const sep2 = rest.indexOf(':');
   if (sep2 < 0) {
-    return { rawId: rest };
+    return {
+      rawId: rest,
+    };
   }
   const candidate = rest.slice(0, sep2);
   if (candidate === 'anime' || candidate === 'manga') {
-    return { kind: candidate, rawId: rest.slice(sep2 + 1) };
+    return {
+      kind: candidate,
+      rawId: rest.slice(sep2 + 1),
+    };
   }
-  return { rawId: rest };
+  return {
+    rawId: rest,
+  };
 }

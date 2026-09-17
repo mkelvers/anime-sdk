@@ -72,7 +72,11 @@ export function normalizeSubtitleEntries(entries: unknown): ISubtitleTrack[] {
         ? languageResult.data
         : (LABEL_TO_BCP47[label.toLowerCase()] ??
           label.slice(0, 2).toLowerCase()),
-      ...(format ? { format } : {}),
+      ...(format
+        ? {
+            format,
+          }
+        : {}),
     });
   }
   return out;

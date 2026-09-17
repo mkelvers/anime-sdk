@@ -144,7 +144,9 @@ export class CurlFallbackTransport implements HttpTransport {
       method !== 'GET' && method !== 'POST' ? ` -X ${method}` : '';
     const cookieArg = ` -c ${JSON.stringify(this.cookieFile)} -b ${JSON.stringify(this.cookieFile)}`;
     const cmd = `curl -sL --max-time ${Math.ceil(this.timeoutMs / 1000)}${methodArg}${headerArgs}${bodyArg}${cookieArg} -i ${JSON.stringify(targetUrl)}`;
-    const output = execSync(cmd, { maxBuffer: 10 * 1024 * 1024 });
+    const output = execSync(cmd, {
+      maxBuffer: 10 * 1024 * 1024,
+    });
     return parseCurlResponse(output.toString('binary'), targetUrl);
   }
 }

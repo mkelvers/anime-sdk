@@ -86,7 +86,10 @@ export abstract class BaseProvider {
     return this.withConcurrency(async () => {
       const raw = unwrapUrn(this.id, mediaUrn);
       const units = await this.fetchContentUnitsRaw(raw, options);
-      return units.map((u) => ({ ...u, id: buildUrn(this.id, u.id) }));
+      return units.map((u) => ({
+        ...u,
+        id: buildUrn(this.id, u.id),
+      }));
     });
   }
 
@@ -120,7 +123,10 @@ export abstract class BaseProvider {
         } catch {
           // A missing translation should not reject the combined result.
         }
-        return { sub, dub };
+        return {
+          sub,
+          dub,
+        };
       }
       return this.resolveStreamRaw(raw, language, options);
     });

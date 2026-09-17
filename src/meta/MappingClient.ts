@@ -146,7 +146,10 @@ export class MappingClient {
       const hit = await this.options.cache.get(cacheKey);
       if (hit !== undefined && hit !== null) {
         const stored = hit as MappingResolution;
-        return { ...stored, method: 'cached' };
+        return {
+          ...stored,
+          method: 'cached',
+        };
       }
     }
 
@@ -197,7 +200,10 @@ export class MappingClient {
         fuzzy.matchedTitle,
         'fuzzy',
       );
-      return { ...cached, similarity: fuzzy.similarity };
+      return {
+        ...cached,
+        similarity: fuzzy.similarity,
+      };
     }
 
     return null;
@@ -281,7 +287,10 @@ export class MappingClient {
         promise
           .then((rawId) => {
             if (rawId) {
-              resolve({ rawId, method });
+              resolve({
+                rawId,
+                method,
+              });
             }
           })
           .catch(() => {})
@@ -312,7 +321,9 @@ export class MappingClient {
     const url = `https://api.malsync.moe/${namespace}/${type}/${id}`;
     try {
       const res = await this.http.get(url, {
-        headers: { Accept: 'application/json' },
+        headers: {
+          Accept: 'application/json',
+        },
         signal: options.signal,
       });
       if (res.status !== 200) {
@@ -355,7 +366,9 @@ export class MappingClient {
     const url = `https://api.anify.tv/info/${anilistId}`;
     try {
       const res = await this.http.get(url, {
-        headers: { Accept: 'application/json' },
+        headers: {
+          Accept: 'application/json',
+        },
         signal: options.signal,
       });
       if (res.status !== 200) {
@@ -394,7 +407,12 @@ export class MappingClient {
     try {
       const res = await this.http.get(
         `https://arm.haglund.dev/api/v2/ids?source=anilist&id=${anilistId}`,
-        { headers: { Accept: 'application/json' }, signal: options.signal },
+        {
+          headers: {
+            Accept: 'application/json',
+          },
+          signal: options.signal,
+        },
       );
       if (res.status !== 200) {
         return null;

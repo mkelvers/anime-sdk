@@ -56,7 +56,9 @@ export class AnikotoProvider extends BaseProvider {
   ): Promise<IMediaSearchResult[]> {
     const response = await this.http.get(
       `${this.baseUrl}/filter?keyword=${encodeURIComponent(query)}`,
-      { signal: options.signal },
+      {
+        signal: options.signal,
+      },
     );
     const html = await response.text();
     const dom = DomRegistry.parse(html);

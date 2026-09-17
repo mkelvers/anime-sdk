@@ -45,7 +45,10 @@ export class BloggerExtractor extends BaseExtractor {
 
     // Step 1: fetch the embed page for FdrFJe / cfb2h.
     const pageRes = await this.http.get(embedUrl, {
-      headers: { 'User-Agent': UA, Accept: 'text/html' },
+      headers: {
+        'User-Agent': UA,
+        Accept: 'text/html',
+      },
     });
     if (pageRes.status !== 200) {
       throw new Error(
@@ -112,7 +115,10 @@ export class BloggerExtractor extends BaseExtractor {
    * structured parsing yields nothing.
    */
   private parseBatchexecuteResponse(body: string): IVideoPayload[] {
-    const headers = { Referer: 'https://www.blogger.com/', 'User-Agent': UA };
+    const headers = {
+      Referer: 'https://www.blogger.com/',
+      'User-Agent': UA,
+    };
     const result: IVideoPayload[] = [];
     const seen = new Set<string>();
 
@@ -177,7 +183,10 @@ export class BloggerExtractor extends BaseExtractor {
           } else if (u.includes('itag=18')) {
             q = '360p';
           }
-          mp4s.push({ url: u, quality: q });
+          mp4s.push({
+            url: u,
+            quality: q,
+          });
         }
 
         // Prefer 720p over 360p

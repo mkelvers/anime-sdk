@@ -186,7 +186,9 @@ function sleep(ms: number, signal?: AbortSignal): Promise<void> {
       if (signal.aborted) {
         return onAbort();
       }
-      signal.addEventListener('abort', onAbort, { once: true });
+      signal.addEventListener('abort', onAbort, {
+        once: true,
+      });
     }
   });
 }

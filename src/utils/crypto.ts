@@ -14,7 +14,9 @@ export async function aesDecrypt(
   const key = await subtle.importKey(
     'raw',
     keyBuffer,
-    { name: 'AES-CBC' },
+    {
+      name: 'AES-CBC',
+    },
     false,
     ['decrypt'],
   );
@@ -28,7 +30,10 @@ export async function aesDecrypt(
   }
 
   const decryptedBuffer = await subtle.decrypt(
-    { name: 'AES-CBC', iv: ivBuffer },
+    {
+      name: 'AES-CBC',
+      iv: ivBuffer,
+    },
     key,
     bytes,
   );
@@ -50,7 +55,9 @@ export async function aesEncrypt(
   const key = await subtle.importKey(
     'raw',
     keyBuffer,
-    { name: 'AES-CBC' },
+    {
+      name: 'AES-CBC',
+    },
     false,
     ['encrypt'],
   );
@@ -58,7 +65,10 @@ export async function aesEncrypt(
   const plaintextBytes = new TextEncoder().encode(plaintext);
 
   const encryptedBuffer = await subtle.encrypt(
-    { name: 'AES-CBC', iv: ivBuffer },
+    {
+      name: 'AES-CBC',
+      iv: ivBuffer,
+    },
     key,
     plaintextBytes,
   );
@@ -92,12 +102,18 @@ export async function aesDecryptCtr(
   const importedKey = await subtle.importKey(
     'raw',
     keyBytes,
-    { name: 'AES-CTR' },
+    {
+      name: 'AES-CTR',
+    },
     false,
     ['decrypt'],
   );
   const decryptedBuffer = await subtle.decrypt(
-    { name: 'AES-CTR', counter: ivBytes, length: 64 },
+    {
+      name: 'AES-CTR',
+      counter: ivBytes,
+      length: 64,
+    },
     importedKey,
     ciphertextBytes,
   );

@@ -104,7 +104,10 @@ export function parseHlsSegments(
           duration: dur,
         });
       } catch {
-        segments.push({ url: line, duration: dur });
+        segments.push({
+          url: line,
+          duration: dur,
+        });
       }
     }
   }
@@ -141,7 +144,10 @@ const DEFAULT_UA =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
 function mergeHeaders(extra?: Record<string, string>): Record<string, string> {
-  return { 'User-Agent': DEFAULT_UA, ...(extra ?? {}) };
+  return {
+    'User-Agent': DEFAULT_UA,
+    ...(extra ?? {}),
+  };
 }
 
 // ─── Video Download ─────────────────────────────────────────────────────────
@@ -168,7 +174,9 @@ export async function downloadVideo(
 
   const dir = path.dirname(outputPath);
   if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+    fs.mkdirSync(dir, {
+      recursive: true,
+    });
   }
 
   const timeout = options?.timeoutMs ?? 300_000;
@@ -223,8 +231,15 @@ export async function downloadVideo(
         throw new Error(`Downloaded file is too small (${stat.size} bytes)`);
       }
 
-      options?.onProgress?.({ phase: 'complete', detail: outputPath });
-      return { outputPath, stream: candidate, fileSize: stat.size };
+      options?.onProgress?.({
+        phase: 'complete',
+        detail: outputPath,
+      });
+      return {
+        outputPath,
+        stream: candidate,
+        fileSize: stat.size,
+      };
     } catch (e) {
       const message = getErrorMessage(e);
       errors.push(
@@ -249,14 +264,21 @@ async function probeIsVideo(
   try {
     const res = await fetch(url, {
       method: 'GET',
-      headers: { ...mergeHeaders(headers), Range: 'bytes=0-2048' },
+      headers: {
+        ...mergeHeaders(headers),
+        Range: 'bytes=0-2048',
+      },
     });
     if (res.status !== 200 && res.status !== 206) {
-      return { isVideo: false };
+      return {
+        isVideo: false,
+      };
     }
     const ct = (res.headers.get('content-type') ?? '').toLowerCase();
     if (ct.startsWith('text/html') || ct.startsWith('application/xhtml')) {
-      return { isVideo: false };
+      return {
+        isVideo: false,
+      };
     }
     if (
       ct.startsWith('video/') ||
@@ -264,15 +286,23 @@ async function probeIsVideo(
       ct.includes('mp2t') ||
       ct.startsWith('application/octet-stream')
     ) {
-      return { isVideo: true };
+      return {
+        isVideo: true,
+      };
     }
     const buf = Buffer.from(await res.arrayBuffer());
     if (buf.length >= 12 && buf.subarray(4, 8).toString('ascii') === 'ftyp') {
-      return { isVideo: true };
+      return {
+        isVideo: true,
+      };
     }
-    return { isVideo: false };
+    return {
+      isVideo: false,
+    };
   } catch {
-    return { isVideo: false };
+    return {
+      isVideo: false,
+    };
   }
 }
 
@@ -312,7 +342,10 @@ async function scrapeForStreamUrl(
       /https?:\/\/[^"'\s<>\\]+?\/[^"'\s<>\\/]+\.m3u8(?:[?#][^"'\s<>\\]*)?/i,
     );
     if (m3u8) {
-      return { url: m3u8.replace(/&amp;/g, '&'), isHls: true };
+      return {
+        url: m3u8.replace(/&amp;/g, '&'),
+        isHls: true,
+      };
     }
 
     const mp4 = pickFirst(
@@ -320,7 +353,10 @@ async function scrapeForStreamUrl(
       /https?:\/\/[^"'\s<>\\]+?\/[^"'\s<>\\/]+\.mp4(?:[?#][^"'\s<>\\]*)?/i,
     );
     if (mp4) {
-      return { url: mp4.replace(/&amp;/g, '&'), isHls: false };
+      return {
+        url: mp4.replace(/&amp;/g, '&'),
+        isHls: false,
+      };
     }
 
     return null;
@@ -357,7 +393,9 @@ async function downloadHlsSegments(
   onProgress?: (info: DownloadVideoProgress) => void,
 ): Promise<void> {
   let currentUrl = playlistUrl;
-  let res = await fetch(currentUrl, { headers: mergeHeaders(headers) });
+  let res = await fetch(currentUrl, {
+    headers: mergeHeaders(headers),
+  });
   if (!res.ok) {
     throw new Error(
       `Playlist ${res.status} ${res.statusText} (${currentUrl.slice(0, 120)})`,
@@ -376,7 +414,9 @@ async function downloadHlsSegments(
       throw new Error('Master playlist has no variants');
     }
     currentUrl = variants[variants.length - 1]; // pick highest quality (last)
-    res = await fetch(currentUrl, { headers: mergeHeaders(headers) });
+    res = await fetch(currentUrl, {
+      headers: mergeHeaders(headers),
+    });
     if (!res.ok) {
       throw new Error(`Variant ${res.status} (${currentUrl.slice(0, 120)})`);
     }
@@ -407,7 +447,9 @@ async function downloadHlsSegments(
       });
 
       const seg = segments[i];
-      const segRes = await fetch(seg.url, { headers: mergeHeaders(headers) });
+      const segRes = await fetch(seg.url, {
+        headers: mergeHeaders(headers),
+      });
       if (!segRes.ok) {
         throw new Error(`Segment ${i} failed: HTTP ${segRes.status}`);
       }
@@ -518,7 +560,9 @@ export async function downloadMangaPage(
   }
 
   if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
+    fs.mkdirSync(outputDir, {
+      recursive: true,
+    });
   }
 
   const url = pages.imageUrls[pageIndex];
@@ -546,7 +590,12 @@ export async function downloadMangaPage(
     const buf = Buffer.from(await res.arrayBuffer());
     fs.writeFileSync(outputPath, buf);
 
-    return { outputPath, pageIndex, fileSize: buf.length, contentType };
+    return {
+      outputPath,
+      pageIndex,
+      fileSize: buf.length,
+      contentType,
+    };
   } finally {
     clearTimeout(timer);
   }
@@ -572,7 +621,9 @@ export async function downloadMangaChapter(
 
   const dir = path.dirname(outputPath);
   if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+    fs.mkdirSync(dir, {
+      recursive: true,
+    });
   }
 
   const headers = pages.headers ?? {};
@@ -580,7 +631,10 @@ export async function downloadMangaChapter(
   const entries: ZipEntry[] = [];
 
   for (let i = 0; i < pages.imageUrls.length; i++) {
-    options?.onProgress?.({ downloaded: i, total: pages.imageUrls.length });
+    options?.onProgress?.({
+      downloaded: i,
+      total: pages.imageUrls.length,
+    });
 
     const url = pages.imageUrls[i];
     const ctrl = new AbortController();
@@ -601,7 +655,10 @@ export async function downloadMangaChapter(
       const filename = `${paddedIndex}${ext}`;
 
       const data = Buffer.from(await res.arrayBuffer());
-      entries.push({ filename, data });
+      entries.push({
+        filename,
+        data,
+      });
     } finally {
       clearTimeout(timer);
     }

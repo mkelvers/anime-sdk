@@ -52,10 +52,20 @@ export class GenericHlsExtractor extends BaseExtractor {
 
     const out: IVideoPayload[] = [];
     if (m3u8) {
-      out.push({ sourceUrl: m3u8, isHLS: true, quality: 'auto', headers });
+      out.push({
+        sourceUrl: m3u8,
+        isHLS: true,
+        quality: 'auto',
+        headers,
+      });
     }
     if (mp4) {
-      out.push({ sourceUrl: mp4, isHLS: false, quality: 'auto', headers });
+      out.push({
+        sourceUrl: mp4,
+        isHLS: false,
+        quality: 'auto',
+        headers,
+      });
     }
     return out;
   }

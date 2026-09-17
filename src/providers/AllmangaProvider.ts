@@ -74,7 +74,11 @@ export class AllmangaProvider extends BaseProvider {
     }`;
 
     const variables = {
-      search: { allowAdult: false, allowUnknown: false, query },
+      search: {
+        allowAdult: false,
+        allowUnknown: false,
+        query,
+      },
       limit: 40,
       page: 1,
       countryOrigin: 'ALL',
@@ -82,8 +86,14 @@ export class AllmangaProvider extends BaseProvider {
 
     const res = await this.http.post(
       this.apiBase,
-      { variables, query: searchGql },
-      { headers: this.apiHeaders(), signal: options.signal },
+      {
+        variables,
+        query: searchGql,
+      },
+      {
+        headers: this.apiHeaders(),
+        signal: options.signal,
+      },
     );
 
     if (res.status !== 200) {
@@ -132,8 +142,16 @@ export class AllmangaProvider extends BaseProvider {
 
     const res = await this.http.post(
       this.apiBase,
-      { variables: { showId: mediaId }, query: gql },
-      { headers: this.apiHeaders(), signal: options.signal },
+      {
+        variables: {
+          showId: mediaId,
+        },
+        query: gql,
+      },
+      {
+        headers: this.apiHeaders(),
+        signal: options.signal,
+      },
     );
     if (res.status !== 200) {
       throw new Error(`Failed to fetch AllManga episodes: ${res.status}`);
@@ -158,7 +176,10 @@ export class AllmangaProvider extends BaseProvider {
         if (isNaN(num)) {
           continue;
         }
-        const entry = merged.get(epStr) ?? { num, langs: [] };
+        const entry = merged.get(epStr) ?? {
+          num,
+          langs: [],
+        };
         if (!entry.langs.includes(lang)) {
           entry.langs.push(lang);
         }
@@ -236,7 +257,10 @@ export class AllmangaProvider extends BaseProvider {
     // Rank: direct m3u8/mp4 ahead of anything else.
     streams.sort((a, b) => qualityScore(b) - qualityScore(a));
 
-    return { type: 'video', streams };
+    return {
+      type: 'video',
+      streams,
+    };
   }
 
   // ─── Internals ─────────────────────────────────────────────────────────────
@@ -262,7 +286,11 @@ export class AllmangaProvider extends BaseProvider {
       priority?: number;
     }>
   > {
-    const variables = { showId, translationType: lang, episodeString };
+    const variables = {
+      showId,
+      translationType: lang,
+      episodeString,
+    };
     const extensions = {
       persistedQuery: {
         version: 1,
@@ -293,8 +321,14 @@ export class AllmangaProvider extends BaseProvider {
     const fallbackQuery = `query ($showId: String!, $translationType: VaildTranslationTypeEnumType!, $episodeString: String!) { episode(showId: $showId translationType: $translationType episodeString: $episodeString) { episodeString sourceUrls } }`;
     const fbRes = await this.http.post(
       this.apiBase,
-      { variables, query: fallbackQuery },
-      { headers: this.apiHeaders(), signal },
+      {
+        variables,
+        query: fallbackQuery,
+      },
+      {
+        headers: this.apiHeaders(),
+        signal,
+      },
     );
     if (fbRes.status !== 200) {
       throw new Error(
@@ -412,7 +446,10 @@ export class AllmangaProvider extends BaseProvider {
     try {
       const extracted = await this.genericExtractor.extract(raw);
       if (extracted.length > 0) {
-        return extracted.map((p) => ({ ...p, language: lang }));
+        return extracted.map((p) => ({
+          ...p,
+          language: lang,
+        }));
       }
     } catch {
       /* fall through */
@@ -468,7 +505,9 @@ export class AllmangaProvider extends BaseProvider {
                 isHLS: false,
                 quality: mapQuality(q),
                 language: lang,
-                headers: { Referer: this.referer },
+                headers: {
+                  Referer: this.referer,
+                },
               });
             }
             continue;
@@ -478,7 +517,9 @@ export class AllmangaProvider extends BaseProvider {
             isHLS: true,
             quality: 'auto',
             language: lang,
-            headers: { Referer: this.referer },
+            headers: {
+              Referer: this.referer,
+            },
           });
           continue;
         }
@@ -488,7 +529,9 @@ export class AllmangaProvider extends BaseProvider {
           isHLS: !!item.hls || link.includes('.m3u8'),
           quality: mapQuality(item.resolutionStr ?? ''),
           language: lang,
-          headers: { Referer: this.referer },
+          headers: {
+            Referer: this.referer,
+          },
         });
       }
       return out;

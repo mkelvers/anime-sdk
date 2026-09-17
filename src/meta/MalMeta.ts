@@ -60,7 +60,9 @@ export class MalMeta extends BaseMetadataProvider {
     const path = this.defaultSearchType === 'MANGA' ? 'manga' : 'anime';
     const url = `${this.apiUrl}/${path}?q=${encodeURIComponent(query)}&limit=20`;
     const res = await this.http.get(url, {
-      headers: { Accept: 'application/json' },
+      headers: {
+        Accept: 'application/json',
+      },
       signal: options.signal,
     });
     if (res.status !== 200) {
@@ -86,7 +88,9 @@ export class MalMeta extends BaseMetadataProvider {
       format: malFormat(m.type),
       score: typeof m.score === 'number' ? Math.round(m.score * 10) : undefined,
       isAdult: !!m.rating?.startsWith?.('Rx'),
-      mappings: { mal: m.mal_id },
+      mappings: {
+        mal: m.mal_id,
+      },
     }));
   }
 
@@ -116,14 +120,18 @@ export class MalMeta extends BaseMetadataProvider {
       throw new Error(`Invalid MAL ID: ${nativeId}`);
     }
     let res = await this.http.get(`${this.apiUrl}/${path}/${id}/full`, {
-      headers: { Accept: 'application/json' },
+      headers: {
+        Accept: 'application/json',
+      },
       signal: options.signal,
     });
     if (res.status === 404 && sep < 0) {
       // Untyped legacy IDs only: probe the other catalogue.
       path = 'manga';
       res = await this.http.get(`${this.apiUrl}/${path}/${id}/full`, {
-        headers: { Accept: 'application/json' },
+        headers: {
+          Accept: 'application/json',
+        },
         signal: options.signal,
       });
     }
@@ -193,7 +201,9 @@ export class MalMeta extends BaseMetadataProvider {
       synonyms: Array.isArray(m.title_synonyms)
         ? m.title_synonyms.filter(Boolean)
         : undefined,
-      mappings: { mal: m.mal_id },
+      mappings: {
+        mal: m.mal_id,
+      },
       relations,
       streamingEpisodes,
     };
@@ -219,7 +229,9 @@ export class MalMeta extends BaseMetadataProvider {
         const res = await this.http.get(
           `${this.apiUrl}/anime/${malId}/episodes?page=${page}`,
           {
-            headers: { Accept: 'application/json' },
+            headers: {
+              Accept: 'application/json',
+            },
             signal,
           },
         );
@@ -289,7 +301,9 @@ export class MalMeta extends BaseMetadataProvider {
     }
 
     const res = await this.http.get(url, {
-      headers: { Accept: 'application/json' },
+      headers: {
+        Accept: 'application/json',
+      },
       signal: options.signal,
     });
     if (res.status !== 200) {
@@ -317,7 +331,9 @@ export class MalMeta extends BaseMetadataProvider {
       format: malFormat(m.type),
       score: typeof m.score === 'number' ? Math.round(m.score * 10) : undefined,
       isAdult: !!m.rating?.startsWith?.('Rx'),
-      mappings: { mal: m.mal_id },
+      mappings: {
+        mal: m.mal_id,
+      },
     }));
   }
 }

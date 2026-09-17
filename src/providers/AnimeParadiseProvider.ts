@@ -148,8 +148,14 @@ export class AnimeParadiseProvider extends BaseProvider {
           isHLS: true,
           quality: 'auto',
           language: 'sub',
-          headers: { Referer: 'https://animeparadise.moe/' },
-          ...(subtitles.length > 0 ? { subtitles } : {}),
+          headers: {
+            Referer: 'https://animeparadise.moe/',
+          },
+          ...(subtitles.length > 0
+            ? {
+                subtitles,
+              }
+            : {}),
         },
       ],
     };
@@ -187,7 +193,9 @@ export class AnimeParadiseProvider extends BaseProvider {
     return {
       subtitles,
       qualities: ['auto'],
-      headers: { Referer: 'https://animeparadise.moe/' },
+      headers: {
+        Referer: 'https://animeparadise.moe/',
+      },
     };
   }
 }

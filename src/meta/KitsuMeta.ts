@@ -48,7 +48,9 @@ export class KitsuMeta extends BaseMetadataProvider {
     const path = this.defaultSearchType === 'MANGA' ? 'manga' : 'anime';
     const url = `${this.apiUrl}/${path}?filter[text]=${encodeURIComponent(query)}&page[limit]=20`;
     const res = await this.http.get(url, {
-      headers: { Accept: 'application/vnd.api+json' },
+      headers: {
+        Accept: 'application/vnd.api+json',
+      },
       signal: options.signal,
     });
     if (res.status !== 200) {
@@ -78,14 +80,18 @@ export class KitsuMeta extends BaseMetadataProvider {
     }
     let url = `${this.apiUrl}/${path}/${rawId}?include=genres,categories,mappings,animeProductions.producer`;
     let res = await this.http.get(url, {
-      headers: { Accept: 'application/vnd.api+json' },
+      headers: {
+        Accept: 'application/vnd.api+json',
+      },
       signal: options.signal,
     });
     if (res.status === 404 && sep < 0) {
       path = 'manga';
       url = `${this.apiUrl}/${path}/${rawId}?include=genres,categories,mappings`;
       res = await this.http.get(url, {
-        headers: { Accept: 'application/vnd.api+json' },
+        headers: {
+          Accept: 'application/vnd.api+json',
+        },
         signal: options.signal,
       });
     }
@@ -153,7 +159,10 @@ export class KitsuMeta extends BaseMetadataProvider {
         : undefined,
       // `mappings` first so the primary key wins on conflict — Kitsu's own
       // ID is authoritative here.
-      mappings: { ...mappings, kitsu: Number(rawId) },
+      mappings: {
+        ...mappings,
+        kitsu: Number(rawId),
+      },
     };
   }
 }
@@ -183,7 +192,9 @@ function mapToSearchResult(
         ? Math.round(parseFloat(a.averageRating))
         : undefined,
     isAdult: a.ageRating === 'R18' || a.ageRating === 'R18+' || a.nsfw === true,
-    mappings: { kitsu: Number(r.id) },
+    mappings: {
+      kitsu: Number(r.id),
+    },
   };
 }
 

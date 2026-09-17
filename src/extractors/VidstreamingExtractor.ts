@@ -14,7 +14,9 @@ export class VidstreamingExtractor extends BaseExtractor {
 
     const host = `${urlObj.protocol}//${urlObj.host}/`;
     const response = await this.http.get(embedUrl, {
-      headers: { Referer: embedUrl },
+      headers: {
+        Referer: embedUrl,
+      },
     });
 
     if (response.status !== 200) {
