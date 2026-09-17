@@ -5,12 +5,19 @@ import { IVideoPayload, IMangaPayload } from '../types/index';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
+export interface DownloadVideoProgress {
+  phase: string;
+  detail?: string;
+}
+
+export interface DownloadMangaProgress {
+  downloaded: number;
+  total: number;
+}
+
 export interface DownloadVideoOptions {
   /** Called periodically with progress info. */
-  onProgress?: (info: {
-    phase: string;
-    detail?: string;
-  }) => void;
+  onProgress?: (info: DownloadVideoProgress) => void;
   /** Timeout in ms for the overall ffmpeg process. Default 300000 (5 min). */
   timeoutMs?: number;
 }
@@ -37,10 +44,7 @@ export interface DownloadMangaPageResult {
 
 export interface DownloadMangaChapterOptions {
   /** Called periodically with progress info. */
-  onProgress?: (info: {
-    downloaded: number;
-    total: number;
-  }) => void;
+  onProgress?: (info: DownloadMangaProgress) => void;
   /** Timeout in ms per page fetch. Default 30000. */
   timeoutMs?: number;
 }
@@ -347,10 +351,7 @@ async function downloadHlsSegments(
   outputPath: string,
   headers: Record<string, string>,
   timeoutMs: number,
-  onProgress?: (info: {
-    phase: string;
-    detail?: string;
-  }) => void,
+  onProgress?: (info: DownloadVideoProgress) => void,
 ): Promise<void> {
   let currentUrl = playlistUrl;
   let res = await fetch(currentUrl, { headers: mergeHeaders(headers) });
