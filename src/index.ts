@@ -1,45 +1,45 @@
 // Types
-export * from './types/index.js';
+export * from './types/index';
 
 // Transport
-export * from './transport/http.js';
-export * from './transport/hlsUtils.js';
-export * from './transport/dom.js';
-export * from './transport/rateLimiter.js';
-export * from './transport/retry.js';
-export * from './transport/transport.js';
+export * from './transport/http';
+export * from './transport/hlsUtils';
+export * from './transport/dom';
+export * from './transport/rateLimiter';
+export * from './transport/retry';
+export * from './transport/transport';
 
 // Extractors
-export * from './extractors/BaseExtractor.js';
-export * from './extractors/VidstreamingExtractor.js';
-export * from './extractors/Mp4UploadExtractor.js';
-export * from './extractors/GenericHlsExtractor.js';
-export * from './extractors/BloggerExtractor.js';
+export * from './extractors/BaseExtractor';
+export * from './extractors/VidstreamingExtractor';
+export * from './extractors/Mp4UploadExtractor';
+export * from './extractors/GenericHlsExtractor';
+export * from './extractors/BloggerExtractor';
 
 // Base
-export * from './providers/BaseProvider.js';
+export * from './providers/BaseProvider';
 
 // Providers
-export * from './providers/AllmangaProvider.js';
-export * from './providers/GogoanimeProvider.js';
-export * from './providers/GoyabuProvider.js';
-export * from './providers/AnikotoProvider.js';
-export * from './providers/MegaPlayProvider.js';
-export * from './providers/AnimeParadiseProvider.js';
-export * from './providers/MangadexProvider.js';
-export * from './providers/WeebcentralProvider.js';
-export * from './providers/MangapillProvider.js';
+export * from './providers/AllmangaProvider';
+export * from './providers/GogoanimeProvider';
+export * from './providers/GoyabuProvider';
+export * from './providers/AnikotoProvider';
+export * from './providers/MegaPlayProvider';
+export * from './providers/AnimeParadiseProvider';
+export * from './providers/MangadexProvider';
+export * from './providers/WeebcentralProvider';
+export * from './providers/MangapillProvider';
 
 // Utilities
-export * from './utils/crypto.js';
-export * from './utils/subtitles.js';
-export * from './utils/urn.js';
+export * from './utils/crypto';
+export * from './utils/subtitles';
+export * from './utils/urn';
 
 // Metadata layer
-export * from './meta/index.js';
+export * from './meta/index';
 
 // Download
-export * from './download/index.js';
+export * from './download/index';
 
 // HTTP server
-export * from './server/index.js';
+export * from './server/index';
