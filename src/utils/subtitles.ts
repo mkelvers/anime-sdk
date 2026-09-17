@@ -1,11 +1,6 @@
 import * as crypto from 'node:crypto';
 import { ISubtitleTrack } from '../types/index';
 
-/**
- * Best-effort mapping from a human label ("English", "Italian", "Portuguese")
- * to a BCP-47 language code. Falls back to the first two characters of the
- * label lowercased, so unknown labels still produce a usable `srclang`.
- */
 const LABEL_TO_BCP47: Record<string, string> = {
   english: 'en',
   portuguese: 'pt',
@@ -26,10 +21,6 @@ const LABEL_TO_BCP47: Record<string, string> = {
   thai: 'th',
   vietnamese: 'vi',
 };
-
-export function labelToBcp47(label: string): string {
-  return LABEL_TO_BCP47[label.toLowerCase()] ?? label.slice(0, 2).toLowerCase();
-}
 
 /**
  * Normalize whatever a provider hands us into `ISubtitleTrack[]`. We accept
@@ -71,7 +62,8 @@ export function normalizeSubtitleEntries(entries: unknown): ISubtitleTrack[] {
       language:
         typeof rec.language === 'string' && rec.language
           ? rec.language
-          : labelToBcp47(label),
+          : (LABEL_TO_BCP47[label.toLowerCase()] ??
+            label.slice(0, 2).toLowerCase()),
       ...(format ? { format } : {}),
     });
   }
