@@ -33,9 +33,8 @@
     }
   },
   "scripts": {
-    "build": "tsup",
-    "build:watch": "tsup --watch",
-    "release": "changeset publish",
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean --target node20",
+    "build:watch": "tsup src/index.ts --format esm,cjs --dts --target node20 --watch",
     "test": "vitest",
     "test:run": "vitest run",
     "prepare": "husky || true"
@@ -44,15 +43,13 @@
     "linkedom": "^0.18.12"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,mjs,astro,css,json,md,mdx}": "prettier --write"
+    "*.{ts,json}": "prettier --write"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.31.0",
     "@types/node": "^25.9.1",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.10",
     "prettier": "^3.8.3",
-    "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "tsup": "^8.5.1",
     "typescript": "^5.4.5",
