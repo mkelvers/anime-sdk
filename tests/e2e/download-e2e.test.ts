@@ -26,7 +26,7 @@ import {
   downloadMangaPage,
   downloadMangaChapter,
 } from '../../src/download/download';
-import { ContentLanguage, ResolvedMediaStream } from '../../src/types';
+import { ContentLanguage, ResolvedMediaStream } from '@/types';
 import { BaseProvider } from '../../src/providers/BaseProvider';
 
 const DOWNLOAD_DIR = path.resolve(process.cwd(), 'scratch/downloads');

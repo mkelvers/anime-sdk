@@ -9,7 +9,7 @@ import type {
   IContentUnit,
   IMediaSearchResult,
   IVideoPayload,
-} from '../src/types';
+} from '@/types';
 
 describe('ContentLanguage type system', () => {
   it('IContentUnit should carry a language field', () => {
