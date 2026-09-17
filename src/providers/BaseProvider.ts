@@ -128,7 +128,7 @@ export abstract class BaseProvider {
 
   /** True iff the provider implements `fetchUnitTracksRaw`. */
   public get supportsUnitTracks(): boolean {
-    return typeof this.fetchUnitTracksRaw === 'function';
+    return this.fetchUnitTracksRaw !== undefined;
   }
 
   public fetchUnitTracks(
