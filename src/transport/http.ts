@@ -12,6 +12,7 @@ import {
   withRetry,
 } from './retry';
 import { CurlFallbackTransport, HttpTransport } from './transport';
+import { z } from 'zod';
 
 export interface HttpClientConfig {
   proxyUrl?: string;
@@ -240,13 +241,18 @@ export class HttpClient {
     let finalBody: string | URLSearchParams | undefined;
     if (body === undefined) {
       finalBody = undefined;
-    } else if (typeof body === 'string' || body instanceof URLSearchParams) {
-      finalBody = body;
     } else {
-      if (!headers['Content-Type']) {
-        headers['Content-Type'] = 'application/json';
+      const parsedStringBody = z.string().safeParse(body);
+      if (parsedStringBody.success) {
+        finalBody = parsedStringBody.data;
+      } else if (body instanceof URLSearchParams) {
+        finalBody = body;
+      } else {
+        if (!headers['Content-Type']) {
+          headers['Content-Type'] = 'application/json';
+        }
+        finalBody = JSON.stringify(body);
       }
-      finalBody = JSON.stringify(body);
     }
     return this.request(url, {
       ...options,

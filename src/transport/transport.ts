@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 /**
  * Pluggable transport interface for `HttpClient`.
  *
@@ -69,7 +71,7 @@ export class CurlFallbackTransport implements HttpTransport {
         throw err;
       }
       // Only attempt curl in Node.
-      if (typeof process === 'undefined' || !process.versions?.node) {
+      if (!globalThis.process?.versions?.node) {
         throw err;
       }
       try {
@@ -126,8 +128,9 @@ export class CurlFallbackTransport implements HttpTransport {
     let bodyArg = '';
     if (options.body) {
       let bodyStr = '';
-      if (typeof options.body === 'string') {
-        bodyStr = options.body;
+      const parsedStringBody = z.string().safeParse(options.body);
+      if (parsedStringBody.success) {
+        bodyStr = parsedStringBody.data;
       } else if (options.body instanceof URLSearchParams) {
         bodyStr = options.body.toString();
       } else {
