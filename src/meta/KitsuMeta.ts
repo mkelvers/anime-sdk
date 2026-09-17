@@ -27,8 +27,6 @@ export interface KitsuMetaOptions extends BaseMetadataProviderOptions {
   defaultSearchType?: 'ANIME' | 'MANGA';
 }
 
-const KITSU_API = 'https://kitsu.io/api/edge';
-
 export class KitsuMeta extends BaseMetadataProvider {
   public readonly id = 'kitsu';
   public readonly supportedTypes: MediaCatalogType[] = ['ANIME', 'MANGA'];
@@ -37,7 +35,7 @@ export class KitsuMeta extends BaseMetadataProvider {
 
   constructor(http: HttpClient, options: KitsuMetaOptions = {}) {
     super(http, options);
-    this.apiUrl = options.apiUrl ?? KITSU_API;
+    this.apiUrl = options.apiUrl ?? 'https://kitsu.io/api/edge';
     this.defaultSearchType = options.defaultSearchType ?? 'ANIME';
   }
 

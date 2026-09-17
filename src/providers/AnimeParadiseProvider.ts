@@ -11,9 +11,6 @@ import {
 import { normalizeSubtitleEntries } from '../utils/subtitles';
 import { parseJson } from '../utils/validation';
 
-const API_BASE = 'https://api.animeparadise.moe';
-const STREAM_BASE = 'https://stream.animeparadise.moe';
-
 const animeParadiseSearchResponseSchema = z.object({
   data: z.array(
     z.object({
@@ -72,7 +69,7 @@ export class AnimeParadiseProvider extends BaseProvider {
     options: CallOptions = {},
   ): Promise<IMediaSearchResult[]> {
     const response = await this.http.get(
-      `${API_BASE}/search?q=${encodeURIComponent(query)}&limit=20`,
+      `https://api.animeparadise.moe/search?q=${encodeURIComponent(query)}&limit=20`,
       {
         signal: options.signal,
       },
@@ -97,7 +94,7 @@ export class AnimeParadiseProvider extends BaseProvider {
     options: CallOptions = {},
   ): Promise<IContentUnit[]> {
     const response = await this.http.get(
-      `${API_BASE}/anime/${mediaId}/episode`,
+      `https://api.animeparadise.moe/anime/${mediaId}/episode`,
       {
         signal: options.signal,
       },
@@ -126,7 +123,7 @@ export class AnimeParadiseProvider extends BaseProvider {
     const animeId = unitId.slice(sep + 1);
 
     const response = await this.http.get(
-      `${API_BASE}/ep/${uid}?origin=${animeId}`,
+      `https://api.animeparadise.moe/ep/${uid}?origin=${animeId}`,
       {
         signal: options.signal,
       },
@@ -137,7 +134,7 @@ export class AnimeParadiseProvider extends BaseProvider {
       throw new Error('AnimeParadise: no streamLink in response');
     }
 
-    const streamUrl = `${STREAM_BASE}/m3u8?url=${encodeURIComponent(episode.streamLink)}`;
+    const streamUrl = `https://stream.animeparadise.moe/m3u8?url=${encodeURIComponent(episode.streamLink)}`;
     const subtitles = normalizeSubtitleEntries(episode.subData);
 
     return {
@@ -180,7 +177,7 @@ export class AnimeParadiseProvider extends BaseProvider {
     const animeId = unitId.slice(sep + 1);
 
     const response = await this.http.get(
-      `${API_BASE}/ep/${uid}?origin=${animeId}`,
+      `https://api.animeparadise.moe/ep/${uid}?origin=${animeId}`,
       {
         signal: options.signal,
       },

@@ -39,8 +39,6 @@ export interface MalMetaOptions extends BaseMetadataProviderOptions {
   defaultSearchType?: 'ANIME' | 'MANGA';
 }
 
-const JIKAN_API = 'https://api.jikan.moe/v4';
-
 export class MalMeta extends BaseMetadataProvider {
   public readonly id = 'mal';
   public readonly supportedTypes: MediaCatalogType[] = ['ANIME', 'MANGA'];
@@ -49,7 +47,7 @@ export class MalMeta extends BaseMetadataProvider {
 
   constructor(http: HttpClient, options: MalMetaOptions = {}) {
     super(http, options);
-    this.apiUrl = options.apiUrl ?? JIKAN_API;
+    this.apiUrl = options.apiUrl ?? 'https://api.jikan.moe/v4';
     this.defaultSearchType = options.defaultSearchType ?? 'ANIME';
   }
 
