@@ -291,12 +291,8 @@ function safeHostname(url: string): string | undefined {
 }
 
 function abortReason(signal: AbortSignal): Error {
-  if (signal.reason instanceof Error) {
-    return signal.reason;
-  }
-  const e = new Error(
-    typeof signal.reason === 'string' ? signal.reason : 'Aborted',
-  );
-  e.name = 'AbortError';
-  return e;
+  const stringReason = z.string().safeParse(signal.reason);
+  const error = new Error(stringReason.success ? stringReason.data : 'Aborted');
+  error.name = 'AbortError';
+  return error;
 }
