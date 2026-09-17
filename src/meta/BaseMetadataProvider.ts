@@ -81,8 +81,6 @@ export abstract class BaseMetadataProvider {
     this.mapping = options.mappingClient ?? new MappingClient(http);
   }
 
-  // ── Native catalogue surface (subclasses implement) ──────────────────────
-
   protected abstract searchRawNative(
     query: string,
     options?: CallOptions,
@@ -136,8 +134,6 @@ export abstract class BaseMetadataProvider {
   ): Promise<IMetaSearchResult[]> {
     throw new Error(`${this.id}: browseRawNative is not implemented`);
   }
-
-  // ── Public API ───────────────────────────────────────────────────────────
 
   public async search(
     query: string,
@@ -271,8 +267,6 @@ export abstract class BaseMetadataProvider {
     };
   }
 
-  // ── Hooks for subclasses ─────────────────────────────────────────────────
-
   /**
    * Merge per-episode metadata onto the content provider's unit list.
    *
@@ -382,8 +376,6 @@ export abstract class BaseMetadataProvider {
     return offset;
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
-
   private async findContentUnit(
     metaUrn: Urn,
     episodeNumber: number,
@@ -406,7 +398,6 @@ export abstract class BaseMetadataProvider {
       );
     }
 
-    // ── Absolute-episode rescue ───────────────────────────────────────────
     // When the meta record describes only this season but the content
     // provider's list runs across the whole series, look up the offset by
     // summing previous seasons' episode counts and retry. We only trigger

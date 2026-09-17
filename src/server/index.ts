@@ -419,7 +419,6 @@ export function startServer(options: ServerOptions): http.Server {
       return err(res, 405, 'Method not allowed');
     }
 
-    // ── Discovery ────────────────────────────────────────────────────────
     if (url.pathname === '/openapi.json') {
       const spec = buildOpenApiSpec({
         providerIds: providers.map((p) => p.id),
@@ -448,7 +447,6 @@ export function startServer(options: ServerOptions): http.Server {
       id ? (metaProviders.find((p) => p.id === id) ?? null) : null;
 
     try {
-      // ── Proxy ──────────────────────────────────────────────────────────
       if (url.pathname === '/proxy') {
         if (!proxy) {
           return err(
@@ -629,7 +627,6 @@ export function startServer(options: ServerOptions): http.Server {
         return;
       }
 
-      // ── API ────────────────────────────────────────────────────────────
       // Each handler runs its provider call through the optional `cache`.
       // Keys are namespaced by endpoint + provider so the consumer's cache
       // can apply different TTLs per kind if it wants to.
@@ -731,7 +728,6 @@ export function startServer(options: ServerOptions): http.Server {
         return json(res, 200, tracks);
       }
 
-      // ── Download: Video — SSE progress ───────────────────────────────
       if (url.pathname === '/download/video/progress') {
         const unitId = q.get('unitId');
         const provider = findProvider(q.get('provider'));
@@ -816,13 +812,11 @@ export function startServer(options: ServerOptions): http.Server {
         return;
       }
 
-      // ── Download: Video — serve completed file ────────────────────────
       if (url.pathname === '/download/video/file') {
         servePending(res, q.get('token'), 'video/mp4');
         return;
       }
 
-      // ── Download: Manga Chapter — SSE progress ────────────────────────
       if (url.pathname === '/download/manga/chapter/progress') {
         const unitId = q.get('unitId');
         const provider = findProvider(q.get('provider'));
@@ -896,13 +890,11 @@ export function startServer(options: ServerOptions): http.Server {
         return;
       }
 
-      // ── Download: Manga Chapter — serve completed file ────────────────
       if (url.pathname === '/download/manga/chapter/file') {
         servePending(res, q.get('token'), 'application/zip');
         return;
       }
 
-      // ── Download: Video ───────────────────────────────────────────────
       if (url.pathname === '/download/video') {
         const unitId = q.get('unitId');
         const provider = findProvider(q.get('provider'));
@@ -972,7 +964,6 @@ export function startServer(options: ServerOptions): http.Server {
         return;
       }
 
-      // ── Download: Manga Page ────────────────────────────────────────────
       if (url.pathname === '/download/manga/page') {
         const unitId = q.get('unitId');
         const provider = findProvider(q.get('provider'));
@@ -1052,7 +1043,6 @@ export function startServer(options: ServerOptions): http.Server {
         return;
       }
 
-      // ── Download: Manga Chapter (ZIP) ──────────────────────────────────
       if (url.pathname === '/download/manga/chapter') {
         const unitId = q.get('unitId');
         const provider = findProvider(q.get('provider'));

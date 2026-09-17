@@ -39,8 +39,6 @@ beforeAll(() => {
   }
 });
 
-// ─── Helper: resolve a video stream for an anime provider ────────────────────
-
 async function resolveAnimeStream(
   provider: BaseProvider,
   query: string,
@@ -93,8 +91,6 @@ async function resolveAnimeStream(
   };
 }
 
-// ─── Helper: resolve a manga stream for a manga provider ─────────────────────
-
 async function resolveMangaStream(
   provider: BaseProvider,
   query: string,
@@ -126,8 +122,6 @@ async function resolveMangaStream(
   };
 }
 
-// ─── Helper: verify MP4 file ─────────────────────────────────────────────────
-
 function assertValidMp4(filePath: string): void {
   expect(fs.existsSync(filePath)).toBe(true);
   const stat = fs.statSync(filePath);
@@ -146,8 +140,6 @@ function assertValidMp4(filePath: string): void {
   expect(ftyp).toBe('ftyp');
 }
 
-// ─── Helper: verify image file ───────────────────────────────────────────────
-
 function assertValidImage(filePath: string): void {
   expect(fs.existsSync(filePath)).toBe(true);
   const stat = fs.statSync(filePath);
@@ -156,8 +148,6 @@ function assertValidImage(filePath: string): void {
     `  → ${path.basename(filePath)}: ${(stat.size / 1024).toFixed(1)} KB`,
   );
 }
-
-// ─── Helper: verify ZIP file ─────────────────────────────────────────────────
 
 function assertValidZip(filePath: string): void {
   expect(fs.existsSync(filePath)).toBe(true);
@@ -177,8 +167,6 @@ function assertValidZip(filePath: string): void {
   expect(buf[2]).toBe(0x03);
   expect(buf[3]).toBe(0x04);
 }
-
-// ─── Anime Provider Download Tests ──────────────────────────────────────────
 
 describe('Anime Downloads (JJK Episode 1)', () => {
   const http = new HttpClient({
@@ -279,8 +267,6 @@ describe('Anime Downloads (JJK Episode 1)', () => {
     assertValidMp4(outPath);
   }, 1_200_000);
 });
-
-// ─── Manga Provider Download Tests ──────────────────────────────────────────
 
 describe('Manga Downloads (JJK Chapter)', () => {
   const http = new HttpClient({

@@ -20,8 +20,6 @@ import {
 } from '../src/types/index';
 import { startServer } from '../src/server/index';
 
-// ─── Mock provider helpers ──────────────────────────────────────────────────
-
 /** Tiny PNG: 1×1 pixel, valid PNG file (67 bytes). */
 const TINY_PNG = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==',
@@ -97,8 +95,6 @@ class MockMangaProvider extends BaseProvider {
     };
   }
 }
-
-// ─── Tests ───────────────────────────────────────────────────────────────────
 
 describe('Server download routes', () => {
   let sdkServer: http.Server;

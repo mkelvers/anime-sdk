@@ -141,7 +141,6 @@ export class MappingClient {
     options: CallOptions = {},
   ): Promise<MappingResolution | null> {
     const cacheKey = mappingCacheKey(metadata, contentProvider);
-    // ── 0. SdkCache ───────────────────────────────────────────────────────
     if (this.options.cache) {
       const hit = await this.options.cache.get(cacheKey);
       if (hit !== undefined && hit !== null) {
@@ -153,7 +152,6 @@ export class MappingClient {
       }
     }
 
-    // ── 1. Provider-native lookup ─────────────────────────────────────────
     if (contentProvider.lookupByMapping && metadata.mappings) {
       try {
         const raw = await contentProvider.lookupByMapping(
@@ -174,7 +172,6 @@ export class MappingClient {
       }
     }
 
-    // ── 2. External mapping APIs (raced) ──────────────────────────────────
     const ext = await this.resolveFromExternalMappings(
       metadata,
       contentProvider,
@@ -190,7 +187,6 @@ export class MappingClient {
       );
     }
 
-    // ── 3. Fuzzy search ───────────────────────────────────────────────────
     const fuzzy = await this.fuzzyMatch(metadata, contentProvider, options);
     if (fuzzy) {
       const cached = await this.acceptAndCache(
@@ -208,8 +204,6 @@ export class MappingClient {
 
     return null;
   }
-
-  // ── External APIs ─────────────────────────────────────────────────────────
 
   /**
    * Race MALSync, Anify, and arm-server. The first one to return a
@@ -465,8 +459,6 @@ export class MappingClient {
     }
   }
 
-  // ── Fuzzy matching ────────────────────────────────────────────────────────
-
   private async fuzzyMatch(
     metadata: IMediaMetadata,
     contentProvider: BaseProvider,
@@ -563,8 +555,6 @@ export class MappingClient {
     return null;
   }
 
-  // ── Acceptance / persistence helpers ──────────────────────────────────────
-
   private async acceptAndCache(
     cacheKey: string,
     contentProvider: BaseProvider,
@@ -584,8 +574,6 @@ export class MappingClient {
     return resolution;
   }
 }
-
-// ── Helpers ─────────────────────────────────────────────────────────────────
 
 function mappingCacheKey(
   metadata: IMediaMetadata,

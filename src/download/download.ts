@@ -4,8 +4,6 @@ import * as path from 'path';
 import { IVideoPayload, IMangaPayload } from '../types/index';
 import { getErrorMessage } from '../utils/validation';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
 export interface DownloadVideoProgress {
   phase: string;
   detail?: string;
@@ -55,8 +53,6 @@ export interface DownloadMangaChapterResult {
   pageCount: number;
   fileSize: number;
 }
-
-// ─── HLS Helpers ─────────────────────────────────────────────────────────────
 
 interface HlsSegment {
   url: string;
@@ -138,8 +134,6 @@ export function detectImageExtension(contentType: string): string {
   return '.jpg';
 }
 
-// ─── Default fetch headers ──────────────────────────────────────────────────
-
 const DEFAULT_UA =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
@@ -149,8 +143,6 @@ function mergeHeaders(extra?: Record<string, string>): Record<string, string> {
     ...(extra ?? {}),
   };
 }
-
-// ─── Video Download ─────────────────────────────────────────────────────────
 
 /**
  * Download a video stream to a `.mp4` file. Tries each stream candidate in
@@ -537,8 +529,6 @@ async function downloadMp4Direct(
   }
 }
 
-// ─── Manga Download ─────────────────────────────────────────────────────────
-
 /**
  * Download a single manga page image to disk.
  *
@@ -679,7 +669,6 @@ export async function downloadMangaChapter(
   };
 }
 
-// ─── Minimal ZIP Writer (STORE, no compression) ─────────────────────────────
 // Implements the ZIP spec just enough for uncompressed archives.
 // Images are already compressed (JPEG/PNG/WebP), so STORE is optimal.
 

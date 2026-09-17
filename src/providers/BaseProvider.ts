@@ -59,7 +59,6 @@ export abstract class BaseProvider {
     return this.__semaphore.run(fn);
   }
 
-  // ── Public API ────────────────────────────────────────────────────────────
   // These wrap the `Raw` methods below with URN encoding/decoding so callers
   // (and the meta layer) only ever see URN-formatted IDs. Every method also
   // accepts an optional `signal` for cancellation; subclasses are expected
@@ -179,7 +178,6 @@ export abstract class BaseProvider {
    */
   public readonly maxConcurrency: number = 0;
 
-  // ── Subclass surface ──────────────────────────────────────────────────────
   // Subclasses implement these with raw (non-URN) IDs.
 
   protected abstract searchRaw(

@@ -3,8 +3,6 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { IVideoPayload } from '../../src/types/index';
 
-// ─── Small URL/parse helpers ─────────────────────────────────────────────────
-
 interface Segment {
   url: string;
   duration: number;
@@ -74,8 +72,6 @@ function fetchHeaders(headers: Record<string, string>): Record<string, string> {
     ...headers,
   };
 }
-
-// ─── Core capture: one URL → one screenshot ─────────────────────────────────
 
 async function captureFromUrl(
   outputPath: string,
@@ -355,8 +351,6 @@ async function captureFromMp4(
     throw new Error(`ffmpeg produced no/empty screenshot at ${outputPath}`);
   }
 }
-
-// ─── Public API ──────────────────────────────────────────────────────────────
 
 export interface ScreenshotResult {
   outputPath: string;

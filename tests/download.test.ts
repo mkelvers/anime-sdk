@@ -12,8 +12,6 @@ import {
   createZipBuffer,
 } from '../src/download/download';
 
-// ─── HLS parsing ─────────────────────────────────────────────────────────────
-
 describe('parseHlsMaster', () => {
   it('extracts variant URLs from a master playlist', () => {
     const manifest = `#EXTM3U
@@ -114,8 +112,6 @@ https://cdn2.example.com/seg1.ts
   });
 });
 
-// ─── Image extension detection ───────────────────────────────────────────────
-
 describe('detectImageExtension', () => {
   it('detects JPEG', () => {
     expect(detectImageExtension('image/jpeg')).toBe('.jpg');
@@ -148,8 +144,6 @@ describe('detectImageExtension', () => {
   });
 });
 
-// ─── CRC-32 ──────────────────────────────────────────────────────────────────
-
 describe('crc32', () => {
   it('computes correct CRC-32 for known data', () => {
     // "Hello" has CRC32 = 0xF7D18982
@@ -166,8 +160,6 @@ describe('crc32', () => {
     expect(crc32(Buffer.from([0x00]))).toBe(0xd202ef8d);
   });
 });
-
-// ─── ZIP writer ──────────────────────────────────────────────────────────────
 
 describe('createZipBuffer', () => {
   it('creates a valid ZIP with PK header', () => {

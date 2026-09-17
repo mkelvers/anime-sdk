@@ -126,8 +126,6 @@ export class RateLimiter {
     };
   }
 
-  // ── internals ─────────────────────────────────────────────────────────────
-
   private getOrCreate(hostname: string, config: RateLimitConfig): BucketState {
     let bucket = this.buckets.get(hostname);
     if (!bucket) {

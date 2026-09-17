@@ -191,7 +191,6 @@ export interface SdkCache {
   set(key: string, value: unknown): void | Promise<void>;
 }
 
-// ─── Metadata layer ─────────────────────────────────────────────────────────
 //
 // The metadata layer is a thin abstraction over external title catalogues
 // (AniList, MAL/Jikan, Kitsu) that lets callers operate on a normalized
