@@ -500,7 +500,7 @@ export class MappingClient {
       result: c,
       score: bestSimilarity(c.title, altTitles),
       catalogMatch: c.catalogType === metadata.catalogType,
-      yearMatch: yearIsCompatible(metadata.year, getCandidateYear(c), yearTol),
+      yearMatch: yearIsCompatible(metadata.year, c.year, yearTol),
     }));
 
     // Hard filters first.
@@ -633,10 +633,6 @@ function yearIsCompatible(
     return true;
   } // unknown → not a hard filter
   return Math.abs(expected - actual) <= tolerance;
-}
-
-function getCandidateYear(c: IMediaSearchResult): number | undefined {
-  return c.year;
 }
 
 function makeRes(
