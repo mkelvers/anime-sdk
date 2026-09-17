@@ -34,6 +34,7 @@
   },
   "scripts": {
     "build": "tsup",
+    "build:watch": "tsup --watch",
     "release": "changeset publish",
     "test": "vitest",
     "test:run": "vitest run",
