@@ -22,7 +22,9 @@
  * collapse whitespace, remove common season/part suffixes. Keeps numerals.
  */
 export function normalizeTitle(title: string): string {
-  if (!title) return '';
+  if (!title) {
+    return '';
+  }
   let s = title.toLowerCase();
   // Curly quotes / fancy dashes
   s = s.replace(/[‘’“”]/g, '');
@@ -67,16 +69,24 @@ function bigrams(s: string): Map<string, number> {
 export function diceSimilarity(a: string, b: string): number {
   const na = normalizeTitle(a);
   const nb = normalizeTitle(b);
-  if (!na || !nb) return 0;
-  if (na === nb) return 1;
-  if (na.length < 2 || nb.length < 2) return na === nb ? 1 : 0;
+  if (!na || !nb) {
+    return 0;
+  }
+  if (na === nb) {
+    return 1;
+  }
+  if (na.length < 2 || nb.length < 2) {
+    return na === nb ? 1 : 0;
+  }
 
   const ba = bigrams(na);
   const bb = bigrams(nb);
   let intersection = 0;
   for (const [g, ca] of ba) {
     const cb = bb.get(g);
-    if (cb) intersection += Math.min(ca, cb);
+    if (cb) {
+      intersection += Math.min(ca, cb);
+    }
   }
   const sa = na.length - 1;
   const sb = nb.length - 1;
@@ -92,12 +102,19 @@ export function diceSimilarity(a: string, b: string): number {
 export function tokenJaccard(a: string, b: string): number {
   const na = normalizeTitle(a);
   const nb = normalizeTitle(b);
-  if (!na || !nb) return 0;
+  if (!na || !nb) {
+    return 0;
+  }
   const ta = new Set(na.split(' ').filter(Boolean));
   const tb = new Set(nb.split(' ').filter(Boolean));
-  if (ta.size === 0 || tb.size === 0) return 0;
+  if (ta.size === 0 || tb.size === 0) {
+    return 0;
+  }
   let inter = 0;
-  for (const t of ta) if (tb.has(t)) inter += 1;
+  for (const t of ta)
+    if (tb.has(t)) {
+      inter += 1;
+    }
   const union = ta.size + tb.size - inter;
   return inter / union;
 }
@@ -111,12 +128,18 @@ export function tokenJaccard(a: string, b: string): number {
 export function prefixScore(a: string, b: string): number {
   const na = normalizeTitle(a);
   const nb = normalizeTitle(b);
-  if (!na || !nb) return 0;
+  if (!na || !nb) {
+    return 0;
+  }
   const [shorter, longer] = na.length <= nb.length ? [na, nb] : [nb, na];
-  if (!longer.startsWith(shorter)) return 0;
+  if (!longer.startsWith(shorter)) {
+    return 0;
+  }
   // Require the prefix to end on a token boundary so "naruto" doesn't
   // prefix "naruto: shippuden" trivially but "naruto" + "naruto" does.
-  if (longer.length > shorter.length && longer[shorter.length] !== ' ') return 0;
+  if (longer.length > shorter.length && longer[shorter.length] !== ' ') {
+    return 0;
+  }
   return shorter.length / longer.length;
 }
 
@@ -142,9 +165,13 @@ export function compositeSimilarity(a: string, b: string): number {
 export function bestSimilarity(candidate: string, targets: Array<string | undefined>): number {
   let best = 0;
   for (const t of targets) {
-    if (!t) continue;
+    if (!t) {
+      continue;
+    }
     const s = compositeSimilarity(candidate, t);
-    if (s > best) best = s;
+    if (s > best) {
+      best = s;
+    }
   }
   return best;
 }

@@ -59,15 +59,23 @@ export async function withRetry<T>(
   let attempt = 0;
   let lastErr: unknown;
   while (attempt < maxAttempts) {
-    if (signal?.aborted) throw abortError(signal);
+    if (signal?.aborted) {
+      throw abortError(signal);
+    }
     attempt += 1;
     try {
       return await fn(attempt);
     } catch (err) {
       lastErr = err;
-      if (signal?.aborted) throw abortError(signal);
-      if (!isRetryable(err, config)) throw err;
-      if (attempt >= maxAttempts) throw err;
+      if (signal?.aborted) {
+        throw abortError(signal);
+      }
+      if (!isRetryable(err, config)) {
+        throw err;
+      }
+      if (attempt >= maxAttempts) {
+        throw err;
+      }
 
       const hinted = err instanceof HttpRetryableError ? err.retryAfterMs : undefined;
       const expBackoff = Math.min(max, initial * factor ** (attempt - 1));
@@ -86,7 +94,9 @@ export async function withRetry<T>(
 }
 
 function isRetryable(err: unknown, config: RetryConfig): boolean {
-  if (config.isRetryableError?.(err)) return true;
+  if (config.isRetryableError?.(err)) {
+    return true;
+  }
   if (err instanceof HttpRetryableError) {
     return (config.retryStatuses ?? DEFAULT_RETRY_STATUSES).includes(err.status);
   }
@@ -94,8 +104,12 @@ function isRetryable(err: unknown, config: RetryConfig): boolean {
   // matching on name/message/code covers the common cases.
   if (err instanceof Error) {
     const name = err.name;
-    if (name === 'AbortError') return false; // explicit aborts are not retryable
-    if (name === 'TypeError' && /fetch failed|network/i.test(err.message)) return true;
+    if (name === 'AbortError') {
+      return false;
+    } // explicit aborts are not retryable
+    if (name === 'TypeError' && /fetch failed|network/i.test(err.message)) {
+      return true;
+    }
     if (
       'code' in err &&
       typeof (err as { code?: unknown }).code === 'string' &&
@@ -118,9 +132,13 @@ function isRetryable(err: unknown, config: RetryConfig): boolean {
 
 /** Parse `Retry-After` (seconds or HTTP date) to milliseconds. */
 export function parseRetryAfter(value: string | null): number | undefined {
-  if (!value) return undefined;
+  if (!value) {
+    return undefined;
+  }
   const seconds = Number(value);
-  if (!Number.isNaN(seconds)) return seconds * 1000;
+  if (!Number.isNaN(seconds)) {
+    return seconds * 1000;
+  }
   const date = Date.parse(value);
   if (!Number.isNaN(date)) {
     const ms = date - Date.now();
@@ -130,7 +148,9 @@ export function parseRetryAfter(value: string | null): number | undefined {
 }
 
 function sleep(ms: number, signal?: AbortSignal): Promise<void> {
-  if (ms <= 0) return Promise.resolve();
+  if (ms <= 0) {
+    return Promise.resolve();
+  }
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
       cleanup();
@@ -146,7 +166,9 @@ function sleep(ms: number, signal?: AbortSignal): Promise<void> {
       signal?.removeEventListener('abort', onAbort);
     };
     if (signal) {
-      if (signal.aborted) return onAbort();
+      if (signal.aborted) {
+        return onAbort();
+      }
       signal.addEventListener('abort', onAbort, { once: true });
     }
   });
@@ -157,7 +179,9 @@ function clamp01(n: number): number {
 }
 
 function abortError(signal: AbortSignal): Error {
-  if (signal.reason instanceof Error) return signal.reason;
+  if (signal.reason instanceof Error) {
+    return signal.reason;
+  }
   const e = new Error('Aborted');
   e.name = 'AbortError';
   return e;

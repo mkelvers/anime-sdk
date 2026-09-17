@@ -99,7 +99,9 @@ export class HttpClient {
   }
 
   public requestUrl(url: string): string {
-    if (!this.proxyUrl) return url;
+    if (!this.proxyUrl) {
+      return url;
+    }
     if (this.proxyType === 'prepend') {
       const base = this.proxyUrl.endsWith('/') ? this.proxyUrl : `${this.proxyUrl}/`;
       // Strip target protocol if the prepend proxy expects path prepending
@@ -117,7 +119,9 @@ export class HttpClient {
     const host = safeHostname(this.requestUrl(url));
 
     if (this.retryConfig === false) {
-      if (this.rateLimiter && host) await this.rateLimiter.acquire(host, signal ?? undefined);
+      if (this.rateLimiter && host) {
+        await this.rateLimiter.acquire(host, signal ?? undefined);
+      }
       return this.requestOnce(url, options);
     }
     return withRetry(
@@ -126,7 +130,9 @@ export class HttpClient {
         // call and must respect the per-host budget independently. Doing
         // this outside the retry loop would let a noisy retry-storm
         // silently blow past the configured rate limit.
-        if (this.rateLimiter && host) await this.rateLimiter.acquire(host, signal ?? undefined);
+        if (this.rateLimiter && host) {
+          await this.rateLimiter.acquire(host, signal ?? undefined);
+        }
         const res = await this.requestOnce(url, options);
         const retryStatuses =
           this.retryConfig === false
@@ -176,7 +182,9 @@ export class HttpClient {
     }
     const cleanup = () => {
       clearTimeout(id);
-      if (onCallerAbort) callerSignal!.removeEventListener('abort', onCallerAbort);
+      if (onCallerAbort) {
+        callerSignal!.removeEventListener('abort', onCallerAbort);
+      }
     };
 
     try {
@@ -254,7 +262,9 @@ function safeHostname(url: string): string | undefined {
 }
 
 function abortReason(signal: AbortSignal): Error {
-  if (signal.reason instanceof Error) return signal.reason;
+  if (signal.reason instanceof Error) {
+    return signal.reason;
+  }
   const e = new Error(typeof signal.reason === 'string' ? signal.reason : 'Aborted');
   e.name = 'AbortError';
   return e;

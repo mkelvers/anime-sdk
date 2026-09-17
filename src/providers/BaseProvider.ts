@@ -50,8 +50,12 @@ export abstract class BaseProvider {
    */
   private __semaphore?: Semaphore;
   private withConcurrency<T>(fn: () => Promise<T>): Promise<T> {
-    if (!this.maxConcurrency || this.maxConcurrency <= 0) return fn();
-    if (!this.__semaphore) this.__semaphore = new Semaphore(this.maxConcurrency);
+    if (!this.maxConcurrency || this.maxConcurrency <= 0) {
+      return fn();
+    }
+    if (!this.__semaphore) {
+      this.__semaphore = new Semaphore(this.maxConcurrency);
+    }
     return this.__semaphore.run(fn);
   }
 
@@ -207,7 +211,8 @@ class Semaphore {
   }
   private release(): void {
     const next = this.waiters.shift();
-    if (next) next();
-    else this.permits += 1;
+    if (next) {
+      next();
+    } else this.permits += 1;
   }
 }

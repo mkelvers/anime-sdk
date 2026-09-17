@@ -59,7 +59,9 @@ interface HlsSegment {
 export function parseHlsMaster(content: string, baseUrl: string): string[] {
   const variants: string[] = [];
   for (const line of content.split('\n').map((l) => l.trim())) {
-    if (!line || line.startsWith('#')) continue;
+    if (!line || line.startsWith('#')) {
+      continue;
+    }
     try {
       variants.push(new URL(line, baseUrl).toString());
     } catch {
@@ -78,7 +80,9 @@ export function parseHlsSegments(content: string, baseUrl: string): HlsSegment[]
   for (const line of content.split('\n').map((l) => l.trim())) {
     if (line.startsWith('#EXTINF:')) {
       const m = line.match(/#EXTINF:([0-9.]+)/);
-      if (m) dur = parseFloat(m[1]);
+      if (m) {
+        dur = parseFloat(m[1]);
+      }
     } else if (line && !line.startsWith('#')) {
       try {
         segments.push({ url: new URL(line, baseUrl).toString(), duration: dur });
@@ -95,11 +99,21 @@ export function parseHlsSegments(content: string, baseUrl: string): HlsSegment[]
  */
 export function detectImageExtension(contentType: string): string {
   const ct = contentType.toLowerCase();
-  if (ct.includes('png')) return '.png';
-  if (ct.includes('webp')) return '.webp';
-  if (ct.includes('gif')) return '.gif';
-  if (ct.includes('bmp')) return '.bmp';
-  if (ct.includes('avif')) return '.avif';
+  if (ct.includes('png')) {
+    return '.png';
+  }
+  if (ct.includes('webp')) {
+    return '.webp';
+  }
+  if (ct.includes('gif')) {
+    return '.gif';
+  }
+  if (ct.includes('bmp')) {
+    return '.bmp';
+  }
+  if (ct.includes('avif')) {
+    return '.avif';
+  }
   // Default to jpg for jpeg, octet-stream, or unknown
   return '.jpg';
 }
@@ -131,10 +145,14 @@ export async function downloadVideo(
   options?: DownloadVideoOptions,
 ): Promise<DownloadVideoResult> {
   const list = Array.isArray(streams) ? streams : [streams];
-  if (list.length === 0) throw new Error('downloadVideo: streams array is empty');
+  if (list.length === 0) {
+    throw new Error('downloadVideo: streams array is empty');
+  }
 
   const dir = path.dirname(outputPath);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
 
   const timeout = options?.timeoutMs ?? 300_000;
   const errors: string[] = [];
@@ -203,9 +221,13 @@ async function probeIsVideo(
       method: 'GET',
       headers: { ...mergeHeaders(headers), Range: 'bytes=0-2048' },
     });
-    if (res.status !== 200 && res.status !== 206) return { isVideo: false };
+    if (res.status !== 200 && res.status !== 206) {
+      return { isVideo: false };
+    }
     const ct = (res.headers.get('content-type') ?? '').toLowerCase();
-    if (ct.startsWith('text/html') || ct.startsWith('application/xhtml')) return { isVideo: false };
+    if (ct.startsWith('text/html') || ct.startsWith('application/xhtml')) {
+      return { isVideo: false };
+    }
     if (
       ct.startsWith('video/') ||
       ct.includes('mpegurl') ||
@@ -245,7 +267,9 @@ async function scrapeForStreamUrl(
 
     const pickFirst = (text: string, re: RegExp): string | null => {
       const a = text.match(re);
-      if (a) return a[0];
+      if (a) {
+        return a[0];
+      }
       const b = text.replace(/\\\//g, '/').match(re);
       return b ? b[0] : null;
     };
@@ -254,13 +278,17 @@ async function scrapeForStreamUrl(
       html,
       /https?:\/\/[^"'\s<>\\]+?\/[^"'\s<>\\/]+\.m3u8(?:[?#][^"'\s<>\\]*)?/i,
     );
-    if (m3u8) return { url: m3u8.replace(/&amp;/g, '&'), isHls: true };
+    if (m3u8) {
+      return { url: m3u8.replace(/&amp;/g, '&'), isHls: true };
+    }
 
     const mp4 = pickFirst(
       html,
       /https?:\/\/[^"'\s<>\\]+?\/[^"'\s<>\\/]+\.mp4(?:[?#][^"'\s<>\\]*)?/i,
     );
-    if (mp4) return { url: mp4.replace(/&amp;/g, '&'), isHls: false };
+    if (mp4) {
+      return { url: mp4.replace(/&amp;/g, '&'), isHls: false };
+    }
 
     return null;
   } catch {
@@ -276,7 +304,9 @@ function stripPngHeader(buffer: Buffer): Buffer {
     const idx = buffer.indexOf(IEND_MAGIC);
     if (idx !== -1) {
       const offset = idx + 8;
-      if (offset < buffer.length) return buffer.subarray(offset);
+      if (offset < buffer.length) {
+        return buffer.subarray(offset);
+      }
     }
   }
   return buffer;
@@ -295,27 +325,36 @@ async function downloadHlsSegments(
 ): Promise<void> {
   let currentUrl = playlistUrl;
   let res = await fetch(currentUrl, { headers: mergeHeaders(headers) });
-  if (!res.ok)
+  if (!res.ok) {
     throw new Error(`Playlist ${res.status} ${res.statusText} (${currentUrl.slice(0, 120)})`);
+  }
   let playlist = await res.text();
 
   // Walk down master → variant playlists (max 2 hops)
   for (let hops = 0; hops < 2 && playlist.includes('#EXT-X-STREAM-INF'); hops++) {
     const variants = parseHlsMaster(playlist, currentUrl);
-    if (variants.length === 0) throw new Error('Master playlist has no variants');
+    if (variants.length === 0) {
+      throw new Error('Master playlist has no variants');
+    }
     currentUrl = variants[variants.length - 1]; // pick highest quality (last)
     res = await fetch(currentUrl, { headers: mergeHeaders(headers) });
-    if (!res.ok) throw new Error(`Variant ${res.status} (${currentUrl.slice(0, 120)})`);
+    if (!res.ok) {
+      throw new Error(`Variant ${res.status} (${currentUrl.slice(0, 120)})`);
+    }
     playlist = await res.text();
   }
 
   const segments = parseHlsSegments(playlist, currentUrl);
-  if (segments.length === 0) throw new Error('No segments in playlist');
+  if (segments.length === 0) {
+    throw new Error('No segments in playlist');
+  }
 
   const dir = path.dirname(outputPath);
   const tmpTs = path.join(dir, `tmp_${path.basename(outputPath, '.mp4')}_concat.ts`);
 
-  if (fs.existsSync(tmpTs)) fs.unlinkSync(tmpTs);
+  if (fs.existsSync(tmpTs)) {
+    fs.unlinkSync(tmpTs);
+  }
 
   const fd = fs.openSync(tmpTs, 'a');
   try {
@@ -327,7 +366,9 @@ async function downloadHlsSegments(
 
       const seg = segments[i];
       const segRes = await fetch(seg.url, { headers: mergeHeaders(headers) });
-      if (!segRes.ok) throw new Error(`Segment ${i} failed: HTTP ${segRes.status}`);
+      if (!segRes.ok) {
+        throw new Error(`Segment ${i} failed: HTTP ${segRes.status}`);
+      }
 
       const arrayBuf = await segRes.arrayBuffer();
       const bytes = stripPngHeader(Buffer.from(arrayBuf as ArrayBuffer));
@@ -357,7 +398,9 @@ async function downloadHlsSegments(
     throw new Error(`ffmpeg failed: ${e.message}\n${stderr}`);
   }
 
-  if (fs.existsSync(tmpTs)) fs.unlinkSync(tmpTs);
+  if (fs.existsSync(tmpTs)) {
+    fs.unlinkSync(tmpTs);
+  }
 }
 
 /**
@@ -377,8 +420,12 @@ async function downloadMp4Direct(
       headers: mergeHeaders(headers),
       signal: ctrl.signal,
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
-    if (!res.body) throw new Error('Response body is null');
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status} ${res.statusText}`);
+    }
+    if (!res.body) {
+      throw new Error('Response body is null');
+    }
 
     const fileStream = fs.createWriteStream(outputPath);
     const reader = res.body.getReader();
@@ -386,7 +433,9 @@ async function downloadMp4Direct(
     try {
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          break;
+        }
         fileStream.write(Buffer.from(value));
       }
     } finally {
@@ -417,7 +466,9 @@ export async function downloadMangaPage(
     throw new Error(`Page index ${pageIndex} out of range (0-${pages.imageUrls.length - 1})`);
   }
 
-  if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
 
   const url = pages.imageUrls[pageIndex];
   const headers = options?.headers ?? pages.headers ?? {};
@@ -431,7 +482,9 @@ export async function downloadMangaPage(
       headers: mergeHeaders(headers),
       signal: ctrl.signal,
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status} fetching page ${pageIndex}`);
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status} fetching page ${pageIndex}`);
+    }
 
     const contentType = res.headers.get('content-type') ?? 'image/jpeg';
     const ext = detectImageExtension(contentType);
@@ -467,7 +520,9 @@ export async function downloadMangaChapter(
   }
 
   const dir = path.dirname(outputPath);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
 
   const headers = pages.headers ?? {};
   const timeout = options?.timeoutMs ?? 30_000;
@@ -485,7 +540,9 @@ export async function downloadMangaChapter(
         headers: mergeHeaders(headers),
         signal: ctrl.signal,
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status} fetching page ${i}`);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status} fetching page ${i}`);
+      }
 
       const contentType = res.headers.get('content-type') ?? 'image/jpeg';
       const ext = detectImageExtension(contentType);

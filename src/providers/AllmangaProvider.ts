@@ -96,12 +96,20 @@ export class AllmangaProvider extends BaseProvider {
 
     for (const edge of edges) {
       const title = edge.englishName || edge.name;
-      if (!title) continue;
+      if (!title) {
+        continue;
+      }
       const avail = edge.availableEpisodes as Record<string, number> | undefined;
       const langs: ContentLanguage[] = [];
-      if (avail?.sub) langs.push('sub');
-      if (avail?.dub) langs.push('dub');
-      if (avail?.raw) langs.push('raw');
+      if (avail?.sub) {
+        langs.push('sub');
+      }
+      if (avail?.dub) {
+        langs.push('dub');
+      }
+      if (avail?.raw) {
+        langs.push('raw');
+      }
       out.push({
         id: edge._id,
         title,
@@ -140,9 +148,13 @@ export class AllmangaProvider extends BaseProvider {
       const list: string[] = Array.isArray(detail[lang]) ? detail[lang] : [];
       for (const epStr of list) {
         const num = parseFloat(epStr);
-        if (isNaN(num)) continue;
+        if (isNaN(num)) {
+          continue;
+        }
         const entry = merged.get(epStr) ?? { num, langs: [] };
-        if (!entry.langs.includes(lang)) entry.langs.push(lang);
+        if (!entry.langs.includes(lang)) {
+          entry.langs.push(lang);
+        }
         merged.set(epStr, entry);
       }
     }
@@ -303,14 +315,20 @@ export class AllmangaProvider extends BaseProvider {
     lang: ContentLanguage,
   ): Promise<IVideoPayload[]> {
     let raw = src.sourceUrl;
-    if (!raw) return [];
+    if (!raw) {
+      return [];
+    }
 
     // XOR-decode obfuscated AllAnime API paths (Luf-Mp4, S-mp4, Default, ...)
     if (raw.startsWith('--')) {
       raw = decodeAllAnimeSource(raw);
-      if (raw.startsWith('/')) raw = this.apiHost + raw;
+      if (raw.startsWith('/')) {
+        raw = this.apiHost + raw;
+      }
     }
-    if (raw.startsWith('//')) raw = 'https:' + raw;
+    if (raw.startsWith('//')) {
+      raw = 'https:' + raw;
+    }
 
     const headers = {
       Referer: this.referer,
@@ -389,7 +407,9 @@ export class AllmangaProvider extends BaseProvider {
 
       for (const item of links) {
         const link = item.link as string | undefined;
-        if (!link) continue;
+        if (!link) {
+          continue;
+        }
 
         // Wixmp packager → expand quality variants
         if (link.includes('repackager.wixmp.com')) {
@@ -438,25 +458,50 @@ export class AllmangaProvider extends BaseProvider {
 
 function mapQuality(label: string): IVideoPayload['quality'] {
   const s = String(label).toLowerCase();
-  if (s.includes('1080')) return '1080p';
-  if (s.includes('720')) return '720p';
-  if (s.includes('480')) return '480p';
-  if (s.includes('360')) return '360p';
+  if (s.includes('1080')) {
+    return '1080p';
+  }
+  if (s.includes('720')) {
+    return '720p';
+  }
+  if (s.includes('480')) {
+    return '480p';
+  }
+  if (s.includes('360')) {
+    return '360p';
+  }
   return 'auto';
 }
 
 function qualityScore(p: IVideoPayload): number {
   let s = 0;
   // Provider-priority: mp4upload direct mp4 → wixstatic mp4 → m3u8 → other.
-  if (/\/video\.mp4(?:[?#]|$)/.test(p.sourceUrl)) s += 30;
-  if (p.sourceUrl.includes('wixstatic.com')) s += 25;
-  if (p.sourceUrl.includes('mp4upload.com')) s += 20;
-  if (/\.m3u8(?:[?#]|$)/.test(p.sourceUrl)) s += 15;
-  if (/\.mp4(?:[?#]|$)/.test(p.sourceUrl)) s += 10;
-  if (p.sourceUrl.includes('okcdn.ru') && p.isHLS) s += 5;
-  if (p.quality === '1080p') s += 4;
-  else if (p.quality === '720p') s += 3;
-  else if (p.quality === '480p') s += 2;
-  else if (p.quality === '360p') s += 1;
+  if (/\/video\.mp4(?:[?#]|$)/.test(p.sourceUrl)) {
+    s += 30;
+  }
+  if (p.sourceUrl.includes('wixstatic.com')) {
+    s += 25;
+  }
+  if (p.sourceUrl.includes('mp4upload.com')) {
+    s += 20;
+  }
+  if (/\.m3u8(?:[?#]|$)/.test(p.sourceUrl)) {
+    s += 15;
+  }
+  if (/\.mp4(?:[?#]|$)/.test(p.sourceUrl)) {
+    s += 10;
+  }
+  if (p.sourceUrl.includes('okcdn.ru') && p.isHLS) {
+    s += 5;
+  }
+  if (p.quality === '1080p') {
+    s += 4;
+  } else if (p.quality === '720p') {
+    s += 3;
+  } else if (p.quality === '480p') {
+    s += 2;
+  } else if (p.quality === '360p') {
+    s += 1;
+  }
   return s;
 }

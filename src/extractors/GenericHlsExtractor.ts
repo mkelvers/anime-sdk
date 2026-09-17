@@ -26,7 +26,9 @@ export class GenericHlsExtractor extends BaseExtractor {
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
       },
     });
-    if (res.status !== 200) return [];
+    if (res.status !== 200) {
+      return [];
+    }
     const html = await res.text();
 
     // Try multiple patterns: prefer m3u8 over mp4
@@ -49,8 +51,12 @@ export class GenericHlsExtractor extends BaseExtractor {
     };
 
     const out: IVideoPayload[] = [];
-    if (m3u8) out.push({ sourceUrl: m3u8, isHLS: true, quality: 'auto', headers });
-    if (mp4) out.push({ sourceUrl: mp4, isHLS: false, quality: 'auto', headers });
+    if (m3u8) {
+      out.push({ sourceUrl: m3u8, isHLS: true, quality: 'auto', headers });
+    }
+    if (mp4) {
+      out.push({ sourceUrl: mp4, isHLS: false, quality: 'auto', headers });
+    }
     return out;
   }
 

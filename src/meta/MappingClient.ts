@@ -146,7 +146,7 @@ export class MappingClient {
     if (contentProvider.lookupByMapping && metadata.mappings) {
       try {
         const raw = await contentProvider.lookupByMapping(metadata.mappings, options);
-        if (raw)
+        if (raw) {
           return this.acceptAndCache(
             cacheKey,
             contentProvider,
@@ -154,6 +154,7 @@ export class MappingClient {
             displayTitle(metadata),
             'provider',
           );
+        }
       } catch {
         // Fall through — provider-side lookup is best-effort.
       }
@@ -227,7 +228,9 @@ export class MappingClient {
       });
     }
 
-    if (tasks.length === 0) return null;
+    if (tasks.length === 0) {
+      return null;
+    }
 
     // Race: resolve as soon as any task returns a non-null value.
     // We can't use Promise.any (rejects ≠ no-match), so do it manually.
@@ -236,12 +239,16 @@ export class MappingClient {
       for (const { method, promise } of tasks) {
         promise
           .then((rawId) => {
-            if (rawId) resolve({ rawId, method });
+            if (rawId) {
+              resolve({ rawId, method });
+            }
           })
           .catch(() => {})
           .finally(() => {
             remaining -= 1;
-            if (remaining === 0) resolve(null);
+            if (remaining === 0) {
+              resolve(null);
+            }
           });
       }
     });
@@ -258,23 +265,33 @@ export class MappingClient {
     const malId = metadata.mappings?.mal;
     const namespace = anilistId ? 'anilist' : 'mal';
     const id = anilistId ?? malId;
-    if (!id) return null;
+    if (!id) {
+      return null;
+    }
     const url = `https://api.malsync.moe/${namespace}/${type}/${id}`;
     try {
       const res = await this.http.get(url, {
         headers: { Accept: 'application/json' },
         signal: options.signal,
       });
-      if (res.status !== 200) return null;
+      if (res.status !== 200) {
+        return null;
+      }
       const data = (await res.json()) as MalsyncResponse;
       const sites = data?.Sites;
-      if (!sites) return null;
+      if (!sites) {
+        return null;
+      }
       for (const alias of aliases) {
         const bucket = sites[alias];
-        if (!bucket) continue;
+        if (!bucket) {
+          continue;
+        }
         const first = Object.values(bucket)[0];
         const raw = String(first?.identifier ?? '').trim();
-        if (raw) return raw;
+        if (raw) {
+          return raw;
+        }
       }
       // Also stash any other provider hits we found in the cache so
       // future lookups for those providers can short-circuit.
@@ -291,14 +308,18 @@ export class MappingClient {
     options: CallOptions,
   ): Promise<string | null> {
     const anilistId = metadata.mappings?.anilist;
-    if (!anilistId) return null;
+    if (!anilistId) {
+      return null;
+    }
     const url = `https://api.anify.tv/info/${anilistId}`;
     try {
       const res = await this.http.get(url, {
         headers: { Accept: 'application/json' },
         signal: options.signal,
       });
-      if (res.status !== 200) return null;
+      if (res.status !== 200) {
+        return null;
+      }
       const data = (await res.json()) as AnifyResponse;
       const m = data?.mappings ?? [];
       const hit = m.find((x) => x.providerId === contentProviderId);
@@ -319,18 +340,24 @@ export class MappingClient {
     options: CallOptions,
   ): Promise<IMediaMappings | null> {
     const anilistId = metadata.mappings?.anilist;
-    if (!anilistId) return null;
+    if (!anilistId) {
+      return null;
+    }
     const cacheKey = `arm:anilist:${anilistId}`;
     if (this.options.cache) {
       const hit = await this.options.cache.get(cacheKey);
-      if (hit !== undefined && hit !== null) return hit as IMediaMappings;
+      if (hit !== undefined && hit !== null) {
+        return hit as IMediaMappings;
+      }
     }
     try {
       const res = await this.http.get(
         `https://arm.haglund.dev/api/v2/ids?source=anilist&id=${anilistId}`,
         { headers: { Accept: 'application/json' }, signal: options.signal },
       );
-      if (res.status !== 200) return null;
+      if (res.status !== 200) {
+        return null;
+      }
       const data = (await res.json()) as ArmServerResponse;
       const enriched: IMediaMappings = {
         anilist: data.anilist,
@@ -338,7 +365,9 @@ export class MappingClient {
         kitsu: data.kitsu,
         anidb: data.anidb,
       };
-      if (this.options.cache) await this.options.cache.set(cacheKey, enriched);
+      if (this.options.cache) {
+        await this.options.cache.set(cacheKey, enriched);
+      }
       return enriched;
     } catch {
       return null;
@@ -350,7 +379,9 @@ export class MappingClient {
     metadata: IMediaMetadata,
     sites: NonNullable<MalsyncResponse['Sites']>,
   ): Promise<void> {
-    if (!this.options.cache) return;
+    if (!this.options.cache) {
+      return;
+    }
     // We can't know which BaseProvider.id a site corresponds to without
     // querying the registered providers — but the matched site name is a
     // stable key, so cache by `malsync:${siteName}:${anilistOrMal}:${id}`
@@ -360,9 +391,15 @@ export class MappingClient {
     for (const [siteName, bucket] of Object.entries(sites)) {
       const first = Object.values(bucket)[0];
       const raw = String(first?.identifier ?? '').trim();
-      if (!raw) continue;
-      if (anilistId) await this.options.cache.set(`malsync:${siteName}:anilist:${anilistId}`, raw);
-      if (malId) await this.options.cache.set(`malsync:${siteName}:mal:${malId}`, raw);
+      if (!raw) {
+        continue;
+      }
+      if (anilistId) {
+        await this.options.cache.set(`malsync:${siteName}:anilist:${anilistId}`, raw);
+      }
+      if (malId) {
+        await this.options.cache.set(`malsync:${siteName}:mal:${malId}`, raw);
+      }
     }
   }
 
@@ -386,7 +423,9 @@ export class MappingClient {
       metadata.title.native,
       ...(metadata.synonyms ?? []),
     ]);
-    if (queries.length === 0) return null;
+    if (queries.length === 0) {
+      return null;
+    }
 
     const candidates = await runParallelSearches(
       contentProvider,
@@ -394,7 +433,9 @@ export class MappingClient {
       limit,
       options,
     );
-    if (candidates.length === 0) return null;
+    if (candidates.length === 0) {
+      return null;
+    }
 
     const altTitles = [
       metadata.title.userPreferred,
@@ -424,7 +465,9 @@ export class MappingClient {
 
     pool.sort((a, b) => b.score - a.score);
     const top = pool[0];
-    if (!top || top.score < threshold - verifyBand) return null;
+    if (!top || top.score < threshold - verifyBand) {
+      return null;
+    }
 
     const raw = unwrapUrn(contentProvider.id, top.result.id);
 
@@ -449,7 +492,9 @@ export class MappingClient {
     }
 
     // No cross-check possible; accept only if clearly above threshold.
-    if (top.score >= threshold) return makeRes(contentProvider, raw, top);
+    if (top.score >= threshold) {
+      return makeRes(contentProvider, raw, top);
+    }
     return null;
   }
 
@@ -468,7 +513,9 @@ export class MappingClient {
       matchedTitle,
       method,
     };
-    if (this.options.cache) await this.options.cache.set(cacheKey, resolution);
+    if (this.options.cache) {
+      await this.options.cache.set(cacheKey, resolution);
+    }
     return resolution;
   }
 }
@@ -487,9 +534,13 @@ function uniqueQueries(raw: Array<string | undefined>): string[] {
   const out: string[] = [];
   const seen = new Set<string>();
   for (const q of raw) {
-    if (!q) continue;
+    if (!q) {
+      continue;
+    }
     const norm = normalizeTitle(q);
-    if (!norm || seen.has(norm)) continue;
+    if (!norm || seen.has(norm)) {
+      continue;
+    }
     seen.add(norm);
     out.push(q);
   }
@@ -504,14 +555,20 @@ function uniqueQueries(raw: Array<string | undefined>): string[] {
  */
 function providerMalsyncAliases(provider: BaseProvider): string[] {
   const ctor = provider.constructor as unknown as { malsyncSites?: readonly string[] };
-  if (ctor.malsyncSites && ctor.malsyncSites.length > 0) return [...ctor.malsyncSites];
+  if (ctor.malsyncSites && ctor.malsyncSites.length > 0) {
+    return [...ctor.malsyncSites];
+  }
   const builtIn = BUILT_IN_MALSYNC_ALIASES[provider.id];
-  if (builtIn) return builtIn;
+  if (builtIn) {
+    return builtIn;
+  }
   return [capitalize(provider.id)];
 }
 
 function capitalize(s: string): string {
-  if (!s) return s;
+  if (!s) {
+    return s;
+  }
   return s[0].toUpperCase() + s.slice(1);
 }
 
@@ -520,7 +577,9 @@ function yearIsCompatible(
   actual: number | undefined,
   tolerance: number,
 ): boolean {
-  if (expected == null || actual == null) return true; // unknown → not a hard filter
+  if (expected == null || actual == null) {
+    return true;
+  } // unknown → not a hard filter
   return Math.abs(expected - actual) <= tolerance;
 }
 
@@ -552,9 +611,13 @@ async function runParallelSearches(
   const seen = new Set<string>();
   const out: IMediaSearchResult[] = [];
   for (const r of results) {
-    if (r.status !== 'fulfilled') continue;
+    if (r.status !== 'fulfilled') {
+      continue;
+    }
     for (const hit of r.value.slice(0, perQueryLimit)) {
-      if (seen.has(hit.id)) continue;
+      if (seen.has(hit.id)) {
+        continue;
+      }
       seen.add(hit.id);
       out.push(hit);
     }

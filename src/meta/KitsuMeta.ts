@@ -89,7 +89,9 @@ export class KitsuMeta extends BaseMetadataProvider {
     }
     const json = (await res.json()) as any;
     const r = json?.data;
-    if (!r) throw new Error(`Kitsu: no media for id ${nativeId}`);
+    if (!r) {
+      throw new Error(`Kitsu: no media for id ${nativeId}`);
+    }
 
     const included: any[] = json?.included ?? [];
     const genres = pickNames(included, r.relationships?.genres?.data, 'genres');
@@ -177,7 +179,9 @@ function kitsuTitles(a: any) {
 }
 
 function kitsuStatus(s: unknown): MediaStatus | undefined {
-  if (typeof s !== 'string') return undefined;
+  if (typeof s !== 'string') {
+    return undefined;
+  }
   switch (s) {
     case 'finished':
       return 'FINISHED';
@@ -194,7 +198,9 @@ function kitsuStatus(s: unknown): MediaStatus | undefined {
 }
 
 function kitsuFormat(s: unknown): MediaFormat | undefined {
-  if (typeof s !== 'string') return undefined;
+  if (typeof s !== 'string') {
+    return undefined;
+  }
   switch (s) {
     case 'TV':
       return 'TV';
@@ -220,7 +226,9 @@ function kitsuFormat(s: unknown): MediaFormat | undefined {
 }
 
 function parseYear(d: unknown): number | undefined {
-  if (typeof d !== 'string') return undefined;
+  if (typeof d !== 'string') {
+    return undefined;
+  }
   const m = d.match(/^(\d{4})/);
   return m ? Number(m[1]) : undefined;
 }
@@ -230,12 +238,16 @@ function pickNames(
   refs: Array<{ id: string; type: string }> | undefined,
   expectedType: string,
 ): string[] {
-  if (!Array.isArray(refs)) return [];
+  if (!Array.isArray(refs)) {
+    return [];
+  }
   const lookup = new Map(included.map((i) => [`${i.type}:${i.id}`, i]));
   const out: string[] = [];
   for (const ref of refs) {
     const node = lookup.get(`${expectedType}:${ref.id}`);
-    if (node?.attributes?.name) out.push(node.attributes.name);
+    if (node?.attributes?.name) {
+      out.push(node.attributes.name);
+    }
   }
   return out;
 }
@@ -244,7 +256,9 @@ function pickProducers(
   included: any[],
   refs: Array<{ id: string; type: string }> | undefined,
 ): string[] {
-  if (!Array.isArray(refs)) return [];
+  if (!Array.isArray(refs)) {
+    return [];
+  }
   const productions = included.filter((i) => i.type === 'animeProductions');
   const producers = new Map(
     included.filter((i) => i.type === 'producers').map((i) => [i.id, i.attributes?.name]),
@@ -254,7 +268,9 @@ function pickProducers(
     const prod = productions.find((p) => p.id === ref.id);
     const producerId = prod?.relationships?.producer?.data?.id;
     const name = producerId ? producers.get(producerId) : undefined;
-    if (name) out.push(name);
+    if (name) {
+      out.push(name);
+    }
   }
   return out;
 }
@@ -269,19 +285,30 @@ function pickMappings(
   included: any[],
   refs: Array<{ id: string; type: string }> | undefined,
 ): { anilist?: number; mal?: number; anidb?: number; thetvdb?: number } {
-  if (!Array.isArray(refs)) return {};
+  if (!Array.isArray(refs)) {
+    return {};
+  }
   const out: { anilist?: number; mal?: number; anidb?: number; thetvdb?: number } = {};
   for (const ref of refs) {
     const node = included.find((i) => i.type === 'mappings' && i.id === ref.id);
     const site = node?.attributes?.externalSite as string | undefined;
     const externalId = node?.attributes?.externalId as string | undefined;
-    if (!site || !externalId) continue;
+    if (!site || !externalId) {
+      continue;
+    }
     const num = Number(externalId);
-    if (!Number.isFinite(num)) continue;
-    if (site === 'myanimelist/anime' || site === 'myanimelist/manga') out.mal = num;
-    else if (site === 'anilist/anime' || site === 'anilist/manga') out.anilist = num;
-    else if (site === 'anidb') out.anidb = num;
-    else if (site === 'thetvdb') out.thetvdb = num;
+    if (!Number.isFinite(num)) {
+      continue;
+    }
+    if (site === 'myanimelist/anime' || site === 'myanimelist/manga') {
+      out.mal = num;
+    } else if (site === 'anilist/anime' || site === 'anilist/manga') {
+      out.anilist = num;
+    } else if (site === 'anidb') {
+      out.anidb = num;
+    } else if (site === 'thetvdb') {
+      out.thetvdb = num;
+    }
   }
   return out;
 }

@@ -245,12 +245,18 @@ export abstract class BaseMetadataProvider {
   protected enrichContentUnits(units: IContentUnit[], metadata: IMediaMetadata): IContentUnit[] {
     const byNumber = new Map<number, IStreamingEpisode>();
     for (const ep of metadata.streamingEpisodes ?? []) {
-      if (typeof ep.number === 'number') byNumber.set(ep.number, ep);
+      if (typeof ep.number === 'number') {
+        byNumber.set(ep.number, ep);
+      }
     }
-    if (byNumber.size === 0) return units;
+    if (byNumber.size === 0) {
+      return units;
+    }
     return units.map((u) => {
       const ext = byNumber.get(u.number);
-      if (!ext) return u;
+      if (!ext) {
+        return u;
+      }
       return {
         ...u,
         // Prefer extended title only when meaningfully different (content
@@ -288,13 +294,19 @@ export abstract class BaseMetadataProvider {
     let current: IMediaMetadata | undefined = await this.fetchMediaInfo(metaUrn, options);
     const visited = new Set<string>();
     for (let i = 0; i < 8 && current; i += 1) {
-      if (visited.has(current.id)) break;
+      if (visited.has(current.id)) {
+        break;
+      }
       visited.add(current.id);
       const prequel = current.relations?.find((r) => r.relationType === 'PREQUEL');
-      if (!prequel) break;
+      if (!prequel) {
+        break;
+      }
       try {
         const prevMeta = await this.fetchMediaInfo(prequel.id, options);
-        if (typeof prevMeta.episodeCount === 'number') offset += prevMeta.episodeCount;
+        if (typeof prevMeta.episodeCount === 'number') {
+          offset += prevMeta.episodeCount;
+        }
         current = prevMeta;
       } catch {
         break;
@@ -313,7 +325,9 @@ export abstract class BaseMetadataProvider {
   ): Promise<IContentUnit> {
     const units = await this.fetchContentUnits(metaUrn, contentProvider, options);
     const target = units.find((u) => u.number === episodeNumber);
-    if (target) return target;
+    if (target) {
+      return target;
+    }
 
     if (options.strictEpisodeMatching) {
       throw new Error(
@@ -334,7 +348,9 @@ export abstract class BaseMetadataProvider {
         if (offset > 0) {
           const absolute = episodeNumber + offset;
           const absHit = units.find((u) => u.number === absolute);
-          if (absHit) return absHit;
+          if (absHit) {
+            return absHit;
+          }
         }
       } catch {
         /* fall through to closest-below */
@@ -347,7 +363,9 @@ export abstract class BaseMetadataProvider {
     // in the middle.
     const sorted = [...units].sort((a, b) => a.number - b.number);
     const lower = [...sorted].reverse().find((u) => u.number <= episodeNumber);
-    if (lower) return lower;
+    if (lower) {
+      return lower;
+    }
 
     throw new Error(
       `Episode ${episodeNumber} not found on provider "${contentProvider.id}" (have: ${units.map((u) => u.number).join(', ')})`,
@@ -364,12 +382,18 @@ function shouldTryAbsolute(
   requestedNumber: number,
   mode: NonNullable<CallOptions['episodeAbsoluteMatching']>,
 ): boolean {
-  if (mode === 'always') return true;
-  if (units.length === 0) return false;
+  if (mode === 'always') {
+    return true;
+  }
+  if (units.length === 0) {
+    return false;
+  }
   const max = Math.max(...units.map((u) => u.number));
   // The requested ep is well within the content provider's range — looks
   // like a real miss (specials, gaps), not a season-numbering mismatch.
-  if (requestedNumber <= max) return false;
+  if (requestedNumber <= max) {
+    return false;
+  }
   // The miss is *above* the provider's max episode — only worth re-trying
   // with an offset if the provider has > 1.5× the requested number of
   // episodes, indicating a multi-season concatenation.

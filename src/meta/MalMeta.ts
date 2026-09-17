@@ -130,7 +130,9 @@ export class MalMeta extends BaseMetadataProvider {
     }
     const json = (await res.json()) as any;
     const m = json?.data;
-    if (!m) throw new Error(`MAL: no media for id ${id}`);
+    if (!m) {
+      throw new Error(`MAL: no media for id ${id}`);
+    }
 
     const trailerUrl =
       m.trailer?.youtube_id != null
@@ -206,7 +208,9 @@ export class MalMeta extends BaseMetadataProvider {
           headers: { Accept: 'application/json' },
           signal,
         });
-        if (res.status !== 200) break;
+        if (res.status !== 200) {
+          break;
+        }
         const data = (await res.json()) as {
           data?: Array<{
             mal_id?: number;
@@ -271,7 +275,9 @@ export class MalMeta extends BaseMetadataProvider {
       headers: { Accept: 'application/json' },
       signal: options.signal,
     });
-    if (res.status !== 200) throw new Error(`Jikan browse failed with status ${res.status}`);
+    if (res.status !== 200) {
+      throw new Error(`Jikan browse failed with status ${res.status}`);
+    }
     const json = (await res.json()) as { data?: any[] };
     const data = json?.data ?? [];
     return data.map((m) => ({
@@ -305,7 +311,9 @@ function mapJikanRelations(
   metaProviderId: string,
   relations: unknown,
 ): IMediaRelation[] | undefined {
-  if (!Array.isArray(relations) || relations.length === 0) return undefined;
+  if (!Array.isArray(relations) || relations.length === 0) {
+    return undefined;
+  }
   const out: IMediaRelation[] = [];
   for (const block of relations as Array<{
     relation?: string;
@@ -313,7 +321,9 @@ function mapJikanRelations(
   }>) {
     const rt = normalizeRelation(block.relation);
     for (const entry of block.entry ?? []) {
-      if (!entry.mal_id || !entry.type) continue;
+      if (!entry.mal_id || !entry.type) {
+        continue;
+      }
       const kind = entry.type.toLowerCase() === 'manga' ? 'manga' : 'anime';
       out.push({
         id: buildTypedUrn(metaProviderId, kind, entry.mal_id),
@@ -327,18 +337,40 @@ function mapJikanRelations(
 }
 
 function normalizeRelation(s: unknown): MediaRelationType {
-  if (typeof s !== 'string') return 'OTHER';
+  if (typeof s !== 'string') {
+    return 'OTHER';
+  }
   const v = s.toLowerCase();
-  if (v.includes('sequel')) return 'SEQUEL';
-  if (v.includes('prequel')) return 'PREQUEL';
-  if (v.includes('side')) return 'SIDE_STORY';
-  if (v.includes('spin')) return 'SPIN_OFF';
-  if (v.includes('adaptation')) return 'ADAPTATION';
-  if (v.includes('alternative')) return 'ALTERNATIVE';
-  if (v.includes('summary')) return 'SUMMARY';
-  if (v.includes('character')) return 'CHARACTER';
-  if (v.includes('parent')) return 'PARENT';
-  if (v.includes('full')) return 'PARENT';
+  if (v.includes('sequel')) {
+    return 'SEQUEL';
+  }
+  if (v.includes('prequel')) {
+    return 'PREQUEL';
+  }
+  if (v.includes('side')) {
+    return 'SIDE_STORY';
+  }
+  if (v.includes('spin')) {
+    return 'SPIN_OFF';
+  }
+  if (v.includes('adaptation')) {
+    return 'ADAPTATION';
+  }
+  if (v.includes('alternative')) {
+    return 'ALTERNATIVE';
+  }
+  if (v.includes('summary')) {
+    return 'SUMMARY';
+  }
+  if (v.includes('character')) {
+    return 'CHARACTER';
+  }
+  if (v.includes('parent')) {
+    return 'PARENT';
+  }
+  if (v.includes('full')) {
+    return 'PARENT';
+  }
   return 'OTHER';
 }
 
@@ -347,7 +379,9 @@ function malTitles(m: any) {
   if (Array.isArray(m.titles)) {
     for (const t of m.titles) {
       const type = String(t?.type ?? '').toLowerCase();
-      if (t?.title) titles[type] = t.title;
+      if (t?.title) {
+        titles[type] = t.title;
+      }
     }
   }
   return {
@@ -359,7 +393,9 @@ function malTitles(m: any) {
 }
 
 function malFormat(t: unknown): MediaFormat | undefined {
-  if (typeof t !== 'string') return undefined;
+  if (typeof t !== 'string') {
+    return undefined;
+  }
   switch (t) {
     case 'TV':
       return 'TV';
@@ -386,29 +422,51 @@ function malFormat(t: unknown): MediaFormat | undefined {
 }
 
 function malStatus(s: unknown, _kind: 'anime' | 'manga'): MediaStatus | undefined {
-  if (typeof s !== 'string') return undefined;
-  if (s === 'Finished Airing' || s === 'Finished' || s === 'Complete') return 'FINISHED';
-  if (s === 'Currently Airing' || s === 'Publishing') return 'RELEASING';
-  if (s === 'Not yet aired' || s === 'Not yet published') return 'NOT_YET_RELEASED';
-  if (s === 'On Hiatus') return 'HIATUS';
-  if (s === 'Discontinued') return 'CANCELLED';
+  if (typeof s !== 'string') {
+    return undefined;
+  }
+  if (s === 'Finished Airing' || s === 'Finished' || s === 'Complete') {
+    return 'FINISHED';
+  }
+  if (s === 'Currently Airing' || s === 'Publishing') {
+    return 'RELEASING';
+  }
+  if (s === 'Not yet aired' || s === 'Not yet published') {
+    return 'NOT_YET_RELEASED';
+  }
+  if (s === 'On Hiatus') {
+    return 'HIATUS';
+  }
+  if (s === 'Discontinued') {
+    return 'CANCELLED';
+  }
   return 'UNKNOWN';
 }
 
 function malSeason(s: unknown): MediaSeason | undefined {
-  if (typeof s !== 'string') return undefined;
+  if (typeof s !== 'string') {
+    return undefined;
+  }
   const v = s.toUpperCase();
-  if (v === 'WINTER' || v === 'SPRING' || v === 'SUMMER' || v === 'FALL') return v;
+  if (v === 'WINTER' || v === 'SPRING' || v === 'SUMMER' || v === 'FALL') {
+    return v;
+  }
   return undefined;
 }
 
 function parseDurationMinutes(d: unknown): number | undefined {
   // Jikan returns strings like "24 min per ep" / "1 hr 32 min" / "Unknown"
-  if (typeof d !== 'string') return undefined;
+  if (typeof d !== 'string') {
+    return undefined;
+  }
   const m = d.match(/(\d+)\s*hr/);
   const mins = d.match(/(\d+)\s*min/);
   let total = 0;
-  if (m) total += parseInt(m[1], 10) * 60;
-  if (mins) total += parseInt(mins[1], 10);
+  if (m) {
+    total += parseInt(m[1], 10) * 60;
+  }
+  if (mins) {
+    total += parseInt(mins[1], 10);
+  }
   return total > 0 ? total : undefined;
 }

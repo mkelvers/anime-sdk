@@ -88,16 +88,26 @@ export class VidstreamingExtractor extends BaseExtractor {
 
     const mapQuality = (label: string): '1080p' | '720p' | '360p' | 'auto' => {
       const normalized = label.toLowerCase();
-      if (normalized.includes('1080')) return '1080p';
-      if (normalized.includes('720')) return '720p';
-      if (normalized.includes('360')) return '360p';
+      if (normalized.includes('1080')) {
+        return '1080p';
+      }
+      if (normalized.includes('720')) {
+        return '720p';
+      }
+      if (normalized.includes('360')) {
+        return '360p';
+      }
       return 'auto';
     };
 
     const processSourceList = (list: any[]) => {
-      if (!Array.isArray(list)) return;
+      if (!Array.isArray(list)) {
+        return;
+      }
       for (const item of list) {
-        if (!item.file) continue;
+        if (!item.file) {
+          continue;
+        }
         streams.push({
           sourceUrl: item.file,
           isHLS: item.file.includes('.m3u8'),

@@ -38,13 +38,19 @@ export function labelToBcp47(label: string): string {
  * like Google Drive IDs, which can't be fetched server-side).
  */
 export function normalizeSubtitleEntries(entries: unknown): ISubtitleTrack[] {
-  if (!Array.isArray(entries)) return [];
+  if (!Array.isArray(entries)) {
+    return [];
+  }
   const out: ISubtitleTrack[] = [];
   for (const item of entries) {
-    if (!item || typeof item !== 'object') continue;
+    if (!item || typeof item !== 'object') {
+      continue;
+    }
     const rec = item as Record<string, unknown>;
     const rawUrl = rec.url ?? rec.src ?? rec.file;
-    if (typeof rawUrl !== 'string' || !/^https?:\/\//i.test(rawUrl)) continue;
+    if (typeof rawUrl !== 'string' || !/^https?:\/\//i.test(rawUrl)) {
+      continue;
+    }
 
     const rawLabel = rec.label ?? rec.name ?? rec.language;
     const label = typeof rawLabel === 'string' && rawLabel.trim() ? rawLabel.trim() : 'Unknown';
@@ -69,9 +75,15 @@ export function normalizeSubtitleEntries(entries: unknown): ISubtitleTrack[] {
 
 function inferFormatFromUrl(url: string): ISubtitleTrack['format'] | undefined {
   const path = url.split('?')[0].toLowerCase();
-  if (path.endsWith('.vtt')) return 'vtt';
-  if (path.endsWith('.srt')) return 'srt';
-  if (path.endsWith('.ass') || path.endsWith('.ssa')) return 'ass';
+  if (path.endsWith('.vtt')) {
+    return 'vtt';
+  }
+  if (path.endsWith('.srt')) {
+    return 'srt';
+  }
+  if (path.endsWith('.ass') || path.endsWith('.ssa')) {
+    return 'ass';
+  }
   return undefined;
 }
 
@@ -111,12 +123,18 @@ export function proxifySubtitleUrl(
       ? Buffer.from(JSON.stringify(options.headers)).toString('base64')
       : undefined;
   const parts = [`url=${encodeURIComponent(track.url)}`];
-  if (ct) parts.push(`ct=${encodeURIComponent(ct)}`);
-  if (hParam) parts.push(`h=${encodeURIComponent(hParam)}`);
+  if (ct) {
+    parts.push(`ct=${encodeURIComponent(ct)}`);
+  }
+  if (hParam) {
+    parts.push(`h=${encodeURIComponent(hParam)}`);
+  }
   if (options.signSecret) {
     const h = crypto.createHmac('sha256', options.signSecret);
     h.update(track.url);
-    if (hParam) h.update('|h=' + hParam);
+    if (hParam) {
+      h.update('|h=' + hParam);
+    }
     parts.push(`sig=${h.digest('hex')}`);
   }
   return `${proxyBase}?${parts.join('&')}`;

@@ -167,9 +167,13 @@ function parseCurlResponse(raw: string, targetUrl: string): Response {
     if (lines[0].startsWith('HTTP/')) {
       for (const line of lines) {
         const idx = line.indexOf(':');
-        if (idx === -1) continue;
+        if (idx === -1) {
+          continue;
+        }
         const key = line.substring(0, idx).trim().toLowerCase();
-        if (key !== 'location') continue;
+        if (key !== 'location') {
+          continue;
+        }
         const val = line.substring(idx + 1).trim();
         try {
           finalUrl = val.startsWith('http') ? val : new URL(val, finalUrl).toString();

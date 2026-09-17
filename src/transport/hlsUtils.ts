@@ -45,7 +45,9 @@ export class HlsUtils {
         return relative;
       }
       const lastSlash = base.lastIndexOf('/');
-      if (lastSlash === -1) return relative;
+      if (lastSlash === -1) {
+        return relative;
+      }
       const basePath = base.substring(0, lastSlash + 1);
       return `${basePath}${relative}`;
     }

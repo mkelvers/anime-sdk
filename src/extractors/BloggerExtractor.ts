@@ -35,7 +35,9 @@ export class BloggerExtractor extends BaseExtractor {
 
   public async extract(embedUrl: string): Promise<IVideoPayload[]> {
     const tokenMatch = embedUrl.match(TOKEN_RE);
-    if (!tokenMatch) return [];
+    if (!tokenMatch) {
+      return [];
+    }
     // The token isn't actually used directly — Google identifies the request by
     // the inner JSON we send. We still validate it exists so we fail fast on a
     // malformed embed URL.
@@ -66,7 +68,9 @@ export class BloggerExtractor extends BaseExtractor {
     const fReq = JSON.stringify([[['WcwnYd', innerJson, null, 'generic']]]);
     const params = new URLSearchParams();
     params.append('f.req', fReq);
-    if (at) params.append('at', at);
+    if (at) {
+      params.append('at', at);
+    }
 
     const batchUrl =
       `https://www.blogger.com/_/BloggerVideoPlayerUi/data/batchexecute?` +
@@ -107,14 +111,18 @@ export class BloggerExtractor extends BaseExtractor {
 
     const lines = body.split('\n');
     for (const line of lines) {
-      if (!line.includes('wrb.fr')) continue;
+      if (!line.includes('wrb.fr')) {
+        continue;
+      }
       let outer: unknown;
       try {
         outer = JSON.parse(line);
       } catch {
         continue;
       }
-      if (!Array.isArray(outer)) continue;
+      if (!Array.isArray(outer)) {
+        continue;
+      }
       for (const entry of outer) {
         if (
           !Array.isArray(entry) ||
@@ -130,26 +138,41 @@ export class BloggerExtractor extends BaseExtractor {
         } catch {
           continue;
         }
-        if (!Array.isArray(inner)) continue;
+        if (!Array.isArray(inner)) {
+          continue;
+        }
         const streams = this.findStreamsArray(inner);
-        if (!streams) continue;
+        if (!streams) {
+          continue;
+        }
 
         const mp4s: Array<{ url: string; quality: IVideoPayload['quality'] }> = [];
         for (const s of streams) {
-          if (!Array.isArray(s) || s.length < 1) continue;
+          if (!Array.isArray(s) || s.length < 1) {
+            continue;
+          }
           const u = s[0];
-          if (typeof u !== 'string') continue;
-          if (!u.includes('mime=video%2Fmp4') && !u.includes('mime=video/mp4')) continue;
+          if (typeof u !== 'string') {
+            continue;
+          }
+          if (!u.includes('mime=video%2Fmp4') && !u.includes('mime=video/mp4')) {
+            continue;
+          }
           let q: IVideoPayload['quality'] = 'auto';
-          if (u.includes('itag=22')) q = '720p';
-          else if (u.includes('itag=18')) q = '360p';
+          if (u.includes('itag=22')) {
+            q = '720p';
+          } else if (u.includes('itag=18')) {
+            q = '360p';
+          }
           mp4s.push({ url: u, quality: q });
         }
 
         // Prefer 720p over 360p
         mp4s.sort((a, b) => qualityRank(b.quality) - qualityRank(a.quality));
         for (const m of mp4s) {
-          if (seen.has(m.url)) continue;
+          if (seen.has(m.url)) {
+            continue;
+          }
           seen.add(m.url);
           result.push({
             sourceUrl: m.url,

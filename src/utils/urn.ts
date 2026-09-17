@@ -21,15 +21,23 @@ import type { Urn } from '../types/index';
 /** True when the string looks like `providerId:rawId` for the given provider. */
 export function isUrn(value: string, providerId?: string): boolean {
   const sep = value.indexOf(':');
-  if (sep <= 0) return false;
-  if (providerId == null) return true;
+  if (sep <= 0) {
+    return false;
+  }
+  if (providerId == null) {
+    return true;
+  }
   return value.slice(0, sep) === providerId;
 }
 
 /** Build a URN. The raw ID is taken as-is — no escaping is applied. */
 export function buildUrn(providerId: string, rawId: string): Urn {
-  if (!providerId) throw new Error('buildUrn: providerId is required');
-  if (rawId == null) throw new Error('buildUrn: rawId is required');
+  if (!providerId) {
+    throw new Error('buildUrn: providerId is required');
+  }
+  if (rawId == null) {
+    throw new Error('buildUrn: rawId is required');
+  }
   return `${providerId}:${rawId}`;
 }
 
@@ -40,7 +48,9 @@ export function buildUrn(providerId: string, rawId: string): Urn {
  */
 export function parseUrn(urn: string): { providerId: string; rawId: string } {
   const sep = urn.indexOf(':');
-  if (sep < 0) return { providerId: '', rawId: urn };
+  if (sep < 0) {
+    return { providerId: '', rawId: urn };
+  }
   return { providerId: urn.slice(0, sep), rawId: urn.slice(sep + 1) };
 }
 
@@ -51,9 +61,13 @@ export function parseUrn(urn: string): { providerId: string; rawId: string } {
  */
 export function unwrapUrn(providerId: string, urn: string): string {
   const sep = urn.indexOf(':');
-  if (sep < 0) return urn;
+  if (sep < 0) {
+    return urn;
+  }
   const prefix = urn.slice(0, sep);
-  if (prefix !== providerId) return urn;
+  if (prefix !== providerId) {
+    return urn;
+  }
   return urn.slice(sep + 1);
 }
 
@@ -115,12 +129,18 @@ export function parseTypedUrn(
   urn: string,
 ): { kind?: CatalogueKind; rawId: string } {
   const sep = urn.indexOf(':');
-  if (sep < 0) return { rawId: urn };
+  if (sep < 0) {
+    return { rawId: urn };
+  }
   const prefix = urn.slice(0, sep);
   const rest = urn.slice(sep + 1);
-  if (prefix !== providerId) return { rawId: urn };
+  if (prefix !== providerId) {
+    return { rawId: urn };
+  }
   const sep2 = rest.indexOf(':');
-  if (sep2 < 0) return { rawId: rest };
+  if (sep2 < 0) {
+    return { rawId: rest };
+  }
   const candidate = rest.slice(0, sep2);
   if (candidate === 'anime' || candidate === 'manga') {
     return { kind: candidate, rawId: rest.slice(sep2 + 1) };

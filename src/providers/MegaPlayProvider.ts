@@ -57,7 +57,9 @@ export async function parseMegaPlaySource(payload: any): Promise<MegaPlaySource 
     }
   }
 
-  if (typeof file !== 'string' || file.length === 0) return null;
+  if (typeof file !== 'string' || file.length === 0) {
+    return null;
+  }
 
   return {
     file,

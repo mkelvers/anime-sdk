@@ -68,7 +68,9 @@ export class AnimeParadiseProvider extends BaseProvider {
     options: CallOptions = {},
   ): Promise<ResolvedMediaStream> {
     const sep = unitId.lastIndexOf(':');
-    if (sep < 0) throw new Error(`AnimeParadise: invalid unitId "${unitId}"`);
+    if (sep < 0) {
+      throw new Error(`AnimeParadise: invalid unitId "${unitId}"`);
+    }
     const uid = unitId.slice(0, sep);
     const animeId = unitId.slice(sep + 1);
 
@@ -77,7 +79,9 @@ export class AnimeParadiseProvider extends BaseProvider {
     });
     const json = (await res.json()) as any;
     const episode = json?.data?.episode;
-    if (!episode?.streamLink) throw new Error('AnimeParadise: no streamLink in response');
+    if (!episode?.streamLink) {
+      throw new Error('AnimeParadise: no streamLink in response');
+    }
 
     const streamUrl = `${STREAM_BASE}/m3u8?url=${encodeURIComponent(episode.streamLink)}`;
     const subtitles = normalizeSubtitleEntries(episode.subData);
@@ -109,7 +113,9 @@ export class AnimeParadiseProvider extends BaseProvider {
     options: CallOptions = {},
   ): Promise<IUnitTracks> {
     const sep = unitId.lastIndexOf(':');
-    if (sep < 0) throw new Error(`AnimeParadise: invalid unitId "${unitId}"`);
+    if (sep < 0) {
+      throw new Error(`AnimeParadise: invalid unitId "${unitId}"`);
+    }
     const uid = unitId.slice(0, sep);
     const animeId = unitId.slice(sep + 1);
 

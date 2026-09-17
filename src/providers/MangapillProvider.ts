@@ -48,7 +48,9 @@ export class MangapillProvider extends BaseProvider {
       const img = item.querySelector('img');
       const titleEl = a?.querySelector('div');
 
-      if (!a || !titleEl) continue;
+      if (!a || !titleEl) {
+        continue;
+      }
 
       const href = a.getAttribute('href');
       const title = titleEl.textContent?.trim();
@@ -92,7 +94,9 @@ export class MangapillProvider extends BaseProvider {
 
     for (const item of items) {
       const href = item.getAttribute('href');
-      if (!href || !href.includes('/chapters/')) continue;
+      if (!href || !href.includes('/chapters/')) {
+        continue;
+      }
 
       const title = item.textContent?.trim() || '';
 

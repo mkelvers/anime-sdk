@@ -96,7 +96,9 @@ function err(res: http.ServerResponse, status: number, message: string): void {
 }
 
 function timingSafeEquals(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
+  if (a.length !== b.length) {
+    return false;
+  }
   try {
     return nodeCrypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
   } catch {
@@ -111,7 +113,9 @@ function computeProxySignature(
 ): string {
   const h = nodeCrypto.createHmac('sha256', secret);
   h.update(targetUrl);
-  if (hParam) h.update('|h=' + hParam);
+  if (hParam) {
+    h.update('|h=' + hParam);
+  }
   return h.digest('hex');
 }
 
@@ -122,8 +126,12 @@ function buildProxyUrl(
   secret: string | undefined,
 ): string {
   const parts = [`url=${encodeURIComponent(targetUrl)}`];
-  if (hParam) parts.push(`h=${encodeURIComponent(hParam)}`);
-  if (secret) parts.push(`sig=${computeProxySignature(targetUrl, hParam, secret)}`);
+  if (hParam) {
+    parts.push(`h=${encodeURIComponent(hParam)}`);
+  }
+  if (secret) {
+    parts.push(`sig=${computeProxySignature(targetUrl, hParam, secret)}`);
+  }
   return `${proxyBase}?${parts.join('&')}`;
 }
 
@@ -145,9 +153,12 @@ function rewriteHls(manifest: string, baseUrl: string, proxyBase: string, hParam
     .split(/\r?\n/)
     .map((line) => {
       const t = line.trim();
-      if (!t) return line;
-      if (t.startsWith('#'))
+      if (!t) {
+        return line;
+      }
+      if (t.startsWith('#')) {
         return t.replace(/URI=(["'])(.*?)\1/g, (_, q, u) => `URI=${q}${wrap(u)}${q}`);
+      }
       return wrap(t);
     })
     .join('\n');
@@ -178,7 +189,9 @@ function proxyifyStream(
     };
   }
 
-  if (stream.type !== 'video') return stream;
+  if (stream.type !== 'video') {
+    return stream;
+  }
   return {
     type: 'video',
     streams: stream.streams.map((s) => {
@@ -317,14 +330,20 @@ export function startServer(options: ServerOptions): http.Server {
       Connection: 'keep-alive',
     });
     return (data) => {
-      if (!res.writableEnded) res.write(`data: ${JSON.stringify(data)}\n\n`);
+      if (!res.writableEnded) {
+        res.write(`data: ${JSON.stringify(data)}\n\n`);
+      }
     };
   }
 
   async function cached<T>(key: string, compute: () => Promise<T>): Promise<T> {
-    if (!cache) return compute();
+    if (!cache) {
+      return compute();
+    }
     const hit = await cache.get(key);
-    if (hit !== undefined) return hit as T;
+    if (hit !== undefined) {
+      return hit as T;
+    }
     const value = await compute();
     await cache.set(key, value);
     return value;
@@ -350,10 +369,14 @@ export function startServer(options: ServerOptions): http.Server {
     if (auth) {
       const header = req.headers['authorization'] ?? '';
       const token = header.startsWith('Bearer ') ? header.slice(7) : '';
-      if (token !== auth.token) return err(res, 401, 'Unauthorized');
+      if (token !== auth.token) {
+        return err(res, 401, 'Unauthorized');
+      }
     }
 
-    if (req.method !== 'GET') return err(res, 405, 'Method not allowed');
+    if (req.method !== 'GET') {
+      return err(res, 405, 'Method not allowed');
+    }
 
     // ── Discovery ────────────────────────────────────────────────────────
     if (url.pathname === '/openapi.json') {
@@ -384,11 +407,14 @@ export function startServer(options: ServerOptions): http.Server {
     try {
       // ── Proxy ──────────────────────────────────────────────────────────
       if (url.pathname === '/proxy') {
-        if (!proxy)
+        if (!proxy) {
           return err(res, 404, 'Proxy not enabled — set proxy: true in startServer options');
+        }
 
         const targetUrl = q.get('url');
-        if (!targetUrl) return err(res, 400, 'Missing param: url');
+        if (!targetUrl) {
+          return err(res, 400, 'Missing param: url');
+        }
 
         // SSRF guard
         if (proxyAllowedHosts && proxyAllowedHosts.length > 0) {
@@ -401,13 +427,17 @@ export function startServer(options: ServerOptions): http.Server {
           const ok = proxyAllowedHosts.some(
             (h) => targetHost === h || targetHost.endsWith(`.${h}`),
           );
-          if (!ok) return err(res, 403, `Target host ${targetHost} not in allowlist`);
+          if (!ok) {
+            return err(res, 403, `Target host ${targetHost} not in allowlist`);
+          }
         }
 
         const hParam = q.get('h');
         if (proxySignSecret) {
           const sig = q.get('sig');
-          if (!sig) return err(res, 401, 'Missing required `sig` query parameter');
+          if (!sig) {
+            return err(res, 401, 'Missing required `sig` query parameter');
+          }
           const expected = computeProxySignature(targetUrl, hParam ?? undefined, proxySignSecret);
           if (!timingSafeEquals(sig, expected)) {
             return err(res, 401, 'Invalid proxy signature');
@@ -431,7 +461,9 @@ export function startServer(options: ServerOptions): http.Server {
           }
         }
         // Forward Range header for video seeking
-        if (req.headers.range) upstreamHeaders['Range'] = req.headers.range;
+        if (req.headers.range) {
+          upstreamHeaders['Range'] = req.headers.range;
+        }
 
         // Abort the upstream fetch when the client disconnects to avoid leaking connections
         const abortCtrl = new AbortController();
@@ -508,9 +540,13 @@ export function startServer(options: ServerOptions): http.Server {
 
         const outHeaders: Record<string, string> = { ...CORS, 'Content-Type': contentType };
         const cl = upstream.headers.get('content-length');
-        if (cl) outHeaders['Content-Length'] = cl;
+        if (cl) {
+          outHeaders['Content-Length'] = cl;
+        }
         const cr = upstream.headers.get('content-range');
-        if (cr) outHeaders['Content-Range'] = cr;
+        if (cr) {
+          outHeaders['Content-Range'] = cr;
+        }
         const ar = upstream.headers.get('accept-ranges');
         outHeaders['Accept-Ranges'] = ar ?? 'bytes';
 
@@ -536,8 +572,12 @@ export function startServer(options: ServerOptions): http.Server {
       if (url.pathname === '/search') {
         const query = q.get('q');
         const provider = findProvider(q.get('provider'));
-        if (!query) return err(res, 400, 'Missing param: q');
-        if (!provider) return err(res, 400, 'Missing or unknown param: provider');
+        if (!query) {
+          return err(res, 400, 'Missing param: q');
+        }
+        if (!provider) {
+          return err(res, 400, 'Missing or unknown param: provider');
+        }
         const items = await cached(`search:${provider.id}:${query}`, () => provider.search(query));
         return json(res, 200, items);
       }
@@ -545,8 +585,12 @@ export function startServer(options: ServerOptions): http.Server {
       if (url.pathname === '/content') {
         const mediaId = q.get('mediaId');
         const provider = findProvider(q.get('provider'));
-        if (!mediaId) return err(res, 400, 'Missing param: mediaId');
-        if (!provider) return err(res, 400, 'Missing or unknown param: provider');
+        if (!mediaId) {
+          return err(res, 400, 'Missing param: mediaId');
+        }
+        if (!provider) {
+          return err(res, 400, 'Missing or unknown param: provider');
+        }
         // One call returns all episodes; each unit advertises its available
         // translations. Callers pick the language at /stream time.
         const units = await cached(`content:${provider.id}:${mediaId}`, () =>
@@ -559,12 +603,18 @@ export function startServer(options: ServerOptions): http.Server {
         const unitId = q.get('unitId');
         const provider = findProvider(q.get('provider'));
         const language = q.get('language') as ContentLanguage | null;
-        if (!unitId) return err(res, 400, 'Missing param: unitId');
-        if (!provider) return err(res, 400, 'Missing or unknown param: provider');
+        if (!unitId) {
+          return err(res, 400, 'Missing param: unitId');
+        }
+        if (!provider) {
+          return err(res, 400, 'Missing or unknown param: provider');
+        }
         let stream = await cached(`stream:${provider.id}:${unitId}:${language ?? ''}`, () =>
           provider.resolveStream(unitId, language ?? undefined),
         );
-        if (proxy) stream = proxyifyStream(stream, proxyBase, proxySignSecret);
+        if (proxy) {
+          stream = proxyifyStream(stream, proxyBase, proxySignSecret);
+        }
         return json(res, 200, stream);
       }
 
@@ -572,8 +622,12 @@ export function startServer(options: ServerOptions): http.Server {
         const unitId = q.get('unitId');
         const provider = findProvider(q.get('provider'));
         const language = q.get('language') as ContentLanguage | null;
-        if (!unitId) return err(res, 400, 'Missing param: unitId');
-        if (!provider) return err(res, 400, 'Missing or unknown param: provider');
+        if (!unitId) {
+          return err(res, 400, 'Missing param: unitId');
+        }
+        if (!provider) {
+          return err(res, 400, 'Missing or unknown param: provider');
+        }
         // Only the cheap metadata path. Providers without `fetchUnitTracks`
         // return 501 — clients should fall back to /stream's subtitle info
         // rather than pay the resolveStream cost twice.
@@ -587,7 +641,9 @@ export function startServer(options: ServerOptions): http.Server {
         let tracks = await cached(`tracks:${provider.id}:${unitId}:${language ?? ''}`, () =>
           provider.fetchUnitTracks!(unitId, language ?? undefined),
         );
-        if (proxy) tracks = proxyifyTracks(tracks, proxyBase, proxySignSecret);
+        if (proxy) {
+          tracks = proxyifyTracks(tracks, proxyBase, proxySignSecret);
+        }
         return json(res, 200, tracks);
       }
 
@@ -596,8 +652,12 @@ export function startServer(options: ServerOptions): http.Server {
         const unitId = q.get('unitId');
         const provider = findProvider(q.get('provider'));
         const language = q.get('language') as ContentLanguage | null;
-        if (!unitId) return err(res, 400, 'Missing param: unitId');
-        if (!provider) return err(res, 400, 'Missing or unknown param: provider');
+        if (!unitId) {
+          return err(res, 400, 'Missing param: unitId');
+        }
+        if (!provider) {
+          return err(res, 400, 'Missing or unknown param: provider');
+        }
 
         const send = openSse(res);
         try {
@@ -653,8 +713,12 @@ export function startServer(options: ServerOptions): http.Server {
       if (url.pathname === '/download/manga/chapter/progress') {
         const unitId = q.get('unitId');
         const provider = findProvider(q.get('provider'));
-        if (!unitId) return err(res, 400, 'Missing param: unitId');
-        if (!provider) return err(res, 400, 'Missing or unknown param: provider');
+        if (!unitId) {
+          return err(res, 400, 'Missing param: unitId');
+        }
+        if (!provider) {
+          return err(res, 400, 'Missing or unknown param: provider');
+        }
 
         const send = openSse(res);
         try {
@@ -710,8 +774,12 @@ export function startServer(options: ServerOptions): http.Server {
         const unitId = q.get('unitId');
         const provider = findProvider(q.get('provider'));
         const language = q.get('language') as ContentLanguage | null;
-        if (!unitId) return err(res, 400, 'Missing param: unitId');
-        if (!provider) return err(res, 400, 'Missing or unknown param: provider');
+        if (!unitId) {
+          return err(res, 400, 'Missing param: unitId');
+        }
+        if (!provider) {
+          return err(res, 400, 'Missing or unknown param: provider');
+        }
 
         let stream = await cached(`stream:${provider.id}:${unitId}:${language ?? ''}`, () =>
           provider.resolveStream(unitId, language ?? undefined),
@@ -770,8 +838,12 @@ export function startServer(options: ServerOptions): http.Server {
         const unitId = q.get('unitId');
         const provider = findProvider(q.get('provider'));
         const pageParam = q.get('page');
-        if (!unitId) return err(res, 400, 'Missing param: unitId');
-        if (!provider) return err(res, 400, 'Missing or unknown param: provider');
+        if (!unitId) {
+          return err(res, 400, 'Missing param: unitId');
+        }
+        if (!provider) {
+          return err(res, 400, 'Missing or unknown param: provider');
+        }
 
         const pageIndex = pageParam !== null ? parseInt(pageParam, 10) : 0;
         if (isNaN(pageIndex) || pageIndex < 0) {
@@ -823,7 +895,9 @@ export function startServer(options: ServerOptions): http.Server {
           'Content-Disposition': `attachment; filename="${provider.id}_${safeUnit}_page_${paddedPage}${ext}"`,
         };
         const cl = upstream.headers.get('content-length');
-        if (cl) outHeaders['Content-Length'] = cl;
+        if (cl) {
+          outHeaders['Content-Length'] = cl;
+        }
 
         res.writeHead(200, outHeaders);
         if (upstream.body) {
@@ -843,8 +917,12 @@ export function startServer(options: ServerOptions): http.Server {
       if (url.pathname === '/download/manga/chapter') {
         const unitId = q.get('unitId');
         const provider = findProvider(q.get('provider'));
-        if (!unitId) return err(res, 400, 'Missing param: unitId');
-        if (!provider) return err(res, 400, 'Missing or unknown param: provider');
+        if (!unitId) {
+          return err(res, 400, 'Missing param: unitId');
+        }
+        if (!provider) {
+          return err(res, 400, 'Missing or unknown param: provider');
+        }
 
         let stream = await cached(`stream:${provider.id}:${unitId}:`, () =>
           provider.resolveStream(unitId),
@@ -908,18 +986,24 @@ export function startServer(options: ServerOptions): http.Server {
       //   /meta/browse   ?provider=anilist&kind=trending|popular|seasonal|top[&catalogType=&page=&perPage=&season=&year=&format=]
       if (url.pathname.startsWith('/meta/')) {
         const meta = findMetaProvider(q.get('provider'));
-        if (!meta) return err(res, 400, 'Missing or unknown param: provider');
+        if (!meta) {
+          return err(res, 400, 'Missing or unknown param: provider');
+        }
 
         if (url.pathname === '/meta/search') {
           const query = q.get('q');
-          if (!query) return err(res, 400, 'Missing param: q');
+          if (!query) {
+            return err(res, 400, 'Missing param: q');
+          }
           const items = await cached(`meta:search:${meta.id}:${query}`, () => meta.search(query));
           return json(res, 200, items);
         }
 
         if (url.pathname === '/meta/info') {
           const id = q.get('id');
-          if (!id) return err(res, 400, 'Missing param: id');
+          if (!id) {
+            return err(res, 400, 'Missing param: id');
+          }
           try {
             strictUnwrapUrn(meta.id, id);
           } catch (e) {
@@ -933,8 +1017,12 @@ export function startServer(options: ServerOptions): http.Server {
 
         if (url.pathname === '/meta/content') {
           const id = q.get('id');
-          if (!id) return err(res, 400, 'Missing param: id');
-          if (!contentProvider) return err(res, 400, 'Missing or unknown param: contentProvider');
+          if (!id) {
+            return err(res, 400, 'Missing param: id');
+          }
+          if (!contentProvider) {
+            return err(res, 400, 'Missing or unknown param: contentProvider');
+          }
           const units = await cached(`meta:content:${meta.id}:${id}:${contentProvider.id}`, () =>
             meta.fetchContentUnits(id, contentProvider),
           );
@@ -945,16 +1033,26 @@ export function startServer(options: ServerOptions): http.Server {
           const id = q.get('id');
           const episode = q.get('episode');
           const language = q.get('language') as ContentLanguage | null;
-          if (!id) return err(res, 400, 'Missing param: id');
-          if (!episode) return err(res, 400, 'Missing param: episode');
-          if (!contentProvider) return err(res, 400, 'Missing or unknown param: contentProvider');
+          if (!id) {
+            return err(res, 400, 'Missing param: id');
+          }
+          if (!episode) {
+            return err(res, 400, 'Missing param: episode');
+          }
+          if (!contentProvider) {
+            return err(res, 400, 'Missing or unknown param: contentProvider');
+          }
           const epNum = parseFloat(episode);
-          if (!Number.isFinite(epNum)) return err(res, 400, 'Param `episode` must be numeric');
+          if (!Number.isFinite(epNum)) {
+            return err(res, 400, 'Param `episode` must be numeric');
+          }
           let stream = await cached(
             `meta:stream:${meta.id}:${id}:${contentProvider.id}:${epNum}:${language ?? ''}`,
             () => meta.resolveStream(id, epNum, contentProvider, language ?? undefined),
           );
-          if (proxy) stream = proxyifyStream(stream, proxyBase, proxySignSecret);
+          if (proxy) {
+            stream = proxyifyStream(stream, proxyBase, proxySignSecret);
+          }
           return json(res, 200, stream);
         }
 
@@ -962,19 +1060,29 @@ export function startServer(options: ServerOptions): http.Server {
           const id = q.get('id');
           const episode = q.get('episode');
           const language = q.get('language') as ContentLanguage | null;
-          if (!id) return err(res, 400, 'Missing param: id');
-          if (!episode) return err(res, 400, 'Missing param: episode');
-          if (!contentProvider) return err(res, 400, 'Missing or unknown param: contentProvider');
+          if (!id) {
+            return err(res, 400, 'Missing param: id');
+          }
+          if (!episode) {
+            return err(res, 400, 'Missing param: episode');
+          }
+          if (!contentProvider) {
+            return err(res, 400, 'Missing or unknown param: contentProvider');
+          }
           if (!contentProvider.supportsUnitTracks) {
             return err(res, 501, `Provider "${contentProvider.id}" does not expose track metadata`);
           }
           const epNum = parseFloat(episode);
-          if (!Number.isFinite(epNum)) return err(res, 400, 'Param `episode` must be numeric');
+          if (!Number.isFinite(epNum)) {
+            return err(res, 400, 'Param `episode` must be numeric');
+          }
           let tracks = await cached(
             `meta:tracks:${meta.id}:${id}:${contentProvider.id}:${epNum}:${language ?? ''}`,
             () => meta.fetchUnitTracks(id, epNum, contentProvider, language ?? undefined),
           );
-          if (proxy) tracks = proxyifyTracks(tracks, proxyBase, proxySignSecret);
+          if (proxy) {
+            tracks = proxyifyTracks(tracks, proxyBase, proxySignSecret);
+          }
           return json(res, 200, tracks);
         }
 

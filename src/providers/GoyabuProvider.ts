@@ -58,10 +58,14 @@ export class GoyabuProvider extends BaseProvider {
     const cards = doc.querySelectorAll('article.boxAN') || doc.querySelectorAll('article');
     for (const card of cards) {
       const a = card.querySelector('a');
-      if (!a) continue;
+      if (!a) {
+        continue;
+      }
 
       const href = a.getAttribute('href') || '';
-      if (!href || !href.includes('/anime/')) continue;
+      if (!href || !href.includes('/anime/')) {
+        continue;
+      }
 
       const id = href.startsWith('http') ? new URL(href).pathname : href;
 
@@ -74,7 +78,9 @@ export class GoyabuProvider extends BaseProvider {
         title = (img.getAttribute('alt') || img.getAttribute('title') || '').trim();
       }
 
-      if (!title) continue;
+      if (!title) {
+        continue;
+      }
 
       let thumbnailUrl = undefined;
       if (img) {
@@ -126,7 +132,9 @@ export class GoyabuProvider extends BaseProvider {
     let foundArray = false;
     for (const pattern of patterns) {
       const match = html.match(pattern);
-      if (!match) continue;
+      if (!match) {
+        continue;
+      }
 
       try {
         const jsonStr = match[1];
@@ -145,7 +153,9 @@ export class GoyabuProvider extends BaseProvider {
             // Goyabu's episode array exposes a `link` field that's a relative
             // path (e.g. "/40742"); use it directly when present.
             const link = ep.link || (ep.id ? `/${ep.id}` : ep.ID ? `/${ep.ID}` : '');
-            if (!link) continue;
+            if (!link) {
+              continue;
+            }
 
             units.push({
               id: link,
@@ -168,10 +178,16 @@ export class GoyabuProvider extends BaseProvider {
       const anchors = doc.querySelectorAll('a');
       for (const a of anchors) {
         const href = a.getAttribute('href') || '';
-        if (!href) continue;
+        if (!href) {
+          continue;
+        }
 
-        if (!href.includes('/?p=') && !href.includes('/episode/')) continue;
-        if (!href.includes(this.baseUrl) && !href.startsWith('/')) continue;
+        if (!href.includes('/?p=') && !href.includes('/episode/')) {
+          continue;
+        }
+        if (!href.includes(this.baseUrl) && !href.startsWith('/')) {
+          continue;
+        }
 
         const epNumAttr = a.getAttribute('data-episode-number');
         const num = epNumAttr ? parseFloat(epNumAttr) : units.length + 1;
@@ -282,10 +298,18 @@ export class GoyabuProvider extends BaseProvider {
     const seen = new Set<string>();
     const mapQuality = (label: string): IVideoPayload['quality'] => {
       const s = label.toLowerCase();
-      if (s.includes('1080')) return '1080p';
-      if (s.includes('720')) return '720p';
-      if (s.includes('480')) return '480p';
-      if (s.includes('360')) return '360p';
+      if (s.includes('1080')) {
+        return '1080p';
+      }
+      if (s.includes('720')) {
+        return '720p';
+      }
+      if (s.includes('480')) {
+        return '480p';
+      }
+      if (s.includes('360')) {
+        return '360p';
+      }
       return 'auto';
     };
 

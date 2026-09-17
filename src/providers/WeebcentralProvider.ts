@@ -50,7 +50,9 @@ export class WeebcentralProvider extends BaseProvider {
       const a = item.querySelector('a.line-clamp-1');
       const source = item.querySelector('source');
 
-      if (!a) continue;
+      if (!a) {
+        continue;
+      }
 
       const href = a.getAttribute('href');
       const title = a.textContent?.trim();
@@ -97,7 +99,9 @@ export class WeebcentralProvider extends BaseProvider {
 
     for (const item of items) {
       const href = item.getAttribute('href');
-      if (!href || !href.includes('/chapters/')) continue;
+      if (!href || !href.includes('/chapters/')) {
+        continue;
+      }
 
       const titleEl = item.querySelector('span.grow.flex.items-center.gap-2 span');
       const title = titleEl?.textContent?.trim() || '';

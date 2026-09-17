@@ -120,7 +120,9 @@ export class AnilistMeta extends BaseMetadataProvider {
       variables.season = options.season;
       variables.seasonYear = options.year;
     }
-    if (options.format) variables.format = options.format;
+    if (options.format) {
+      variables.format = options.format;
+    }
 
     const res = await this.http.post(
       this.apiUrl,
@@ -405,7 +407,9 @@ export class AnilistMeta extends BaseMetadataProvider {
     }
     const json = (await res.json()) as any;
     const m = json?.data?.Media;
-    if (!m) throw new Error(`AniList: no media for id ${id}`);
+    if (!m) {
+      throw new Error(`AniList: no media for id ${id}`);
+    }
 
     const trailerUrl =
       m.trailer && m.trailer.site === 'youtube'
@@ -469,11 +473,15 @@ export class AnilistMeta extends BaseMetadataProvider {
   // ── AniList enrichment mappers ──────────────────────────────────────────
 
   private mapRelations(edges: unknown): IMediaRelation[] | undefined {
-    if (!Array.isArray(edges) || edges.length === 0) return undefined;
+    if (!Array.isArray(edges) || edges.length === 0) {
+      return undefined;
+    }
     const out: IMediaRelation[] = [];
     for (const e of edges) {
       const node = (e as any)?.node;
-      if (!node?.id) continue;
+      if (!node?.id) {
+        continue;
+      }
       out.push({
         id: buildUrn(this.id, String(node.id)),
         relationType: anilistRelationType((e as any).relationType),
@@ -499,11 +507,15 @@ export class AnilistMeta extends BaseMetadataProvider {
   }
 
   private mapCharacters(edges: unknown): IMediaCharacter[] | undefined {
-    if (!Array.isArray(edges) || edges.length === 0) return undefined;
+    if (!Array.isArray(edges) || edges.length === 0) {
+      return undefined;
+    }
     const out: IMediaCharacter[] = [];
     for (const e of edges) {
       const node = (e as any)?.node;
-      if (!node?.id) continue;
+      if (!node?.id) {
+        continue;
+      }
       out.push({
         id: buildUrn(this.id, `character:${node.id}`),
         name: node.name?.full ?? node.name?.native ?? '',
@@ -527,11 +539,15 @@ export class AnilistMeta extends BaseMetadataProvider {
   }
 
   private mapStaff(edges: unknown): IMediaStaff[] | undefined {
-    if (!Array.isArray(edges) || edges.length === 0) return undefined;
+    if (!Array.isArray(edges) || edges.length === 0) {
+      return undefined;
+    }
     const out: IMediaStaff[] = [];
     for (const e of edges) {
       const node = (e as any)?.node;
-      if (!node?.id) continue;
+      if (!node?.id) {
+        continue;
+      }
       out.push({
         id: buildUrn(this.id, `staff:${node.id}`),
         name: node.name?.full ?? node.name?.native ?? '',
@@ -545,11 +561,15 @@ export class AnilistMeta extends BaseMetadataProvider {
   }
 
   private mapRecommendations(nodes: unknown): IMediaRecommendation[] | undefined {
-    if (!Array.isArray(nodes) || nodes.length === 0) return undefined;
+    if (!Array.isArray(nodes) || nodes.length === 0) {
+      return undefined;
+    }
     const out: IMediaRecommendation[] = [];
     for (const n of nodes) {
       const rec = (n as any)?.mediaRecommendation;
-      if (!rec?.id) continue;
+      if (!rec?.id) {
+        continue;
+      }
       out.push({
         id: buildUrn(this.id, String(rec.id)),
         catalogType: anilistTypeToCatalog(rec.type),
@@ -574,12 +594,16 @@ export class AnilistMeta extends BaseMetadataProvider {
   }
 
   private mapExternalLinks(links: unknown): IMediaExternalLink[] | undefined {
-    if (!Array.isArray(links) || links.length === 0) return undefined;
+    if (!Array.isArray(links) || links.length === 0) {
+      return undefined;
+    }
     const out: IMediaExternalLink[] = [];
     for (const l of links) {
       const site = (l as any)?.site;
       const url = (l as any)?.url;
-      if (!site || !url) continue;
+      if (!site || !url) {
+        continue;
+      }
       out.push({
         site,
         url,
@@ -591,17 +615,23 @@ export class AnilistMeta extends BaseMetadataProvider {
   }
 
   private mapStreamingEpisodes(eps: unknown): IStreamingEpisode[] | undefined {
-    if (!Array.isArray(eps) || eps.length === 0) return undefined;
+    if (!Array.isArray(eps) || eps.length === 0) {
+      return undefined;
+    }
     const out: IStreamingEpisode[] = [];
     for (const ep of eps) {
       const title = (ep as any)?.title as string | undefined;
-      if (!title) continue;
+      if (!title) {
+        continue;
+      }
       // AniList streamingEpisodes encodes episode number in the title prefix
       // like "Episode 1 - Romance Dawn". Parse it; fall through silently
       // when the format is unfamiliar.
       const numMatch = title.match(/^Episode\s+(\d+(?:\.\d+)?)\b/i);
       const number = numMatch ? parseFloat(numMatch[1]) : NaN;
-      if (!Number.isFinite(number)) continue;
+      if (!Number.isFinite(number)) {
+        continue;
+      }
       const cleanTitle = title.replace(/^Episode\s+\d+(?:\.\d+)?\s*[-—–:]?\s*/i, '').trim();
       out.push({
         number,
@@ -615,7 +645,9 @@ export class AnilistMeta extends BaseMetadataProvider {
 }
 
 function anilistRelationType(s: unknown): MediaRelationType {
-  if (typeof s !== 'string') return 'OTHER';
+  if (typeof s !== 'string') {
+    return 'OTHER';
+  }
   switch (s) {
     case 'SEQUEL':
     case 'PREQUEL':
@@ -652,10 +684,18 @@ function browseSort(kind: BrowseKind): string[] {
 }
 
 function anilistExternalLinkType(t: unknown): IMediaExternalLink['type'] | undefined {
-  if (typeof t !== 'string') return undefined;
-  if (t === 'STREAMING') return 'STREAMING';
-  if (t === 'INFO') return 'INFO';
-  if (t === 'SOCIAL') return 'SOCIAL';
+  if (typeof t !== 'string') {
+    return undefined;
+  }
+  if (t === 'STREAMING') {
+    return 'STREAMING';
+  }
+  if (t === 'INFO') {
+    return 'INFO';
+  }
+  if (t === 'SOCIAL') {
+    return 'SOCIAL';
+  }
   return undefined;
 }
 
@@ -664,7 +704,9 @@ function anilistTypeToCatalog(t: unknown): MediaCatalogType {
 }
 
 function anilistStatus(s: unknown): MediaStatus | undefined {
-  if (!s || typeof s !== 'string') return undefined;
+  if (!s || typeof s !== 'string') {
+    return undefined;
+  }
   // AniList uses the same constant names we do.
   if (
     s === 'FINISHED' ||
@@ -679,7 +721,9 @@ function anilistStatus(s: unknown): MediaStatus | undefined {
 }
 
 function anilistFormat(f: unknown): MediaFormat | undefined {
-  if (!f || typeof f !== 'string') return undefined;
+  if (!f || typeof f !== 'string') {
+    return undefined;
+  }
   switch (f) {
     case 'TV':
     case 'TV_SHORT':
@@ -698,18 +742,28 @@ function anilistFormat(f: unknown): MediaFormat | undefined {
 }
 
 function anilistSeason(s: unknown): MediaSeason | undefined {
-  if (s === 'WINTER' || s === 'SPRING' || s === 'SUMMER' || s === 'FALL') return s;
+  if (s === 'WINTER' || s === 'SPRING' || s === 'SUMMER' || s === 'FALL') {
+    return s;
+  }
   return undefined;
 }
 
 function formatDate(d: unknown): string | undefined {
-  if (!d || typeof d !== 'object') return undefined;
+  if (!d || typeof d !== 'object') {
+    return undefined;
+  }
   const o = d as { year?: number; month?: number; day?: number };
-  if (!o.year) return undefined;
+  if (!o.year) {
+    return undefined;
+  }
   const y = String(o.year).padStart(4, '0');
   const m = o.month ? String(o.month).padStart(2, '0') : undefined;
   const day = o.day ? String(o.day).padStart(2, '0') : undefined;
-  if (m && day) return `${y}-${m}-${day}`;
-  if (m) return `${y}-${m}`;
+  if (m && day) {
+    return `${y}-${m}-${day}`;
+  }
+  if (m) {
+    return `${y}-${m}`;
+  }
   return y;
 }

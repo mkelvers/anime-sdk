@@ -51,10 +51,14 @@ export class GogoanimeProvider extends BaseProvider {
     const cards = doc.querySelectorAll('article.nv-anime-card');
     for (const card of cards) {
       const a = card.querySelector('h3.nv-anime-title a') || card.querySelector('a.nv-anime-thumb');
-      if (!a) continue;
+      if (!a) {
+        continue;
+      }
 
       const href = a.getAttribute('href') || '';
-      if (!href) continue;
+      if (!href) {
+        continue;
+      }
 
       const id = href.startsWith('/') ? href : `/${href}`;
       const title = a.getAttribute('title') || (a.textContent || '').trim();
@@ -116,10 +120,14 @@ export class GogoanimeProvider extends BaseProvider {
     const units: IContentUnit[] = [];
     for (const item of episodeItems) {
       const a = item.querySelector('a.nv-info-episode-main');
-      if (!a) continue;
+      if (!a) {
+        continue;
+      }
 
       const href = a.getAttribute('href') || '';
-      if (!href) continue;
+      if (!href) {
+        continue;
+      }
 
       const strong = a.querySelector('strong');
       const span = a.querySelector('span');
@@ -167,7 +175,9 @@ export class GogoanimeProvider extends BaseProvider {
 
     for (const btn of serverButtons) {
       const videoUrl = btn.getAttribute('data-video');
-      if (!videoUrl) continue;
+      if (!videoUrl) {
+        continue;
+      }
 
       // Extract server label and tab context
       const labelText = (btn.textContent || '').replace(/\s+/g, ' ').trim();
@@ -175,9 +185,13 @@ export class GogoanimeProvider extends BaseProvider {
 
       // Determine quality or translation status (SUB vs DUB)
       let qualityLabel: '1080p' | '720p' | '360p' | 'auto' = 'auto';
-      if (labelText.toLowerCase().includes('1080')) qualityLabel = '1080p';
-      else if (labelText.toLowerCase().includes('720')) qualityLabel = '720p';
-      else if (labelText.toLowerCase().includes('360')) qualityLabel = '360p';
+      if (labelText.toLowerCase().includes('1080')) {
+        qualityLabel = '1080p';
+      } else if (labelText.toLowerCase().includes('720')) {
+        qualityLabel = '720p';
+      } else if (labelText.toLowerCase().includes('360')) {
+        qualityLabel = '360p';
+      }
 
       let absoluteVideoUrl = videoUrl;
       if (videoUrl.startsWith('//')) {

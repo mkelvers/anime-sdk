@@ -58,13 +58,19 @@ export class RateLimiter {
    */
   public async acquire(hostname: string, signal?: AbortSignal): Promise<void> {
     const cfg = this.perHost[hostname] ?? this.defaultConfig;
-    if (!cfg) return; // unlimited
-    if (signal?.aborted) throw abortError(signal);
+    if (!cfg) {
+      return;
+    } // unlimited
+    if (signal?.aborted) {
+      throw abortError(signal);
+    }
 
     const bucket = this.getOrCreate(hostname, cfg);
     this.refill(bucket);
 
-    if (this.tryConsume(bucket)) return;
+    if (this.tryConsume(bucket)) {
+      return;
+    }
 
     return new Promise<void>((resolve, reject) => {
       const entry = { resolve, reject, signal };
@@ -72,10 +78,14 @@ export class RateLimiter {
       if (signal) {
         const onAbort = () => {
           const idx = bucket.queue.indexOf(entry);
-          if (idx >= 0) bucket.queue.splice(idx, 1);
+          if (idx >= 0) {
+            bucket.queue.splice(idx, 1);
+          }
           reject(abortError(signal));
         };
-        if (signal.aborted) return onAbort();
+        if (signal.aborted) {
+          return onAbort();
+        }
         signal.addEventListener('abort', onAbort, { once: true });
       }
       this.schedulePump(bucket);
@@ -87,7 +97,9 @@ export class RateLimiter {
    */
   public snapshot(hostname: string): { tokens: number; queued: number } | null {
     const bucket = this.buckets.get(hostname);
-    if (!bucket) return null;
+    if (!bucket) {
+      return null;
+    }
     this.refill(bucket);
     return { tokens: bucket.tokens, queued: bucket.queue.length };
   }
@@ -127,16 +139,24 @@ export class RateLimiter {
   }
 
   private tryConsume(b: BucketState): boolean {
-    if (b.tokens <= 0) return false;
-    if (b.config.burst && (b.burstTokens ?? 0) <= 0) return false;
+    if (b.tokens <= 0) {
+      return false;
+    }
+    if (b.config.burst && (b.burstTokens ?? 0) <= 0) {
+      return false;
+    }
     b.tokens -= 1;
-    if (b.config.burst) b.burstTokens = (b.burstTokens ?? 0) - 1;
+    if (b.config.burst) {
+      b.burstTokens = (b.burstTokens ?? 0) - 1;
+    }
     return true;
   }
 
   /** Schedule a wake-up at the next time we'd hand out at least one token. */
   private schedulePump(b: BucketState): void {
-    if (b.scheduled) return;
+    if (b.scheduled) {
+      return;
+    }
     b.scheduled = true;
     const now = Date.now();
     const waitMain = Math.max(0, b.config.intervalMs - (now - b.windowStart));
@@ -156,12 +176,16 @@ export class RateLimiter {
       const entry = b.queue.shift()!;
       entry.resolve();
     }
-    if (b.queue.length > 0) this.schedulePump(b);
+    if (b.queue.length > 0) {
+      this.schedulePump(b);
+    }
   }
 }
 
 function abortError(signal: AbortSignal): Error {
-  if (signal.reason instanceof Error) return signal.reason;
+  if (signal.reason instanceof Error) {
+    return signal.reason;
+  }
   const e = new Error('Aborted');
   e.name = 'AbortError';
   return e;

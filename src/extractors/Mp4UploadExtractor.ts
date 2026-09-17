@@ -25,14 +25,18 @@ export class Mp4UploadExtractor extends BaseExtractor {
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
       },
     });
-    if (res.status !== 200) return [];
+    if (res.status !== 200) {
+      return [];
+    }
     const html = await res.text();
 
     // Mp4Upload's player snippet emits exactly one direct stream URL ending in
     // `/video.mp4` (sometimes followed by query params). Be strict so we don't
     // pick up `mp4upload.com/...` static asset URLs that happen to contain "mp4".
     const match = html.match(/src:\s*"(https?:\/\/[^"]+\/video\.mp4(?:\?[^"]*)?)"/);
-    if (!match) return [];
+    if (!match) {
+      return [];
+    }
 
     return [
       {

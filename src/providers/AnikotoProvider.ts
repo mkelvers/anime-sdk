@@ -77,8 +77,12 @@ export class AnikotoProvider extends BaseProvider {
 
     return episodes.map((ep: any) => {
       const languages: ContentLanguage[] = [];
-      if (ep.embed_url.sub) languages.push('sub');
-      if (ep.embed_url.dub) languages.push('dub');
+      if (ep.embed_url.sub) {
+        languages.push('sub');
+      }
+      if (ep.embed_url.dub) {
+        languages.push('dub');
+      }
 
       return {
         id: ep.episode_embed_id,
