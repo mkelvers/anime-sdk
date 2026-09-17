@@ -65,7 +65,10 @@ export abstract class BaseProvider {
   // accepts an optional `signal` for cancellation; subclasses are expected
   // to forward it on every outbound `http` call.
 
-  public search(query: string, options: CallOptions = {}): Promise<IMediaSearchResult[]> {
+  public search(
+    query: string,
+    options: CallOptions = {},
+  ): Promise<IMediaSearchResult[]> {
     return this.withConcurrency(async () => {
       const results = await this.searchRaw(query, options);
       return results.map((r) => ({
@@ -76,7 +79,10 @@ export abstract class BaseProvider {
     });
   }
 
-  public fetchContentUnits(mediaUrn: Urn, options: CallOptions = {}): Promise<IContentUnit[]> {
+  public fetchContentUnits(
+    mediaUrn: Urn,
+    options: CallOptions = {},
+  ): Promise<IContentUnit[]> {
     return this.withConcurrency(async () => {
       const raw = unwrapUrn(this.id, mediaUrn);
       const units = await this.fetchContentUnitsRaw(raw, options);
@@ -131,7 +137,9 @@ export abstract class BaseProvider {
     options: CallOptions = {},
   ): Promise<IUnitTracks> {
     if (!this.fetchUnitTracksRaw) {
-      throw new Error(`${this.id}: fetchUnitTracks is not supported by this provider`);
+      throw new Error(
+        `${this.id}: fetchUnitTracks is not supported by this provider`,
+      );
     }
     return this.withConcurrency(async () => {
       const raw = unwrapUrn(this.id, unitUrn);
@@ -145,7 +153,10 @@ export abstract class BaseProvider {
    * implement this and `MappingClient` will use it before the MALSync /
    * fuzzy fallbacks. Return `null` to defer to fallbacks.
    */
-  public lookupByMapping?(mappings: IMediaMappings, options?: CallOptions): Promise<string | null>;
+  public lookupByMapping?(
+    mappings: IMediaMappings,
+    options?: CallOptions,
+  ): Promise<string | null>;
 
   /**
    * Optional: comma-keyed array of MALSync `Sites` names this provider
@@ -165,7 +176,10 @@ export abstract class BaseProvider {
   // ── Subclass surface ──────────────────────────────────────────────────────
   // Subclasses implement these with raw (non-URN) IDs.
 
-  protected abstract searchRaw(query: string, options?: CallOptions): Promise<IMediaSearchResult[]>;
+  protected abstract searchRaw(
+    query: string,
+    options?: CallOptions,
+  ): Promise<IMediaSearchResult[]>;
   protected abstract fetchContentUnitsRaw(
     rawMediaId: string,
     options?: CallOptions,
@@ -213,6 +227,8 @@ class Semaphore {
     const next = this.waiters.shift();
     if (next) {
       next();
-    } else this.permits += 1;
+    } else {
+      this.permits += 1;
+    }
   }
 }

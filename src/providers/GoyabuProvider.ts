@@ -55,7 +55,8 @@ export class GoyabuProvider extends BaseProvider {
     const results: IMediaSearchResult[] = [];
 
     // Select article search cards
-    const cards = doc.querySelectorAll('article.boxAN') || doc.querySelectorAll('article');
+    const cards =
+      doc.querySelectorAll('article.boxAN') || doc.querySelectorAll('article');
     for (const card of cards) {
       const a = card.querySelector('a');
       if (!a) {
@@ -70,12 +71,18 @@ export class GoyabuProvider extends BaseProvider {
       const id = href.startsWith('http') ? new URL(href).pathname : href;
 
       const titleElem =
-        card.querySelector('.title') || card.querySelector('h3') || card.querySelector('h2');
+        card.querySelector('.title') ||
+        card.querySelector('h3') ||
+        card.querySelector('h2');
       let title = titleElem ? (titleElem.textContent || '').trim() : '';
 
       const img = card.querySelector('img');
       if (!title && img) {
-        title = (img.getAttribute('alt') || img.getAttribute('title') || '').trim();
+        title = (
+          img.getAttribute('alt') ||
+          img.getAttribute('title') ||
+          ''
+        ).trim();
       }
 
       if (!title) {
@@ -84,7 +91,8 @@ export class GoyabuProvider extends BaseProvider {
 
       let thumbnailUrl = undefined;
       if (img) {
-        const src = img.getAttribute('src') || img.getAttribute('data-src') || '';
+        const src =
+          img.getAttribute('src') || img.getAttribute('data-src') || '';
         if (src) {
           thumbnailUrl = src.startsWith('http')
             ? src
@@ -114,7 +122,9 @@ export class GoyabuProvider extends BaseProvider {
     const fullUrl = `${this.baseUrl}${mediaId.startsWith('/') ? '' : '/'}${mediaId}`;
     const response = await this.http.get(fullUrl, { signal: options.signal });
     if (response.status !== 200) {
-      throw new Error(`Failed to fetch Goyabu details page: ${response.status}`);
+      throw new Error(
+        `Failed to fetch Goyabu details page: ${response.status}`,
+      );
     }
 
     const html = await response.text();
@@ -152,16 +162,21 @@ export class GoyabuProvider extends BaseProvider {
             const num = ep.episodio ? parseFloat(ep.episodio) : i + 1;
             // Goyabu's episode array exposes a `link` field that's a relative
             // path (e.g. "/40742"); use it directly when present.
-            const link = ep.link || (ep.id ? `/${ep.id}` : ep.ID ? `/${ep.ID}` : '');
+            const link =
+              ep.link || (ep.id ? `/${ep.id}` : ep.ID ? `/${ep.ID}` : '');
             if (!link) {
               continue;
             }
 
             units.push({
               id: link,
-              title: ep.episode_name ? `Episódio ${num}: ${ep.episode_name}` : `Episódio ${num}`,
+              title: ep.episode_name
+                ? `Episódio ${num}: ${ep.episode_name}`
+                : `Episódio ${num}`,
               number: num,
-              availableLanguages: [mediaId.toLowerCase().includes('dublado') ? 'dub' : 'sub'],
+              availableLanguages: [
+                mediaId.toLowerCase().includes('dublado') ? 'dub' : 'sub',
+              ],
             });
           }
           foundArray = true;
@@ -192,13 +207,17 @@ export class GoyabuProvider extends BaseProvider {
         const epNumAttr = a.getAttribute('data-episode-number');
         const num = epNumAttr ? parseFloat(epNumAttr) : units.length + 1;
 
-        const id = href.startsWith('http') ? new URL(href).pathname + new URL(href).search : href;
+        const id = href.startsWith('http')
+          ? new URL(href).pathname + new URL(href).search
+          : href;
 
         units.push({
           id,
           title: `Episódio ${num}`,
           number: num,
-          availableLanguages: [mediaId.toLowerCase().includes('dublado') ? 'dub' : 'sub'],
+          availableLanguages: [
+            mediaId.toLowerCase().includes('dublado') ? 'dub' : 'sub',
+          ],
         });
       }
     }
@@ -222,7 +241,9 @@ export class GoyabuProvider extends BaseProvider {
     const fullUrl = `${this.baseUrl}${unitId.startsWith('/') ? '' : '/'}${unitId}`;
     const response = await this.http.get(fullUrl, { signal: options.signal });
     if (response.status !== 200) {
-      throw new Error(`Failed to fetch Goyabu episode page: ${response.status}`);
+      throw new Error(
+        `Failed to fetch Goyabu episode page: ${response.status}`,
+      );
     }
 
     const html = await response.text();
@@ -235,7 +256,9 @@ export class GoyabuProvider extends BaseProvider {
       try {
         const extracted = await this.bloggerExtractor.extract(url);
         if (extracted.length === 0) {
-          errors.push(`${url.slice(0, 80)}: Extractor returned 0 results without error`);
+          errors.push(
+            `${url.slice(0, 80)}: Extractor returned 0 results without error`,
+          );
         } else {
           videoSources.push(...extracted);
         }
@@ -274,7 +297,10 @@ export class GoyabuProvider extends BaseProvider {
         const players = JSON.parse(cleaned);
         if (Array.isArray(players)) {
           for (const p of players) {
-            if (typeof p?.url === 'string' && p.url.includes('blogger.com/video.g')) {
+            if (
+              typeof p?.url === 'string' &&
+              p.url.includes('blogger.com/video.g')
+            ) {
               urls.add(p.url);
             }
           }
@@ -285,7 +311,8 @@ export class GoyabuProvider extends BaseProvider {
     }
 
     // Fallback: raw scan
-    const re = /https?:(?:\\\/|\/)\/www\.blogger\.com\/video\.g\?token=[A-Za-z0-9_-]+/g;
+    const re =
+      /https?:(?:\\\/|\/)\/www\.blogger\.com\/video\.g\?token=[A-Za-z0-9_-]+/g;
     let m: RegExpExecArray | null;
     while ((m = re.exec(html)) !== null) {
       urls.add(m[0].replace(/\\\//g, '/'));
@@ -293,7 +320,10 @@ export class GoyabuProvider extends BaseProvider {
     return Array.from(urls);
   }
 
-  private scrapeDirectStreams(html: string, refererUrl: string): IVideoPayload[] {
+  private scrapeDirectStreams(
+    html: string,
+    refererUrl: string,
+  ): IVideoPayload[] {
     const out: IVideoPayload[] = [];
     const seen = new Set<string>();
     const mapQuality = (label: string): IVideoPayload['quality'] => {

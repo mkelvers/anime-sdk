@@ -11,7 +11,9 @@ describe('Mangadex E2E Pagination', () => {
     const searchResults = await provider.search(query);
     expect(searchResults.length).toBeGreaterThan(0);
 
-    const target = searchResults.find((r) => r.title.includes('Kaguya-sama')) || searchResults[0];
+    const target =
+      searchResults.find((r) => r.title.includes('Kaguya-sama')) ||
+      searchResults[0];
     console.log(`Mangadex selected: ${target.title} (${target.id})`);
 
     const units = await provider.fetchContentUnits(target.id);

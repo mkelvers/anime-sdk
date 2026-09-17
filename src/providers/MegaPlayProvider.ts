@@ -40,7 +40,9 @@ export function extractMegaPlayFileId(embedPage: string): string | null {
 }
 
 /** Parse both the legacy clear source and current encrypted MegaPlay payloads. */
-export async function parseMegaPlaySource(payload: any): Promise<MegaPlaySource | null> {
+export async function parseMegaPlaySource(
+  payload: any,
+): Promise<MegaPlaySource | null> {
   let file = payload?.sources?.file;
 
   if (!file && typeof payload?.enc === 'string') {
@@ -78,7 +80,9 @@ export class MegaPlayProvider extends BaseProvider {
    * can skip MALSync/Anify/fuzzy entirely when the meta record knows the
    * AniList ID.
    */
-  public override async lookupByMapping(mappings: IMediaMappings): Promise<string | null> {
+  public override async lookupByMapping(
+    mappings: IMediaMappings,
+  ): Promise<string | null> {
     return mappings.anilist != null ? String(mappings.anilist) : null;
   }
 
@@ -209,13 +213,16 @@ export class MegaPlayProvider extends BaseProvider {
     }
 
     // Step 2: Fetch the sources using the file ID
-    const sourcesResponse = await this.http.get(`${this.baseUrl}/stream/getSources?id=${fileId}`, {
-      signal: options.signal,
-      headers: {
-        Referer: `${this.baseUrl}/stream/ani/${aniId}/${epNum}/${language}`,
-        'X-Requested-With': 'XMLHttpRequest',
+    const sourcesResponse = await this.http.get(
+      `${this.baseUrl}/stream/getSources?id=${fileId}`,
+      {
+        signal: options.signal,
+        headers: {
+          Referer: `${this.baseUrl}/stream/ani/${aniId}/${epNum}/${language}`,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
       },
-    });
+    );
 
     const source = await parseMegaPlaySource(await sourcesResponse.json());
     if (!source) {

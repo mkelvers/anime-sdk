@@ -16,7 +16,9 @@ describe('AnilistMeta — live', () => {
     const meta = new AnilistMeta(http);
     const results = await meta.search('Cowboy Bebop');
     expect(results.length).toBeGreaterThan(0);
-    const hit = results.find((r) => r.title.english?.toLowerCase() === 'cowboy bebop');
+    const hit = results.find(
+      (r) => r.title.english?.toLowerCase() === 'cowboy bebop',
+    );
     expect(hit).toBeDefined();
     expect(hit!.id.startsWith('anilist:')).toBe(true);
     expect(hit!.providerId).toBe('anilist');
@@ -60,7 +62,10 @@ describe('AnilistMeta — live', () => {
     const http = new HttpClient({ timeoutMs: 20_000 });
     const meta = new AnilistMeta(http);
     expect(meta.supportsBrowseKind('trending')).toBe(true);
-    const items = await meta.browse('trending', { catalogType: 'ANIME', perPage: 5 });
+    const items = await meta.browse('trending', {
+      catalogType: 'ANIME',
+      perPage: 5,
+    });
     expect(items.length).toBeGreaterThan(0);
     expect(items[0].id.startsWith('anilist:')).toBe(true);
   }, 30_000);
@@ -68,12 +73,16 @@ describe('AnilistMeta — live', () => {
   it('browse(seasonal) requires season+year', async () => {
     const http = new HttpClient({ timeoutMs: 5_000 });
     const meta = new AnilistMeta(http);
-    await expect(meta.browse('seasonal', {})).rejects.toThrow(/season and year/);
+    await expect(meta.browse('seasonal', {})).rejects.toThrow(
+      /season and year/,
+    );
   });
 
   it('rejects non-numeric AniList IDs without making a network call', async () => {
     const http = new HttpClient({ timeoutMs: 5_000 });
     const meta = new AnilistMeta(http);
-    await expect(meta.fetchMediaInfo('anilist:not-a-number')).rejects.toThrow(/Invalid AniList ID/);
+    await expect(meta.fetchMediaInfo('anilist:not-a-number')).rejects.toThrow(
+      /Invalid AniList ID/,
+    );
   });
 });

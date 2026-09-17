@@ -15,7 +15,10 @@ describe('URN helpers', () => {
   });
 
   it('parses a simple URN', () => {
-    expect(parseUrn('allmanga:abc123')).toEqual({ providerId: 'allmanga', rawId: 'abc123' });
+    expect(parseUrn('allmanga:abc123')).toEqual({
+      providerId: 'allmanga',
+      rawId: 'abc123',
+    });
   });
 
   it('treats only the first colon as separator', () => {
@@ -26,7 +29,10 @@ describe('URN helpers', () => {
   });
 
   it('falls back to bare-id behaviour when no colon present', () => {
-    expect(parseUrn('legacy-id')).toEqual({ providerId: '', rawId: 'legacy-id' });
+    expect(parseUrn('legacy-id')).toEqual({
+      providerId: '',
+      rawId: 'legacy-id',
+    });
   });
 
   it('unwrapUrn strips matching prefix only', () => {
@@ -36,12 +42,18 @@ describe('URN helpers', () => {
   });
 
   it('preserves raw IDs containing colons after the first one', () => {
-    expect(unwrapUrn('animeparadise', 'animeparadise:uid123:animeId456')).toBe('uid123:animeId456');
+    expect(unwrapUrn('animeparadise', 'animeparadise:uid123:animeId456')).toBe(
+      'uid123:animeId456',
+    );
   });
 
   it('preserves raw IDs containing slashes', () => {
-    expect(unwrapUrn('allmanga', 'allmanga:5jzpRTJWnubrgHm5G/1')).toBe('5jzpRTJWnubrgHm5G/1');
-    expect(unwrapUrn('gogoanime', 'gogoanime:/watch/one-piece/ep-1')).toBe('/watch/one-piece/ep-1');
+    expect(unwrapUrn('allmanga', 'allmanga:5jzpRTJWnubrgHm5G/1')).toBe(
+      '5jzpRTJWnubrgHm5G/1',
+    );
+    expect(unwrapUrn('gogoanime', 'gogoanime:/watch/one-piece/ep-1')).toBe(
+      '/watch/one-piece/ep-1',
+    );
   });
 
   it('isUrn recognizes the right shape', () => {
@@ -53,7 +65,12 @@ describe('URN helpers', () => {
   });
 
   it('round-trips build → unwrap', () => {
-    const cases = ['abc', 'with/slash', 'with:colon', 'multi:slash/path:and:colon'];
+    const cases = [
+      'abc',
+      'with/slash',
+      'with:colon',
+      'multi:slash/path:and:colon',
+    ];
     for (const raw of cases) {
       const urn = buildUrn('p', raw);
       expect(unwrapUrn('p', urn)).toBe(raw);
@@ -72,7 +89,9 @@ describe('strictUnwrapUrn', () => {
   });
 
   it('throws on a wrong prefix', () => {
-    expect(() => strictUnwrapUrn('anilist', 'mal:21')).toThrow(/does not match/);
+    expect(() => strictUnwrapUrn('anilist', 'mal:21')).toThrow(
+      /does not match/,
+    );
   });
 
   it('throws on a bare (un-prefixed) ID', () => {
@@ -87,8 +106,14 @@ describe('typed URN helpers', () => {
   });
 
   it('parseTypedUrn extracts kind + rawId when present', () => {
-    expect(parseTypedUrn('mal', 'mal:anime:21')).toEqual({ kind: 'anime', rawId: '21' });
-    expect(parseTypedUrn('mal', 'mal:manga:13')).toEqual({ kind: 'manga', rawId: '13' });
+    expect(parseTypedUrn('mal', 'mal:anime:21')).toEqual({
+      kind: 'anime',
+      rawId: '21',
+    });
+    expect(parseTypedUrn('mal', 'mal:manga:13')).toEqual({
+      kind: 'manga',
+      rawId: '13',
+    });
   });
 
   it('parseTypedUrn returns undefined kind for bare/untyped URNs', () => {

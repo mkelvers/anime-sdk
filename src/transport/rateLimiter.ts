@@ -23,7 +23,10 @@ export interface RateLimitConfig {
   /** Window length in milliseconds. */
   intervalMs: number;
   /** Optional secondary "burst" cap, e.g. Jikan's 3 req/s on top of 60/min. */
-  burst?: { capacity: number; intervalMs: number };
+  burst?: {
+    capacity: number;
+    intervalMs: number;
+  };
 }
 
 export type PerHostRateLimits = Record<string, RateLimitConfig>;
@@ -34,7 +37,11 @@ interface BucketState {
   config: RateLimitConfig;
   burstTokens?: number;
   burstWindowStart?: number;
-  queue: Array<{ resolve: () => void; reject: (e: unknown) => void; signal?: AbortSignal }>;
+  queue: Array<{
+    resolve: () => void;
+    reject: (e: unknown) => void;
+    signal?: AbortSignal;
+  }>;
   scheduled: boolean;
 }
 
@@ -43,7 +50,10 @@ export class RateLimiter {
   private defaultConfig?: RateLimitConfig;
   private perHost: PerHostRateLimits;
 
-  constructor(perHost: PerHostRateLimits = {}, defaultConfig?: RateLimitConfig) {
+  constructor(
+    perHost: PerHostRateLimits = {},
+    defaultConfig?: RateLimitConfig,
+  ) {
     this.perHost = perHost;
     this.defaultConfig = defaultConfig;
   }
@@ -95,7 +105,10 @@ export class RateLimiter {
   /**
    * Snapshot of the live state, useful for tests and observability.
    */
-  public snapshot(hostname: string): { tokens: number; queued: number } | null {
+  public snapshot(hostname: string): {
+    tokens: number;
+    queued: number;
+  } | null {
     const bucket = this.buckets.get(hostname);
     if (!bucket) {
       return null;
@@ -164,7 +177,10 @@ export class RateLimiter {
       b.config.burst && b.burstWindowStart != null
         ? Math.max(0, b.config.burst.intervalMs - (now - b.burstWindowStart))
         : 0;
-    const wait = Math.max(1, Math.min(waitMain || 1, waitBurst || waitMain || 1));
+    const wait = Math.max(
+      1,
+      Math.min(waitMain || 1, waitBurst || waitMain || 1),
+    );
     setTimeout(() => this.pump(b), wait).unref?.();
   }
 

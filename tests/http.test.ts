@@ -14,7 +14,9 @@ describe('HttpClient', () => {
       proxyType: 'prepend',
     });
     const url = 'https://example.com/api/v1/media';
-    expect(client.requestUrl(url)).toBe('https://myproxy.com/example.com/api/v1/media');
+    expect(client.requestUrl(url)).toBe(
+      'https://myproxy.com/example.com/api/v1/media',
+    );
   });
 
   it('should format URL correctly with path-prepending proxy ending in slash', () => {
@@ -23,7 +25,9 @@ describe('HttpClient', () => {
       proxyType: 'prepend',
     });
     const url = 'https://example.com/api/v1/media';
-    expect(client.requestUrl(url)).toBe('https://myproxy.com/example.com/api/v1/media');
+    expect(client.requestUrl(url)).toBe(
+      'https://myproxy.com/example.com/api/v1/media',
+    );
   });
 
   it('should format URL correctly with query-parameter proxy', () => {
@@ -62,10 +66,14 @@ describe('HttpClient', () => {
 
     // Add another cookie
     client.setCookie('foo', 'bar');
-    expect(client.getDefaultHeaders()['Cookie']).toBe('cf_clearance=token123; foo=bar');
+    expect(client.getDefaultHeaders()['Cookie']).toBe(
+      'cf_clearance=token123; foo=bar',
+    );
 
     // Update existing cookie
     client.setCookie('cf_clearance', 'token456');
-    expect(client.getDefaultHeaders()['Cookie']).toBe('foo=bar; cf_clearance=token456');
+    expect(client.getDefaultHeaders()['Cookie']).toBe(
+      'foo=bar; cf_clearance=token456',
+    );
   });
 });

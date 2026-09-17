@@ -35,9 +35,13 @@ beforeAll(async () => {
     // hold the connection long enough for parallel requests to overlap
     await new Promise<void>((r) => setTimeout(r, 60));
     inFlight -= 1;
-    res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ ok: true }));
+    res
+      .writeHead(200, { 'content-type': 'application/json' })
+      .end(JSON.stringify({ ok: true }));
   });
-  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+  await new Promise<void>((resolve) =>
+    server.listen(0, '127.0.0.1', () => resolve()),
+  );
   const addr = server.address();
   if (!addr || typeof addr === 'string') {
     throw new Error('no address');
@@ -53,14 +57,20 @@ class CappedProvider extends BaseProvider {
   public readonly id = 'capped';
   public readonly supportedTypes: MediaCatalogType[] = ['ANIME'];
   public readonly maxConcurrency = 2;
-  protected async searchRaw(_q: string, options: CallOptions = {}): Promise<IMediaSearchResult[]> {
+  protected async searchRaw(
+    _q: string,
+    options: CallOptions = {},
+  ): Promise<IMediaSearchResult[]> {
     await this.http.get(`${baseUrl}/q`, { signal: options.signal });
     return [{ id: 'x', title: 'x', catalogType: 'ANIME', providerId: this.id }];
   }
   protected async fetchContentUnitsRaw(): Promise<IContentUnit[]> {
     return [];
   }
-  protected async resolveStreamRaw(_u: string, _l?: ContentLanguage): Promise<ResolvedMediaStream> {
+  protected async resolveStreamRaw(
+    _u: string,
+    _l?: ContentLanguage,
+  ): Promise<ResolvedMediaStream> {
     throw new Error('not implemented');
   }
 }

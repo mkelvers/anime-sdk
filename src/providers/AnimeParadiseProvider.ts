@@ -24,9 +24,12 @@ export class AnimeParadiseProvider extends BaseProvider {
     query: string,
     options: CallOptions = {},
   ): Promise<IMediaSearchResult[]> {
-    const res = await this.http.get(`${API_BASE}/search?q=${encodeURIComponent(query)}&limit=20`, {
-      signal: options.signal,
-    });
+    const res = await this.http.get(
+      `${API_BASE}/search?q=${encodeURIComponent(query)}&limit=20`,
+      {
+        signal: options.signal,
+      },
+    );
     const json = (await res.json()) as any;
     const items: any[] = json?.data ?? [];
     return items.map((item) => ({
@@ -122,7 +125,13 @@ export class AnimeParadiseProvider extends BaseProvider {
     const res = await this.http.get(`${API_BASE}/ep/${uid}?origin=${animeId}`, {
       signal: options.signal,
     });
-    const json = (await res.json()) as { data?: { episode?: { subData?: unknown } } };
+    const json = (await res.json()) as {
+      data?: {
+        episode?: {
+          subData?: unknown;
+        };
+      };
+    };
     const subtitles = normalizeSubtitleEntries(json?.data?.episode?.subData);
     // AnimeParadise serves a single auto-ladder HLS manifest per episode — we
     // don't know the rendition list without fetching the master, so 'auto' is

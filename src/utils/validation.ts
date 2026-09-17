@@ -1,6 +1,11 @@
 import { z } from 'zod';
 import type { BrowseKind } from '../meta/BaseMetadataProvider';
-import type { ContentLanguage, MediaCatalogType, MediaFormat, MediaSeason } from '../types/index';
+import type {
+  ContentLanguage,
+  MediaCatalogType,
+  MediaFormat,
+  MediaSeason,
+} from '../types/index';
 
 /**
  * Runtime schemas for values that cross an SDK boundary.
@@ -10,7 +15,12 @@ import type { ContentLanguage, MediaCatalogType, MediaFormat, MediaSeason } from
  * query strings, where TypeScript types no longer exist at runtime.
  */
 export const contentLanguageSchema = z.enum(['sub', 'dub', 'raw']);
-export const browseKindSchema = z.enum(['trending', 'popular', 'seasonal', 'top']);
+export const browseKindSchema = z.enum([
+  'trending',
+  'popular',
+  'seasonal',
+  'top',
+]);
 export const mediaCatalogTypeSchema = z.enum(['ANIME', 'MOVIE', 'TV', 'MANGA']);
 export const mediaFormatSchema = z.enum([
   'TV',
@@ -42,7 +52,10 @@ export function parseOptionalQueryValue<T>(
 ): ParsedQueryValue<T> {
   const result = schema.optional().safeParse(raw ?? undefined);
   if (!result.success) {
-    return { value: undefined, error: `Param \`${name}\` has an invalid value` };
+    return {
+      value: undefined,
+      error: `Param \`${name}\` has an invalid value`,
+    };
   }
   return { value: result.data };
 }

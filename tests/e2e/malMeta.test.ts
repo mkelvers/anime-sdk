@@ -83,7 +83,10 @@ describe('MalMeta — live (Jikan)', () => {
     const http = new HttpClient({ timeoutMs: 30_000 });
     const meta = new MalMeta(http);
     expect(meta.supportsBrowseKind('top')).toBe(true);
-    const items = await meta.browse('top', { catalogType: 'ANIME', perPage: 5 });
+    const items = await meta.browse('top', {
+      catalogType: 'ANIME',
+      perPage: 5,
+    });
     expect(items.length).toBeGreaterThan(0);
     expect(items[0].id.startsWith('mal:anime:')).toBe(true);
   }, 40_000);

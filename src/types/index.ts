@@ -110,8 +110,14 @@ export interface IMangaPayload {
 }
 
 export type ResolvedMediaStream =
-  | { type: 'video'; streams: IVideoPayload[] }
-  | { type: 'manga'; pages: IMangaPayload };
+  | {
+      type: 'video';
+      streams: IVideoPayload[];
+    }
+  | {
+      type: 'manga';
+      pages: IMangaPayload;
+    };
 
 export interface ResolvedMediaStreams {
   sub: ResolvedMediaStream | null;

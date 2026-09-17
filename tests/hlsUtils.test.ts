@@ -11,7 +11,11 @@ describe('HlsUtils', () => {
 #EXTINF:10.0,
 segment1.ts
     `.trim();
-    const result = HlsUtils.rewriteManifest(manifest, 'https://example.com/playlist.m3u8', client);
+    const result = HlsUtils.rewriteManifest(
+      manifest,
+      'https://example.com/playlist.m3u8',
+      client,
+    );
     expect(result).toBe(manifest);
   });
 
@@ -64,7 +68,11 @@ https://myproxy.com/example.com/chunk-03.ts
 segment.ts
     `.trim();
 
-    const result = HlsUtils.rewriteManifest(manifest, 'https://example.com/playlist.m3u8', client);
+    const result = HlsUtils.rewriteManifest(
+      manifest,
+      'https://example.com/playlist.m3u8',
+      client,
+    );
 
     const expected = `
 #EXTM3U

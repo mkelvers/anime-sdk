@@ -33,7 +33,9 @@ export class Mp4UploadExtractor extends BaseExtractor {
     // Mp4Upload's player snippet emits exactly one direct stream URL ending in
     // `/video.mp4` (sometimes followed by query params). Be strict so we don't
     // pick up `mp4upload.com/...` static asset URLs that happen to contain "mp4".
-    const match = html.match(/src:\s*"(https?:\/\/[^"]+\/video\.mp4(?:\?[^"]*)?)"/);
+    const match = html.match(
+      /src:\s*"(https?:\/\/[^"]+\/video\.mp4(?:\?[^"]*)?)"/,
+    );
     if (!match) {
       return [];
     }

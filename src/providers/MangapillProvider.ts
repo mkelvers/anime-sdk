@@ -54,7 +54,8 @@ export class MangapillProvider extends BaseProvider {
 
       const href = a.getAttribute('href');
       const title = titleEl.textContent?.trim();
-      const coverUrl = img?.getAttribute('data-src') || img?.getAttribute('src');
+      const coverUrl =
+        img?.getAttribute('data-src') || img?.getAttribute('src');
 
       if (href && title) {
         results.push({

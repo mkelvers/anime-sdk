@@ -111,10 +111,11 @@ export function tokenJaccard(a: string, b: string): number {
     return 0;
   }
   let inter = 0;
-  for (const t of ta)
+  for (const t of ta) {
     if (tb.has(t)) {
       inter += 1;
     }
+  }
   const union = ta.size + tb.size - inter;
   return inter / union;
 }
@@ -162,7 +163,10 @@ export function compositeSimilarity(a: string, b: string): number {
  * Score a single candidate title against a target set of candidate titles
  * (romaji/english/native/synonyms). Returns the maximum composite score.
  */
-export function bestSimilarity(candidate: string, targets: Array<string | undefined>): number {
+export function bestSimilarity(
+  candidate: string,
+  targets: Array<string | undefined>,
+): number {
   let best = 0;
   for (const t of targets) {
     if (!t) {

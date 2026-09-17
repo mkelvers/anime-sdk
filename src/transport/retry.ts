@@ -26,7 +26,11 @@ export interface RetryConfig {
   /** Status codes that signal "try again". */
   retryStatuses?: number[];
   /** Observer hook for each retry. */
-  onRetry?: (info: { attempt: number; reason: string; delayMs: number }) => void;
+  onRetry?: (info: {
+    attempt: number;
+    reason: string;
+    delayMs: number;
+  }) => void;
   /** Custom predicate; combined OR-style with the status/error defaults. */
   isRetryableError?: (err: unknown) => boolean;
 }
@@ -77,7 +81,8 @@ export async function withRetry<T>(
         throw err;
       }
 
-      const hinted = err instanceof HttpRetryableError ? err.retryAfterMs : undefined;
+      const hinted =
+        err instanceof HttpRetryableError ? err.retryAfterMs : undefined;
       const expBackoff = Math.min(max, initial * factor ** (attempt - 1));
       const noise = jitter > 0 ? expBackoff * jitter * Math.random() : 0;
       const delayMs = Math.max(0, hinted ?? expBackoff + noise);
@@ -98,7 +103,9 @@ function isRetryable(err: unknown, config: RetryConfig): boolean {
     return true;
   }
   if (err instanceof HttpRetryableError) {
-    return (config.retryStatuses ?? DEFAULT_RETRY_STATUSES).includes(err.status);
+    return (config.retryStatuses ?? DEFAULT_RETRY_STATUSES).includes(
+      err.status,
+    );
   }
   // Network-level errors. The shape varies across Node versions/runtimes —
   // matching on name/message/code covers the common cases.

@@ -72,7 +72,9 @@ describe('MappingClient — live waterfall', () => {
     expect(r).not.toBeNull();
     expect(r!.providerId).toBe('mangadex');
     // MangaDex IDs are UUIDs.
-    expect(r!.rawMediaId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+    expect(r!.rawMediaId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    );
     expect(['malsync', 'anify', 'fuzzy', 'provider']).toContain(r!.method);
   }, 60_000);
 

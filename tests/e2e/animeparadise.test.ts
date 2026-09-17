@@ -17,7 +17,8 @@ describe('AnimeParadise E2E', () => {
     expect(searchResults.length).toBeGreaterThan(0);
 
     const target =
-      searchResults.find((r) => !r.title.toLowerCase().includes('season 2')) ?? searchResults[0];
+      searchResults.find((r) => !r.title.toLowerCase().includes('season 2')) ??
+      searchResults[0];
 
     expect(target.providerId).toBe('animeparadise');
     console.log(`AnimeParadise selected: ${target.title} (${target.id})`);
@@ -33,9 +34,14 @@ describe('AnimeParadise E2E', () => {
     }
 
     expect(stream.streams.length).toBeGreaterThan(0);
-    console.log(`AnimeParadise resolved stream: ${stream.streams[0].sourceUrl.slice(0, 80)}`);
+    console.log(
+      `AnimeParadise resolved stream: ${stream.streams[0].sourceUrl.slice(0, 80)}`,
+    );
 
-    const result = await captureStreamScreenshot('animeparadise', stream.streams);
+    const result = await captureStreamScreenshot(
+      'animeparadise',
+      stream.streams,
+    );
     expect(result.outputPath).toMatch(/screenshot_animeparadise\.png$/);
   }, 90000);
 });

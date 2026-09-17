@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeTitle, diceSimilarity, bestSimilarity } from '../src/meta/similarity';
+import {
+  normalizeTitle,
+  diceSimilarity,
+  bestSimilarity,
+} from '../src/meta/similarity';
 
 describe('normalizeTitle', () => {
   it('lowercases and strips punctuation', () => {
@@ -17,7 +21,9 @@ describe('normalizeTitle', () => {
   });
 
   it('translates trailing Roman numerals to arabic', () => {
-    expect(normalizeTitle('Attack on Titan Season II')).toBe('attack on titan season 2');
+    expect(normalizeTitle('Attack on Titan Season II')).toBe(
+      'attack on titan season 2',
+    );
   });
 
   it('handles empty input', () => {
@@ -34,9 +40,9 @@ describe('diceSimilarity', () => {
     // "Shingeki no Kyojin" vs "Shingeki no Kyojin Season 2" — base title is a
     // substring, but the extra "Season 2" suffix drags Dice down. 0.75 is the
     // empirical floor for "same show, different season".
-    expect(diceSimilarity('Shingeki no Kyojin', 'Shingeki no Kyojin Season 2')).toBeGreaterThan(
-      0.75,
-    );
+    expect(
+      diceSimilarity('Shingeki no Kyojin', 'Shingeki no Kyojin Season 2'),
+    ).toBeGreaterThan(0.75);
   });
 
   it('is low for unrelated titles', () => {

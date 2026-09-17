@@ -60,20 +60,26 @@ describe('/proxy signature enforcement', () => {
   const target = 'https://example.com/';
 
   it('rejects unsigned requests with 401', async () => {
-    const res = await fetch(`${baseUrl}/proxy?url=${encodeURIComponent(target)}`);
+    const res = await fetch(
+      `${baseUrl}/proxy?url=${encodeURIComponent(target)}`,
+    );
     expect(res.status).toBe(401);
     const body = (await res.json()) as { error: string };
     expect(body.error).toMatch(/sig/i);
   });
 
   it('rejects bad signatures with 401', async () => {
-    const res = await fetch(`${baseUrl}/proxy?url=${encodeURIComponent(target)}&sig=deadbeef`);
+    const res = await fetch(
+      `${baseUrl}/proxy?url=${encodeURIComponent(target)}&sig=deadbeef`,
+    );
     expect(res.status).toBe(401);
   });
 
   it('accepts a valid signature and streams the upstream body', async () => {
     const sig = sign(target);
-    const res = await fetch(`${baseUrl}/proxy?url=${encodeURIComponent(target)}&sig=${sig}`);
+    const res = await fetch(
+      `${baseUrl}/proxy?url=${encodeURIComponent(target)}&sig=${sig}`,
+    );
     expect(res.status).toBe(200);
     const text = await res.text();
     expect(text.length).toBeGreaterThan(0);

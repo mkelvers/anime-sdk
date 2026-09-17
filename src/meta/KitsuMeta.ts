@@ -8,7 +8,10 @@ import {
   MediaSeason,
   MediaStatus,
 } from '../types/index';
-import { BaseMetadataProvider, BaseMetadataProviderOptions } from './BaseMetadataProvider';
+import {
+  BaseMetadataProvider,
+  BaseMetadataProviderOptions,
+} from './BaseMetadataProvider';
 
 /**
  * Kitsu metadata provider (JSON:API).
@@ -53,7 +56,9 @@ export class KitsuMeta extends BaseMetadataProvider {
     }
     const json = (await res.json()) as any;
     const data: any[] = json?.data ?? [];
-    return data.map((r) => mapToSearchResult(r, path === 'manga' ? 'MANGA' : 'ANIME', path));
+    return data.map((r) =>
+      mapToSearchResult(r, path === 'manga' ? 'MANGA' : 'ANIME', path),
+    );
   }
 
   protected async fetchMediaInfoRawNative(
@@ -95,8 +100,15 @@ export class KitsuMeta extends BaseMetadataProvider {
 
     const included: any[] = json?.included ?? [];
     const genres = pickNames(included, r.relationships?.genres?.data, 'genres');
-    const tags = pickNames(included, r.relationships?.categories?.data, 'categories');
-    const studios = pickProducers(included, r.relationships?.animeProductions?.data);
+    const tags = pickNames(
+      included,
+      r.relationships?.categories?.data,
+      'categories',
+    );
+    const studios = pickProducers(
+      included,
+      r.relationships?.animeProductions?.data,
+    );
     const mappings = pickMappings(included, r.relationships?.mappings?.data);
 
     const a = r.attributes ?? {};
@@ -128,9 +140,14 @@ export class KitsuMeta extends BaseMetadataProvider {
       startDate: a.startDate ?? undefined,
       endDate: a.endDate ?? undefined,
       score:
-        typeof a.averageRating === 'string' ? Math.round(parseFloat(a.averageRating)) : undefined,
-      trailer: a.youtubeVideoId ? `https://www.youtube.com/watch?v=${a.youtubeVideoId}` : undefined,
-      isAdult: a.ageRating === 'R18' || a.ageRating === 'R18+' || a.nsfw === true,
+        typeof a.averageRating === 'string'
+          ? Math.round(parseFloat(a.averageRating))
+          : undefined,
+      trailer: a.youtubeVideoId
+        ? `https://www.youtube.com/watch?v=${a.youtubeVideoId}`
+        : undefined,
+      isAdult:
+        a.ageRating === 'R18' || a.ageRating === 'R18+' || a.nsfw === true,
       synonyms: Array.isArray(a.abbreviatedTitles)
         ? a.abbreviatedTitles.filter(Boolean)
         : undefined,
@@ -162,7 +179,9 @@ function mapToSearchResult(
     year: parseYear(a.startDate),
     format: kitsuFormat(a.subtype),
     score:
-      typeof a.averageRating === 'string' ? Math.round(parseFloat(a.averageRating)) : undefined,
+      typeof a.averageRating === 'string'
+        ? Math.round(parseFloat(a.averageRating))
+        : undefined,
     isAdult: a.ageRating === 'R18' || a.ageRating === 'R18+' || a.nsfw === true,
     mappings: { kitsu: Number(r.id) },
   };
@@ -235,7 +254,12 @@ function parseYear(d: unknown): number | undefined {
 
 function pickNames(
   included: any[],
-  refs: Array<{ id: string; type: string }> | undefined,
+  refs:
+    | Array<{
+        id: string;
+        type: string;
+      }>
+    | undefined,
   expectedType: string,
 ): string[] {
   if (!Array.isArray(refs)) {
@@ -254,14 +278,21 @@ function pickNames(
 
 function pickProducers(
   included: any[],
-  refs: Array<{ id: string; type: string }> | undefined,
+  refs:
+    | Array<{
+        id: string;
+        type: string;
+      }>
+    | undefined,
 ): string[] {
   if (!Array.isArray(refs)) {
     return [];
   }
   const productions = included.filter((i) => i.type === 'animeProductions');
   const producers = new Map(
-    included.filter((i) => i.type === 'producers').map((i) => [i.id, i.attributes?.name]),
+    included
+      .filter((i) => i.type === 'producers')
+      .map((i) => [i.id, i.attributes?.name]),
   );
   const out: string[] = [];
   for (const ref of refs) {
@@ -283,12 +314,27 @@ function pickProducers(
  */
 function pickMappings(
   included: any[],
-  refs: Array<{ id: string; type: string }> | undefined,
-): { anilist?: number; mal?: number; anidb?: number; thetvdb?: number } {
+  refs:
+    | Array<{
+        id: string;
+        type: string;
+      }>
+    | undefined,
+): {
+  anilist?: number;
+  mal?: number;
+  anidb?: number;
+  thetvdb?: number;
+} {
   if (!Array.isArray(refs)) {
     return {};
   }
-  const out: { anilist?: number; mal?: number; anidb?: number; thetvdb?: number } = {};
+  const out: {
+    anilist?: number;
+    mal?: number;
+    anidb?: number;
+    thetvdb?: number;
+  } = {};
   for (const ref of refs) {
     const node = included.find((i) => i.type === 'mappings' && i.id === ref.id);
     const site = node?.attributes?.externalSite as string | undefined;

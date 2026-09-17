@@ -18,13 +18,17 @@ export class VidstreamingExtractor extends BaseExtractor {
     });
 
     if (response.status !== 200) {
-      throw new Error(`Failed to load Vidstreaming embed page: ${response.status}`);
+      throw new Error(
+        `Failed to load Vidstreaming embed page: ${response.status}`,
+      );
     }
 
     const html = await response.text();
 
     // Find the keys (encryption key, iv, decryption key)
-    const keys = [...html.matchAll(/(?:container|videocontent)-(\d+)/g)].map((m) => m[1]);
+    const keys = [...html.matchAll(/(?:container|videocontent)-(\d+)/g)].map(
+      (m) => m[1],
+    );
 
     if (keys.length < 3) {
       throw new Error(
@@ -38,7 +42,9 @@ export class VidstreamingExtractor extends BaseExtractor {
 
     const dataValueMatch = html.match(/data-value="([^"]+)"/);
     if (!dataValueMatch) {
-      throw new Error('Failed to find data-value attribute in Vidstreaming page HTML');
+      throw new Error(
+        'Failed to find data-value attribute in Vidstreaming page HTML',
+      );
     }
     const encryptedData = dataValueMatch[1];
 
@@ -66,7 +72,9 @@ export class VidstreamingExtractor extends BaseExtractor {
     });
 
     if (ajaxResponse.status !== 200) {
-      throw new Error(`AJAX request to encrypt-ajax.php failed: ${ajaxResponse.status}`);
+      throw new Error(
+        `AJAX request to encrypt-ajax.php failed: ${ajaxResponse.status}`,
+      );
     }
 
     const ajaxJson = await ajaxResponse.json();
@@ -81,7 +89,9 @@ export class VidstreamingExtractor extends BaseExtractor {
     try {
       content = JSON.parse(decryptedResult);
     } catch (e) {
-      throw new Error(`Failed to parse decrypted AJAX response JSON: ${(e as Error).message}`);
+      throw new Error(
+        `Failed to parse decrypted AJAX response JSON: ${(e as Error).message}`,
+      );
     }
 
     const streams: IVideoPayload[] = [];

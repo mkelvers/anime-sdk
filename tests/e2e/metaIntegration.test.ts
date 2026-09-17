@@ -47,7 +47,8 @@ describe('Metadata → content integration (live)', () => {
 
   it('lookupByMapping shortcut: MegaPlayProvider returns the AniList ID directly', async () => {
     const http = new HttpClient({ timeoutMs: 15_000 });
-    const { MegaPlayProvider } = await import('../../src/providers/MegaPlayProvider');
+    const { MegaPlayProvider } =
+      await import('../../src/providers/MegaPlayProvider');
     const megaplay = new MegaPlayProvider(http);
     // MegaPlayProvider opts into the lookupByMapping fast path — its
     // media ID *is* the AniList ID. No network calls should be needed.

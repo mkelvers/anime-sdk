@@ -53,7 +53,12 @@ export class AnilistMeta extends BaseMetadataProvider {
   }
 
   public override supportsBrowseKind(kind: BrowseKind): boolean {
-    return kind === 'trending' || kind === 'popular' || kind === 'seasonal' || kind === 'top';
+    return (
+      kind === 'trending' ||
+      kind === 'popular' ||
+      kind === 'seasonal' ||
+      kind === 'top'
+    );
   }
 
   protected override async browseRawNative(
@@ -403,7 +408,9 @@ export class AnilistMeta extends BaseMetadataProvider {
       { signal: options.signal },
     );
     if (res.status !== 200) {
-      throw new Error(`AniList fetchMediaInfo failed with status ${res.status}`);
+      throw new Error(
+        `AniList fetchMediaInfo failed with status ${res.status}`,
+      );
     }
     const json = (await res.json()) as any;
     const m = json?.data?.Media;
@@ -456,7 +463,9 @@ export class AnilistMeta extends BaseMetadataProvider {
       score: typeof m.averageScore === 'number' ? m.averageScore : undefined,
       trailer: trailerUrl,
       isAdult: !!m.isAdult,
-      synonyms: Array.isArray(m.synonyms) ? m.synonyms.filter(Boolean) : undefined,
+      synonyms: Array.isArray(m.synonyms)
+        ? m.synonyms.filter(Boolean)
+        : undefined,
       mappings: {
         anilist: m.id,
         mal: m.idMal ?? undefined,
@@ -496,7 +505,10 @@ export class AnilistMeta extends BaseMetadataProvider {
         },
         cover: node.coverImage
           ? {
-              large: node.coverImage.extraLarge ?? node.coverImage.large ?? undefined,
+              large:
+                node.coverImage.extraLarge ??
+                node.coverImage.large ??
+                undefined,
               medium: node.coverImage.medium ?? undefined,
               color: node.coverImage.color ?? undefined,
             }
@@ -521,7 +533,10 @@ export class AnilistMeta extends BaseMetadataProvider {
         name: node.name?.full ?? node.name?.native ?? '',
         role: (e as any).role ?? undefined,
         image: node.image
-          ? { large: node.image.large ?? undefined, medium: node.image.medium ?? undefined }
+          ? {
+              large: node.image.large ?? undefined,
+              medium: node.image.medium ?? undefined,
+            }
           : undefined,
         voiceActors: Array.isArray((e as any).voiceActors)
           ? (e as any).voiceActors.slice(0, 5).map((va: any) => ({
@@ -529,7 +544,10 @@ export class AnilistMeta extends BaseMetadataProvider {
               name: va.name?.full ?? va.name?.native ?? '',
               language: va.language ?? undefined,
               image: va.image
-                ? { large: va.image.large ?? undefined, medium: va.image.medium ?? undefined }
+                ? {
+                    large: va.image.large ?? undefined,
+                    medium: va.image.medium ?? undefined,
+                  }
                 : undefined,
             }))
           : undefined,
@@ -553,14 +571,19 @@ export class AnilistMeta extends BaseMetadataProvider {
         name: node.name?.full ?? node.name?.native ?? '',
         role: (e as any).role ?? undefined,
         image: node.image
-          ? { large: node.image.large ?? undefined, medium: node.image.medium ?? undefined }
+          ? {
+              large: node.image.large ?? undefined,
+              medium: node.image.medium ?? undefined,
+            }
           : undefined,
       });
     }
     return out.length > 0 ? out : undefined;
   }
 
-  private mapRecommendations(nodes: unknown): IMediaRecommendation[] | undefined {
+  private mapRecommendations(
+    nodes: unknown,
+  ): IMediaRecommendation[] | undefined {
     if (!Array.isArray(nodes) || nodes.length === 0) {
       return undefined;
     }
@@ -582,12 +605,14 @@ export class AnilistMeta extends BaseMetadataProvider {
         },
         cover: rec.coverImage
           ? {
-              large: rec.coverImage.extraLarge ?? rec.coverImage.large ?? undefined,
+              large:
+                rec.coverImage.extraLarge ?? rec.coverImage.large ?? undefined,
               medium: rec.coverImage.medium ?? undefined,
               color: rec.coverImage.color ?? undefined,
             }
           : undefined,
-        rating: typeof (n as any).rating === 'number' ? (n as any).rating : undefined,
+        rating:
+          typeof (n as any).rating === 'number' ? (n as any).rating : undefined,
       });
     }
     return out.length > 0 ? out : undefined;
@@ -632,7 +657,9 @@ export class AnilistMeta extends BaseMetadataProvider {
       if (!Number.isFinite(number)) {
         continue;
       }
-      const cleanTitle = title.replace(/^Episode\s+\d+(?:\.\d+)?\s*[-—–:]?\s*/i, '').trim();
+      const cleanTitle = title
+        .replace(/^Episode\s+\d+(?:\.\d+)?\s*[-—–:]?\s*/i, '')
+        .trim();
       out.push({
         number,
         title: cleanTitle || undefined,
@@ -683,7 +710,9 @@ function browseSort(kind: BrowseKind): string[] {
   }
 }
 
-function anilistExternalLinkType(t: unknown): IMediaExternalLink['type'] | undefined {
+function anilistExternalLinkType(
+  t: unknown,
+): IMediaExternalLink['type'] | undefined {
   if (typeof t !== 'string') {
     return undefined;
   }
@@ -752,7 +781,11 @@ function formatDate(d: unknown): string | undefined {
   if (!d || typeof d !== 'object') {
     return undefined;
   }
-  const o = d as { year?: number; month?: number; day?: number };
+  const o = d as {
+    year?: number;
+    month?: number;
+    day?: number;
+  };
   if (!o.year) {
     return undefined;
   }

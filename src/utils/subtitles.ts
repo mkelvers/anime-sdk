@@ -53,7 +53,10 @@ export function normalizeSubtitleEntries(entries: unknown): ISubtitleTrack[] {
     }
 
     const rawLabel = rec.label ?? rec.name ?? rec.language;
-    const label = typeof rawLabel === 'string' && rawLabel.trim() ? rawLabel.trim() : 'Unknown';
+    const label =
+      typeof rawLabel === 'string' && rawLabel.trim()
+        ? rawLabel.trim()
+        : 'Unknown';
 
     const rawType = rec.format ?? rec.type;
     const typeStr = typeof rawType === 'string' ? rawType.toLowerCase() : '';
@@ -66,7 +69,9 @@ export function normalizeSubtitleEntries(entries: unknown): ISubtitleTrack[] {
       url: rawUrl,
       label,
       language:
-        typeof rec.language === 'string' && rec.language ? rec.language : labelToBcp47(label),
+        typeof rec.language === 'string' && rec.language
+          ? rec.language
+          : labelToBcp47(label),
       ...(format ? { format } : {}),
     });
   }
@@ -115,7 +120,8 @@ export function proxifySubtitleUrl(
 ): string {
   const ct =
     options.contentType ??
-    (track.format === 'vtt' || (!track.format && /\.vtt(?:\?|$)/i.test(track.url))
+    (track.format === 'vtt' ||
+    (!track.format && /\.vtt(?:\?|$)/i.test(track.url))
       ? 'text/vtt'
       : undefined);
   const hParam =

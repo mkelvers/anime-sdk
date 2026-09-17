@@ -40,7 +40,10 @@ https://other-cdn.com/360p.m3u8
 #EXT-X-STREAM-INF:BANDWIDTH=1400000
 https://other-cdn.com/720p.m3u8`;
 
-    const variants = parseHlsMaster(manifest, 'https://cdn.example.com/master.m3u8');
+    const variants = parseHlsMaster(
+      manifest,
+      'https://cdn.example.com/master.m3u8',
+    );
     expect(variants).toHaveLength(2);
     expect(variants[0]).toBe('https://other-cdn.com/360p.m3u8');
     expect(variants[1]).toBe('https://other-cdn.com/720p.m3u8');
@@ -55,7 +58,10 @@ https://other-cdn.com/720p.m3u8`;
     const manifest = `#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:BANDWIDTH=800000`;
-    const variants = parseHlsMaster(manifest, 'https://cdn.example.com/master.m3u8');
+    const variants = parseHlsMaster(
+      manifest,
+      'https://cdn.example.com/master.m3u8',
+    );
     expect(variants).toHaveLength(0);
   });
 });
@@ -91,13 +97,19 @@ https://cdn2.example.com/seg0.ts
 https://cdn2.example.com/seg1.ts
 #EXT-X-ENDLIST`;
 
-    const segments = parseHlsSegments(playlist, 'https://cdn.example.com/playlist.m3u8');
+    const segments = parseHlsSegments(
+      playlist,
+      'https://cdn.example.com/playlist.m3u8',
+    );
     expect(segments).toHaveLength(2);
     expect(segments[0].url).toBe('https://cdn2.example.com/seg0.ts');
   });
 
   it('returns empty array for empty playlist', () => {
-    const segments = parseHlsSegments('', 'https://cdn.example.com/playlist.m3u8');
+    const segments = parseHlsSegments(
+      '',
+      'https://cdn.example.com/playlist.m3u8',
+    );
     expect(segments).toHaveLength(0);
   });
 });
@@ -159,7 +171,9 @@ describe('crc32', () => {
 
 describe('createZipBuffer', () => {
   it('creates a valid ZIP with PK header', () => {
-    const zip = createZipBuffer([{ filename: 'test.txt', data: Buffer.from('Hello, World!') }]);
+    const zip = createZipBuffer([
+      { filename: 'test.txt', data: Buffer.from('Hello, World!') },
+    ]);
 
     // ZIP magic bytes: PK\x03\x04
     expect(zip[0]).toBe(0x50); // P
@@ -180,7 +194,12 @@ describe('createZipBuffer', () => {
     // Find EOCD signature (0x06054b50)
     let eocdOffset = -1;
     for (let i = zip.length - 22; i >= 0; i--) {
-      if (zip[i] === 0x50 && zip[i + 1] === 0x4b && zip[i + 2] === 0x05 && zip[i + 3] === 0x06) {
+      if (
+        zip[i] === 0x50 &&
+        zip[i + 1] === 0x4b &&
+        zip[i + 2] === 0x05 &&
+        zip[i + 3] === 0x06
+      ) {
         eocdOffset = i;
         break;
       }
@@ -210,7 +229,10 @@ describe('createZipBuffer', () => {
 
   it('handles filenames with unicode characters', () => {
     const zip = createZipBuffer([
-      { filename: 'チャプター001.jpg', data: Buffer.from([0xff, 0xd8, 0xff, 0xe0]) },
+      {
+        filename: 'チャプター001.jpg',
+        data: Buffer.from([0xff, 0xd8, 0xff, 0xe0]),
+      },
     ]);
     expect(zip[0]).toBe(0x50);
     expect(zip[1]).toBe(0x4b);

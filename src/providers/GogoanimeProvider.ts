@@ -50,7 +50,9 @@ export class GogoanimeProvider extends BaseProvider {
 
     const cards = doc.querySelectorAll('article.nv-anime-card');
     for (const card of cards) {
-      const a = card.querySelector('h3.nv-anime-title a') || card.querySelector('a.nv-anime-thumb');
+      const a =
+        card.querySelector('h3.nv-anime-title a') ||
+        card.querySelector('a.nv-anime-thumb');
       if (!a) {
         continue;
       }
@@ -138,14 +140,18 @@ export class GogoanimeProvider extends BaseProvider {
       const epMatch = href.match(/ep-(\d+(\.\d+)?)/);
       const number = epMatch ? parseFloat(epMatch[1]) : 0;
 
-      const displayTitle = titleText ? `${numText} - ${titleText}` : numText || `Episode ${number}`;
+      const displayTitle = titleText
+        ? `${numText} - ${titleText}`
+        : numText || `Episode ${number}`;
       const id = href.startsWith('/') ? href : `/${href}`;
 
       units.push({
         id,
         title: displayTitle,
         number,
-        availableLanguages: [mediaId.toLowerCase().includes('-dub') ? 'dub' : 'sub'],
+        availableLanguages: [
+          mediaId.toLowerCase().includes('-dub') ? 'dub' : 'sub',
+        ],
       });
     }
 
@@ -163,7 +169,9 @@ export class GogoanimeProvider extends BaseProvider {
     const fullUrl = `${this.baseUrl}${unitId.startsWith('/') ? '' : '/'}${unitId}`;
     const response = await this.http.get(fullUrl, { signal: options.signal });
     if (response.status !== 200) {
-      throw new Error(`Failed to fetch AniNeko episode page: ${response.status}`);
+      throw new Error(
+        `Failed to fetch AniNeko episode page: ${response.status}`,
+      );
     }
 
     const html = await response.text();
@@ -212,7 +220,9 @@ export class GogoanimeProvider extends BaseProvider {
     }
 
     if (streams.length === 0) {
-      throw new Error(`No server video streams found on AniNeko episode page: ${unitId}`);
+      throw new Error(
+        `No server video streams found on AniNeko episode page: ${unitId}`,
+      );
     }
 
     // Resolve embed URLs to direct streams — try sequentially, stop on first success

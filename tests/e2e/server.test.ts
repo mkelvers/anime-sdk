@@ -53,7 +53,12 @@ afterAll(async () => {
   await new Promise<void>((resolve) => server.close(() => resolve()));
 });
 
-async function getJson<T = unknown>(path: string): Promise<{ status: number; body: T }> {
+async function getJson<T = unknown>(
+  path: string,
+): Promise<{
+  status: number;
+  body: T;
+}> {
   const res = await fetch(`${baseUrl}${path}`);
   const body = (await res.json()) as T;
   return { status: res.status, body };
@@ -73,7 +78,9 @@ describe('startServer — live integration', () => {
   });
 
   it('/openapi.json describes the meta routes', async () => {
-    const { status, body } = await getJson<{ paths: Record<string, unknown> }>('/openapi.json');
+    const { status, body } = await getJson<{ paths: Record<string, unknown> }>(
+      '/openapi.json',
+    );
     expect(status).toBe(200);
     expect(body.paths).toHaveProperty('/meta/search');
     expect(body.paths).toHaveProperty('/meta/info');
@@ -83,9 +90,14 @@ describe('startServer — live integration', () => {
   });
 
   it('/meta/search hits AniList live', async () => {
-    const { status, body } = await getJson<Array<{ id: string; title: { english?: string } }>>(
-      '/meta/search?provider=anilist&q=Cowboy%20Bebop',
-    );
+    const { status, body } = await getJson<
+      Array<{
+        id: string;
+        title: {
+          english?: string;
+        };
+      }>
+    >('/meta/search?provider=anilist&q=Cowboy%20Bebop');
     expect(status).toBe(200);
     expect(body.length).toBeGreaterThan(0);
     expect(body[0].id.startsWith('anilist:')).toBe(true);
@@ -94,7 +106,9 @@ describe('startServer — live integration', () => {
   it('/meta/info returns full IMediaMetadata for anilist:1', async () => {
     const { status, body } = await getJson<{
       id: string;
-      title: { english?: string };
+      title: {
+        english?: string;
+      };
       episodeCount?: number;
       characters?: unknown[];
       streamingEpisodes?: unknown[];
@@ -109,16 +123,23 @@ describe('startServer — live integration', () => {
   }, 40_000);
 
   it('/meta/content resolves the AniList → AllManga mapping and returns episodes', async () => {
-    const { status, body } = await getJson<Array<{ id: string; number: number }>>(
-      '/meta/content?provider=anilist&id=anilist:1&contentProvider=allmanga',
-    );
+    const { status, body } = await getJson<
+      Array<{
+        id: string;
+        number: number;
+      }>
+    >('/meta/content?provider=anilist&id=anilist:1&contentProvider=allmanga');
     expect(status).toBe(200);
     expect(body.length).toBeGreaterThan(0);
     expect(body[0].id.startsWith('allmanga:')).toBe(true);
   }, 90_000);
 
   it('/meta/browse?kind=trending returns AniList trending', async () => {
-    const { status, body } = await getJson<Array<{ id: string }>>(
+    const { status, body } = await getJson<
+      Array<{
+        id: string;
+      }>
+    >(
       '/meta/browse?provider=anilist&kind=trending&perPage=3',
     );
     expect(status).toBe(200);
@@ -129,13 +150,17 @@ describe('startServer — live integration', () => {
   it('cached calls do not re-hit upstream', async () => {
     // /meta/info already ran once; the second call should be a cache hit.
     const before = cache.size;
-    const { status } = await getJson('/meta/info?provider=anilist&id=anilist:1');
+    const { status } = await getJson(
+      '/meta/info?provider=anilist&id=anilist:1',
+    );
     expect(status).toBe(200);
     expect(cache.size).toBe(before); // nothing new written
   });
 
   it('returns 400 for missing required params', async () => {
-    const { status, body } = await getJson<{ error: string }>('/meta/search?q=foo');
+    const { status, body } = await getJson<{ error: string }>(
+      '/meta/search?q=foo',
+    );
     expect(status).toBe(400);
     expect(body.error).toMatch(/provider/i);
   });

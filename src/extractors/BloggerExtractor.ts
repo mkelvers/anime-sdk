@@ -21,7 +21,8 @@ const TOKEN_RE = /token=([A-Za-z0-9_-]+)/;
 const SID_RE = /"FdrFJe"\s*:\s*"([^"]+)"/;
 const BH_RE = /"cfb2h"\s*:\s*"([^"]+)"/;
 const AT_RE = /"SNlM0e"\s*:\s*"([^"]+)"/;
-const GOOGLE_VIDEO_RE = /https:\/\/[^"'\\\s<>]+?\.googlevideo\.com\/[^"'\\\s<>]+/;
+const GOOGLE_VIDEO_RE =
+  /https:\/\/[^"'\\\s<>]+?\.googlevideo\.com\/[^"'\\\s<>]+/;
 
 const UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
@@ -47,7 +48,9 @@ export class BloggerExtractor extends BaseExtractor {
       headers: { 'User-Agent': UA, Accept: 'text/html' },
     });
     if (pageRes.status !== 200) {
-      throw new Error(`Failed to fetch Blogger embed page, status ${pageRes.status}`);
+      throw new Error(
+        `Failed to fetch Blogger embed page, status ${pageRes.status}`,
+      );
     }
     const html = await pageRes.text();
 
@@ -60,7 +63,9 @@ export class BloggerExtractor extends BaseExtractor {
       if (html.includes('video-not-found') || html.includes('deleted')) {
         throw new Error('Video has been deleted or not found on Blogger');
       }
-      throw new Error(`Failed to extract SID (${!!sid}) or BH (${!!bh}) from Blogger embed`);
+      throw new Error(
+        `Failed to extract SID (${!!sid}) or BH (${!!bh}) from Blogger embed`,
+      );
     }
 
     // Step 2: call batchexecute.
@@ -87,7 +92,9 @@ export class BloggerExtractor extends BaseExtractor {
       },
     });
     if (batchRes.status !== 200) {
-      throw new Error(`Blogger batchexecute failed with status ${batchRes.status}`);
+      throw new Error(
+        `Blogger batchexecute failed with status ${batchRes.status}`,
+      );
     }
     const body = await batchRes.text();
 
@@ -146,7 +153,10 @@ export class BloggerExtractor extends BaseExtractor {
           continue;
         }
 
-        const mp4s: Array<{ url: string; quality: IVideoPayload['quality'] }> = [];
+        const mp4s: Array<{
+          url: string;
+          quality: IVideoPayload['quality'];
+        }> = [];
         for (const s of streams) {
           if (!Array.isArray(s) || s.length < 1) {
             continue;
@@ -155,7 +165,10 @@ export class BloggerExtractor extends BaseExtractor {
           if (typeof u !== 'string') {
             continue;
           }
-          if (!u.includes('mime=video%2Fmp4') && !u.includes('mime=video/mp4')) {
+          if (
+            !u.includes('mime=video%2Fmp4') &&
+            !u.includes('mime=video/mp4')
+          ) {
             continue;
           }
           let q: IVideoPayload['quality'] = 'auto';

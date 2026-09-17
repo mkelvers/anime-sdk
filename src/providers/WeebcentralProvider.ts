@@ -12,7 +12,10 @@ import { BaseProvider, CallOptions } from './BaseProvider';
 export class WeebcentralProvider extends BaseProvider {
   readonly id = 'weebcentral';
   readonly supportedTypes: MediaCatalogType[] = ['MANGA'];
-  public static override readonly malsyncSites = ['Weebcentral', 'WeebCentral'] as const;
+  public static override readonly malsyncSites = [
+    'Weebcentral',
+    'WeebCentral',
+  ] as const;
 
   private readonly baseUrl = 'https://weebcentral.com/';
 
@@ -103,7 +106,9 @@ export class WeebcentralProvider extends BaseProvider {
         continue;
       }
 
-      const titleEl = item.querySelector('span.grow.flex.items-center.gap-2 span');
+      const titleEl = item.querySelector(
+        'span.grow.flex.items-center.gap-2 span',
+      );
       const title = titleEl?.textContent?.trim() || '';
 
       let chapterNumber = 0;
@@ -167,7 +172,8 @@ export class WeebcentralProvider extends BaseProvider {
         imageUrls,
         headers: {
           Referer: this.baseUrl,
-          Accept: 'image/avif,image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5',
+          Accept:
+            'image/avif,image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5',
           'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           Connection: 'keep-alive',

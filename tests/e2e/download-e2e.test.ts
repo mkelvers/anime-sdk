@@ -43,7 +43,10 @@ async function resolveAnimeStream(
   provider: BaseProvider,
   query: string,
   preferredLang: ContentLanguage = 'dub',
-): Promise<{ stream: ResolvedMediaStream; episodeTitle: string }> {
+): Promise<{
+  stream: ResolvedMediaStream;
+  episodeTitle: string;
+}> {
   const results = await provider.search(query);
   expect(results.length).toBeGreaterThan(0);
 
@@ -74,7 +77,10 @@ async function resolveAnimeStream(
 
   // Try preferred language, fall back
   let lang: ContentLanguage | undefined = preferredLang;
-  if (ep1.availableLanguages && !ep1.availableLanguages.includes(preferredLang)) {
+  if (
+    ep1.availableLanguages &&
+    !ep1.availableLanguages.includes(preferredLang)
+  ) {
     lang = ep1.availableLanguages[0];
   }
 
@@ -87,13 +93,18 @@ async function resolveAnimeStream(
 async function resolveMangaStream(
   provider: BaseProvider,
   query: string,
-): Promise<{ stream: ResolvedMediaStream; chapterTitle: string }> {
+): Promise<{
+  stream: ResolvedMediaStream;
+  chapterTitle: string;
+}> {
   const results = await provider.search(query);
   expect(results.length).toBeGreaterThan(0);
 
   const target =
     results.find(
-      (r) => r.title.toLowerCase().includes('jujutsu') || r.title.toLowerCase().includes('kaisen'),
+      (r) =>
+        r.title.toLowerCase().includes('jujutsu') ||
+        r.title.toLowerCase().includes('kaisen'),
     ) ?? results[0];
   console.log(`[${provider.id}] Selected: ${target.title} (${target.id})`);
 
@@ -114,7 +125,9 @@ function assertValidMp4(filePath: string): void {
   const stat = fs.statSync(filePath);
   // We expect at least a 20MB file. High quality will be > 200MB, but some providers serve 480p/720p.
   expect(stat.size).toBeGreaterThan(20 * 1024 * 1024);
-  console.log(`  → ${path.basename(filePath)}: ${(stat.size / 1024 / 1024).toFixed(2)} MB`);
+  console.log(
+    `  → ${path.basename(filePath)}: ${(stat.size / 1024 / 1024).toFixed(2)} MB`,
+  );
 
   // Check for ftyp box (MP4 container signature) at offset 4
   const buf = Buffer.alloc(12);
@@ -131,7 +144,9 @@ function assertValidImage(filePath: string): void {
   expect(fs.existsSync(filePath)).toBe(true);
   const stat = fs.statSync(filePath);
   expect(stat.size).toBeGreaterThan(1024);
-  console.log(`  → ${path.basename(filePath)}: ${(stat.size / 1024).toFixed(1)} KB`);
+  console.log(
+    `  → ${path.basename(filePath)}: ${(stat.size / 1024).toFixed(1)} KB`,
+  );
 }
 
 // ─── Helper: verify ZIP file ─────────────────────────────────────────────────
@@ -140,7 +155,9 @@ function assertValidZip(filePath: string): void {
   expect(fs.existsSync(filePath)).toBe(true);
   const stat = fs.statSync(filePath);
   expect(stat.size).toBeGreaterThan(1024);
-  console.log(`  → ${path.basename(filePath)}: ${(stat.size / 1024).toFixed(1)} KB`);
+  console.log(
+    `  → ${path.basename(filePath)}: ${(stat.size / 1024).toFixed(1)} KB`,
+  );
 
   const buf = Buffer.alloc(4);
   const fd = fs.openSync(filePath, 'r');
@@ -225,7 +242,11 @@ describe('Anime Downloads (JJK Episode 1)', () => {
 
   it('animeparadise → .mp4', async () => {
     const provider = new AnimeParadiseProvider(http);
-    const { stream } = await resolveAnimeStream(provider, 'Jujutsu Kaisen', 'sub');
+    const { stream } = await resolveAnimeStream(
+      provider,
+      'Jujutsu Kaisen',
+      'sub',
+    );
     expect(stream.type).toBe('video');
     if (stream.type !== 'video') {
       return;

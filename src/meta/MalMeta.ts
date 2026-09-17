@@ -80,7 +80,9 @@ export class MalMeta extends BaseMetadataProvider {
             small: m.images.jpg?.small_image_url ?? undefined,
           }
         : undefined,
-      year: m.year ?? (m.aired?.from ? new Date(m.aired.from).getUTCFullYear() : undefined),
+      year:
+        m.year ??
+        (m.aired?.from ? new Date(m.aired.from).getUTCFullYear() : undefined),
       format: malFormat(m.type),
       score: typeof m.score === 'number' ? Math.round(m.score * 10) : undefined,
       isAdult: !!m.rating?.startsWith?.('Rx'),
@@ -141,7 +143,9 @@ export class MalMeta extends BaseMetadataProvider {
 
     const relations = mapJikanRelations(this.id, m.relations);
     const streamingEpisodes =
-      path === 'anime' ? await this.fetchAnimeEpisodes(id, options.signal) : undefined;
+      path === 'anime'
+        ? await this.fetchAnimeEpisodes(id, options.signal)
+        : undefined;
     return {
       id: `${path}:${m.mal_id}`,
       providerId: this.id,
@@ -173,14 +177,22 @@ export class MalMeta extends BaseMetadataProvider {
         Array.isArray(m.studios) && m.studios.length > 0
           ? m.studios.map((s: any) => s.name).filter(Boolean)
           : undefined,
-      year: m.year ?? (m.aired?.from ? new Date(m.aired.from).getUTCFullYear() : undefined),
+      year:
+        m.year ??
+        (m.aired?.from ? new Date(m.aired.from).getUTCFullYear() : undefined),
       season: malSeason(m.season),
-      startDate: m.aired?.from?.slice(0, 10) ?? m.published?.from?.slice(0, 10) ?? undefined,
-      endDate: m.aired?.to?.slice(0, 10) ?? m.published?.to?.slice(0, 10) ?? undefined,
+      startDate:
+        m.aired?.from?.slice(0, 10) ??
+        m.published?.from?.slice(0, 10) ??
+        undefined,
+      endDate:
+        m.aired?.to?.slice(0, 10) ?? m.published?.to?.slice(0, 10) ?? undefined,
       score: typeof m.score === 'number' ? Math.round(m.score * 10) : undefined,
       trailer: trailerUrl,
       isAdult: !!m.rating?.startsWith?.('Rx'),
-      synonyms: Array.isArray(m.title_synonyms) ? m.title_synonyms.filter(Boolean) : undefined,
+      synonyms: Array.isArray(m.title_synonyms)
+        ? m.title_synonyms.filter(Boolean)
+        : undefined,
       mappings: { mal: m.mal_id },
       relations,
       streamingEpisodes,
@@ -204,10 +216,13 @@ export class MalMeta extends BaseMetadataProvider {
     let hasNext = true;
     try {
       while (hasNext && page <= 10) {
-        const res = await this.http.get(`${this.apiUrl}/anime/${malId}/episodes?page=${page}`, {
-          headers: { Accept: 'application/json' },
-          signal,
-        });
+        const res = await this.http.get(
+          `${this.apiUrl}/anime/${malId}/episodes?page=${page}`,
+          {
+            headers: { Accept: 'application/json' },
+            signal,
+          },
+        );
         if (res.status !== 200) {
           break;
         }
@@ -219,7 +234,9 @@ export class MalMeta extends BaseMetadataProvider {
             recap?: boolean;
             aired?: string;
           }>;
-          pagination?: { has_next_page?: boolean };
+          pagination?: {
+            has_next_page?: boolean;
+          };
         };
         for (const ep of data.data ?? []) {
           if (typeof ep.mal_id === 'number') {
@@ -278,7 +295,9 @@ export class MalMeta extends BaseMetadataProvider {
     if (res.status !== 200) {
       throw new Error(`Jikan browse failed with status ${res.status}`);
     }
-    const json = (await res.json()) as { data?: any[] };
+    const json = (await res.json()) as {
+      data?: any[];
+    };
     const data = json?.data ?? [];
     return data.map((m) => ({
       id: `${path}:${m.mal_id}`,
@@ -292,7 +311,9 @@ export class MalMeta extends BaseMetadataProvider {
             small: m.images.jpg?.small_image_url ?? undefined,
           }
         : undefined,
-      year: m.year ?? (m.aired?.from ? new Date(m.aired.from).getUTCFullYear() : undefined),
+      year:
+        m.year ??
+        (m.aired?.from ? new Date(m.aired.from).getUTCFullYear() : undefined),
       format: malFormat(m.type),
       score: typeof m.score === 'number' ? Math.round(m.score * 10) : undefined,
       isAdult: !!m.rating?.startsWith?.('Rx'),
@@ -317,7 +338,12 @@ function mapJikanRelations(
   const out: IMediaRelation[] = [];
   for (const block of relations as Array<{
     relation?: string;
-    entry?: Array<{ mal_id?: number; type?: string; name?: string; url?: string }>;
+    entry?: Array<{
+      mal_id?: number;
+      type?: string;
+      name?: string;
+      url?: string;
+    }>;
   }>) {
     const rt = normalizeRelation(block.relation);
     for (const entry of block.entry ?? []) {
@@ -329,7 +355,10 @@ function mapJikanRelations(
         id: buildTypedUrn(metaProviderId, kind, entry.mal_id),
         relationType: rt,
         catalogType: kind === 'manga' ? 'MANGA' : 'ANIME',
-        title: { userPreferred: entry.name ?? undefined, romaji: entry.name ?? undefined },
+        title: {
+          userPreferred: entry.name ?? undefined,
+          romaji: entry.name ?? undefined,
+        },
       });
     }
   }
@@ -421,7 +450,10 @@ function malFormat(t: unknown): MediaFormat | undefined {
   }
 }
 
-function malStatus(s: unknown, _kind: 'anime' | 'manga'): MediaStatus | undefined {
+function malStatus(
+  s: unknown,
+  _kind: 'anime' | 'manga',
+): MediaStatus | undefined {
   if (typeof s !== 'string') {
     return undefined;
   }

@@ -46,7 +46,10 @@ export function buildUrn(providerId: string, rawId: string): Urn {
  * `providerId` is the empty string and `rawId` is the original input — this
  * lets callers be liberal about accepting legacy bare IDs.
  */
-export function parseUrn(urn: string): { providerId: string; rawId: string } {
+export function parseUrn(urn: string): {
+  providerId: string;
+  rawId: string;
+} {
   const sep = urn.indexOf(':');
   if (sep < 0) {
     return { providerId: '', rawId: urn };
@@ -80,7 +83,9 @@ export function unwrapUrn(providerId: string, urn: string): string {
 export function strictUnwrapUrn(providerId: string, urn: string): string {
   const sep = urn.indexOf(':');
   if (sep < 0) {
-    throw new Error(`strictUnwrapUrn: bare ID "${urn}" rejected (expected "${providerId}:…")`);
+    throw new Error(
+      `strictUnwrapUrn: bare ID "${urn}" rejected (expected "${providerId}:…")`,
+    );
   }
   const prefix = urn.slice(0, sep);
   if (prefix !== providerId) {
@@ -127,7 +132,10 @@ export function buildTypedUrn(
 export function parseTypedUrn(
   providerId: string,
   urn: string,
-): { kind?: CatalogueKind; rawId: string } {
+): {
+  kind?: CatalogueKind;
+  rawId: string;
+} {
   const sep = urn.indexOf(':');
   if (sep < 0) {
     return { rawId: urn };

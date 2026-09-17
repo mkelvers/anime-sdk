@@ -29,7 +29,10 @@ const TINY_PNG = Buffer.from(
 );
 
 /** Start a tiny HTTP server that serves the TINY_PNG on any GET. */
-function startImageServer(): Promise<{ server: http.Server; port: number }> {
+function startImageServer(): Promise<{
+  server: http.Server;
+  port: number;
+}> {
   return new Promise((resolve) => {
     const s = http.createServer((req, res) => {
       res.writeHead(200, {
@@ -164,10 +167,14 @@ describe('Server download routes', () => {
 
   it('GET /download/manga/page returns 400 for missing params', async () => {
     await setup;
-    const res1 = await fetch(`http://localhost:${sdkPort}/download/manga/page?provider=mock-manga`);
+    const res1 = await fetch(
+      `http://localhost:${sdkPort}/download/manga/page?provider=mock-manga`,
+    );
     expect(res1.status).toBe(400);
 
-    const res2 = await fetch(`http://localhost:${sdkPort}/download/manga/page?unitId=ch-1`);
+    const res2 = await fetch(
+      `http://localhost:${sdkPort}/download/manga/page?unitId=ch-1`,
+    );
     expect(res2.status).toBe(400);
   }, 15000);
 

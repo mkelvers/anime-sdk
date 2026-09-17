@@ -42,7 +42,9 @@ export interface ServerOptions {
    */
   metaProviders?: BaseMetadataProvider[];
   port?: number;
-  auth?: { token: string };
+  auth?: {
+    token: string;
+  };
   /**
    * Enable the `/proxy` endpoint and automatically rewrite stream `sourceUrl` values
    * to go through it — so browsers can play streams that require custom headers.
@@ -148,7 +150,12 @@ function buildProxyUrl(
  * Rewrite every URI in an HLS manifest so each segment/key/sub-playlist
  * is fetched through the proxy endpoint, preserving the original headers param.
  */
-function rewriteHls(manifest: string, baseUrl: string, proxyBase: string, hParam?: string): string {
+function rewriteHls(
+  manifest: string,
+  baseUrl: string,
+  proxyBase: string,
+  hParam?: string,
+): string {
   const h = hParam ? `&h=${encodeURIComponent(hParam)}` : '';
   const wrap = (uri: string) => {
     try {
@@ -166,7 +173,10 @@ function rewriteHls(manifest: string, baseUrl: string, proxyBase: string, hParam
         return line;
       }
       if (t.startsWith('#')) {
-        return t.replace(/URI=(["'])(.*?)\1/g, (_, q, u) => `URI=${q}${wrap(u)}${q}`);
+        return t.replace(
+          /URI=(["'])(.*?)\1/g,
+          (_, q, u) => `URI=${q}${wrap(u)}${q}`,
+        );
       }
       return wrap(t);
     })
@@ -210,7 +220,10 @@ function proxyifyStream(
           : undefined;
       const subtitles = s.subtitles?.map((t) => ({
         ...t,
-        url: proxifySubtitleUrl(proxyBase, t, { headers: s.headers, signSecret }),
+        url: proxifySubtitleUrl(proxyBase, t, {
+          headers: s.headers,
+          signSecret,
+        }),
       }));
       return {
         ...s,
@@ -231,7 +244,10 @@ function proxyifyTracks(
     ...tracks,
     subtitles: tracks.subtitles.map((t) => ({
       ...t,
-      url: proxifySubtitleUrl(proxyBase, t, { headers: tracks.headers, signSecret }),
+      url: proxifySubtitleUrl(proxyBase, t, {
+        headers: tracks.headers,
+        signSecret,
+      }),
     })),
   };
 }
@@ -259,7 +275,11 @@ export function startServer(options: ServerOptions): http.Server {
     }
   >();
 
-  function storePending(filePath: string, tmpDir: string, filename: string): string {
+  function storePending(
+    filePath: string,
+    tmpDir: string,
+    filename: string,
+  ): string {
     const token = crypto.randomUUID();
     pendingDownloads.set(token, { filePath, tmpDir, filename });
     setTimeout(
@@ -366,7 +386,9 @@ export function startServer(options: ServerOptions): http.Server {
     // is using.
     const hostHeader = req.headers.host ?? `localhost:${port}`;
     const scheme =
-      (req.headers['x-forwarded-proto'] as string | undefined)?.split(',')[0]?.trim() ?? 'http';
+      (req.headers['x-forwarded-proto'] as string | undefined)
+        ?.split(',')[0]
+        ?.trim() ?? 'http';
     const proxyBase = configuredProxyBase ?? `${scheme}://${hostHeader}/proxy`;
 
     if (req.method === 'OPTIONS') {
@@ -410,14 +432,20 @@ export function startServer(options: ServerOptions): http.Server {
     const findProvider = (id: string | null): BaseProvider | null =>
       id ? (providers.find((p) => p.id === id) ?? null) : null;
 
-    const findMetaProvider = (id: string | null): BaseMetadataProvider | null =>
+    const findMetaProvider = (
+      id: string | null,
+    ): BaseMetadataProvider | null =>
       id ? (metaProviders.find((p) => p.id === id) ?? null) : null;
 
     try {
       // ── Proxy ──────────────────────────────────────────────────────────
       if (url.pathname === '/proxy') {
         if (!proxy) {
-          return err(res, 404, 'Proxy not enabled — set proxy: true in startServer options');
+          return err(
+            res,
+            404,
+            'Proxy not enabled — set proxy: true in startServer options',
+          );
         }
 
         const targetUrl = q.get('url');
@@ -447,7 +475,11 @@ export function startServer(options: ServerOptions): http.Server {
           if (!sig) {
             return err(res, 401, 'Missing required `sig` query parameter');
           }
-          const expected = computeProxySignature(targetUrl, hParam ?? undefined, proxySignSecret);
+          const expected = computeProxySignature(
+            targetUrl,
+            hParam ?? undefined,
+            proxySignSecret,
+          );
           if (!timingSafeEquals(sig, expected)) {
             return err(res, 401, 'Invalid proxy signature');
           }
@@ -488,7 +520,8 @@ export function startServer(options: ServerOptions): http.Server {
             signal: abortCtrl.signal,
           });
         } catch (fetchErr) {
-          const msg = fetchErr instanceof Error ? fetchErr.message : String(fetchErr);
+          const msg =
+            fetchErr instanceof Error ? fetchErr.message : String(fetchErr);
           console.error(`Proxy fetch failed for ${targetUrl}: ${msg}`);
           return err(res, 502, `Upstream fetch failed: ${msg}`);
         }
@@ -509,7 +542,8 @@ export function startServer(options: ServerOptions): http.Server {
 
         // Detect HLS by Content-Type, URL extension, or body peek (#EXTM3U)
         const looksLikeHls =
-          ct.toLowerCase().includes('mpegurl') || targetUrl.split('?')[0].endsWith('.m3u8');
+          ct.toLowerCase().includes('mpegurl') ||
+          targetUrl.split('?')[0].endsWith('.m3u8');
 
         if (looksLikeHls) {
           const text = await upstream.text();
@@ -517,7 +551,12 @@ export function startServer(options: ServerOptions): http.Server {
           if (!text.trim().startsWith('#EXTM3U') && !looksLikeHls) {
             // Not actually an HLS manifest — fall through to stream it
           } else {
-            const rewritten = rewriteHls(text, targetUrl, proxyBase, hParam ?? undefined);
+            const rewritten = rewriteHls(
+              text,
+              targetUrl,
+              proxyBase,
+              hParam ?? undefined,
+            );
             const buf = Buffer.from(rewritten, 'utf8');
             res.writeHead(upstream.status, {
               ...CORS,
@@ -537,7 +576,8 @@ export function startServer(options: ServerOptions): http.Server {
           contentType = ctOverride;
         } else if (
           targetUrl.split('?')[0].toLowerCase().endsWith('.ts') &&
-          (ct.startsWith('image/') || (ct.startsWith('text/') && !ct.includes('html')))
+          (ct.startsWith('image/') ||
+            (ct.startsWith('text/') && !ct.includes('html')))
         ) {
           contentType = 'video/mp2t';
         }
@@ -549,7 +589,10 @@ export function startServer(options: ServerOptions): http.Server {
           contentType = 'video/mp4';
         }
 
-        const outHeaders: Record<string, string> = { ...CORS, 'Content-Type': contentType };
+        const outHeaders: Record<string, string> = {
+          ...CORS,
+          'Content-Type': contentType,
+        };
         const cl = upstream.headers.get('content-length');
         if (cl) {
           outHeaders['Content-Length'] = cl;
@@ -589,7 +632,9 @@ export function startServer(options: ServerOptions): http.Server {
         if (!provider) {
           return err(res, 400, 'Missing or unknown param: provider');
         }
-        const items = await cached(`search:${provider.id}:${query}`, () => provider.search(query));
+        const items = await cached(`search:${provider.id}:${query}`, () =>
+          provider.search(query),
+        );
         return json(res, 200, items);
       }
 
@@ -628,8 +673,9 @@ export function startServer(options: ServerOptions): http.Server {
         if (!provider) {
           return err(res, 400, 'Missing or unknown param: provider');
         }
-        let stream = await cached(`stream:${provider.id}:${unitId}:${language ?? ''}`, () =>
-          provider.resolveStream(unitId, language ?? undefined),
+        let stream = await cached(
+          `stream:${provider.id}:${unitId}:${language ?? ''}`,
+          () => provider.resolveStream(unitId, language ?? undefined),
         );
         if (proxy) {
           stream = proxyifyStream(stream, proxyBase, proxySignSecret);
@@ -665,8 +711,9 @@ export function startServer(options: ServerOptions): http.Server {
             `Provider "${provider.id}" does not expose track metadata; read subtitles from /stream instead`,
           );
         }
-        let tracks = await cached(`tracks:${provider.id}:${unitId}:${language ?? ''}`, () =>
-          provider.fetchUnitTracks!(unitId, language ?? undefined),
+        let tracks = await cached(
+          `tracks:${provider.id}:${unitId}:${language ?? ''}`,
+          () => provider.fetchUnitTracks!(unitId, language ?? undefined),
         );
         if (proxy) {
           tracks = proxyifyTracks(tracks, proxyBase, proxySignSecret);
@@ -696,25 +743,39 @@ export function startServer(options: ServerOptions): http.Server {
 
         const send = openSse(res);
         try {
-          send({ type: 'progress', phase: 'resolving', detail: 'Resolving stream…' });
-          const stream = await cached(`stream:${provider.id}:${unitId}:${language ?? ''}`, () =>
-            provider.resolveStream(unitId, language ?? undefined),
+          send({
+            type: 'progress',
+            phase: 'resolving',
+            detail: 'Resolving stream…',
+          });
+          const stream = await cached(
+            `stream:${provider.id}:${unitId}:${language ?? ''}`,
+            () => provider.resolveStream(unitId, language ?? undefined),
           );
           if (stream.type !== 'video') {
-            send({ type: 'error', message: `Content is not video (type: ${stream.type})` });
+            send({
+              type: 'error',
+              message: `Content is not video (type: ${stream.type})`,
+            });
             res.end();
             return;
           }
-          const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'anime-sdk-dl-'));
+          const tmpDir = fs.mkdtempSync(
+            path.join(os.tmpdir(), 'anime-sdk-dl-'),
+          );
           const safeUnit = unitId.replace(/[^a-zA-Z0-9_-]/g, '_');
           const filename = `${provider.id}_${safeUnit}.mp4`;
           const tmpFile = path.join(tmpDir, filename);
           try {
             await downloadVideo(stream.streams, tmpFile, {
               timeoutMs: 1_200_000,
-              onProgress: ({ phase, detail }) => send({ type: 'progress', phase, detail }),
+              onProgress: ({ phase, detail }) =>
+                send({ type: 'progress', phase, detail }),
             });
-            send({ type: 'complete', token: storePending(tmpFile, tmpDir, filename) });
+            send({
+              type: 'complete',
+              token: storePending(tmpFile, tmpDir, filename),
+            });
           } catch (dlErr) {
             try {
               fs.unlinkSync(tmpFile);
@@ -732,7 +793,10 @@ export function startServer(options: ServerOptions): http.Server {
             });
           }
         } catch (e) {
-          send({ type: 'error', message: e instanceof Error ? e.message : String(e) });
+          send({
+            type: 'error',
+            message: e instanceof Error ? e.message : String(e),
+          });
         }
         res.end();
         return;
@@ -762,19 +826,28 @@ export function startServer(options: ServerOptions): http.Server {
             provider.resolveStream(unitId),
           );
           if (stream.type !== 'manga') {
-            send({ type: 'error', message: `Content is not manga (type: ${stream.type})` });
+            send({
+              type: 'error',
+              message: `Content is not manga (type: ${stream.type})`,
+            });
             res.end();
             return;
           }
-          const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'anime-sdk-dl-'));
+          const tmpDir = fs.mkdtempSync(
+            path.join(os.tmpdir(), 'anime-sdk-dl-'),
+          );
           const safeUnit = unitId.replace(/[^a-zA-Z0-9_-]/g, '_');
           const filename = `${provider.id}_${safeUnit}.zip`;
           const tmpFile = path.join(tmpDir, filename);
           try {
             await downloadMangaChapter(stream.pages, tmpFile, {
-              onProgress: ({ downloaded, total }) => send({ type: 'progress', downloaded, total }),
+              onProgress: ({ downloaded, total }) =>
+                send({ type: 'progress', downloaded, total }),
             });
-            send({ type: 'complete', token: storePending(tmpFile, tmpDir, filename) });
+            send({
+              type: 'complete',
+              token: storePending(tmpFile, tmpDir, filename),
+            });
           } catch (dlErr) {
             try {
               fs.unlinkSync(tmpFile);
@@ -792,7 +865,10 @@ export function startServer(options: ServerOptions): http.Server {
             });
           }
         } catch (e) {
-          send({ type: 'error', message: e instanceof Error ? e.message : String(e) });
+          send({
+            type: 'error',
+            message: e instanceof Error ? e.message : String(e),
+          });
         }
         res.end();
         return;
@@ -816,18 +892,24 @@ export function startServer(options: ServerOptions): http.Server {
           return err(res, 400, 'Missing or unknown param: provider');
         }
 
-        let stream = await cached(`stream:${provider.id}:${unitId}:${language ?? ''}`, () =>
-          provider.resolveStream(unitId, language ?? undefined),
+        let stream = await cached(
+          `stream:${provider.id}:${unitId}:${language ?? ''}`,
+          () => provider.resolveStream(unitId, language ?? undefined),
         );
         if (stream.type !== 'video') {
           return err(res, 400, `Content is not video (type: ${stream.type})`);
         }
 
         const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'anime-sdk-dl-'));
-        const tmpFile = path.join(tmpDir, `${provider.id}_${unitId.replace(/\//g, '_')}.mp4`);
+        const tmpFile = path.join(
+          tmpDir,
+          `${provider.id}_${unitId.replace(/\//g, '_')}.mp4`,
+        );
 
         try {
-          await downloadVideo(stream.streams, tmpFile, { timeoutMs: 1_200_000 });
+          await downloadVideo(stream.streams, tmpFile, {
+            timeoutMs: 1_200_000,
+          });
 
           const stat = fs.statSync(tmpFile);
           const safeUnit = unitId.replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -967,10 +1049,15 @@ export function startServer(options: ServerOptions): http.Server {
         }
 
         const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'anime-sdk-dl-'));
-        const tmpFile = path.join(tmpDir, `${provider.id}_${unitId.replace(/\//g, '_')}.zip`);
+        const tmpFile = path.join(
+          tmpDir,
+          `${provider.id}_${unitId.replace(/\//g, '_')}.zip`,
+        );
 
         try {
-          await downloadMangaChapter(stream.pages, tmpFile, { timeoutMs: 300_000 });
+          await downloadMangaChapter(stream.pages, tmpFile, {
+            timeoutMs: 300_000,
+          });
 
           const stat = fs.statSync(tmpFile);
           const safeUnit = unitId.replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -1030,7 +1117,9 @@ export function startServer(options: ServerOptions): http.Server {
           if (!query) {
             return err(res, 400, 'Missing param: q');
           }
-          const items = await cached(`meta:search:${meta.id}:${query}`, () => meta.search(query));
+          const items = await cached(`meta:search:${meta.id}:${query}`, () =>
+            meta.search(query),
+          );
           return json(res, 200, items);
         }
 
@@ -1044,7 +1133,9 @@ export function startServer(options: ServerOptions): http.Server {
           } catch (e) {
             return err(res, 400, e instanceof Error ? e.message : String(e));
           }
-          const info = await cached(`meta:info:${meta.id}:${id}`, () => meta.fetchMediaInfo(id));
+          const info = await cached(`meta:info:${meta.id}:${id}`, () =>
+            meta.fetchMediaInfo(id),
+          );
           return json(res, 200, info);
         }
 
@@ -1058,8 +1149,9 @@ export function startServer(options: ServerOptions): http.Server {
           if (!contentProvider) {
             return err(res, 400, 'Missing or unknown param: contentProvider');
           }
-          const units = await cached(`meta:content:${meta.id}:${id}:${contentProvider.id}`, () =>
-            meta.fetchContentUnits(id, contentProvider),
+          const units = await cached(
+            `meta:content:${meta.id}:${id}:${contentProvider.id}`,
+            () => meta.fetchContentUnits(id, contentProvider),
           );
           return json(res, 200, units);
         }
@@ -1091,7 +1183,13 @@ export function startServer(options: ServerOptions): http.Server {
           }
           let stream = await cached(
             `meta:stream:${meta.id}:${id}:${contentProvider.id}:${epNum}:${language ?? ''}`,
-            () => meta.resolveStream(id, epNum, contentProvider, language ?? undefined),
+            () =>
+              meta.resolveStream(
+                id,
+                epNum,
+                contentProvider,
+                language ?? undefined,
+              ),
           );
           if (proxy) {
             stream = proxyifyStream(stream, proxyBase, proxySignSecret);
@@ -1121,7 +1219,11 @@ export function startServer(options: ServerOptions): http.Server {
             return err(res, 400, 'Missing or unknown param: contentProvider');
           }
           if (!contentProvider.supportsUnitTracks) {
-            return err(res, 501, `Provider "${contentProvider.id}" does not expose track metadata`);
+            return err(
+              res,
+              501,
+              `Provider "${contentProvider.id}" does not expose track metadata`,
+            );
           }
           const epNum = parseFloat(episode);
           if (!Number.isFinite(epNum)) {
@@ -1129,7 +1231,13 @@ export function startServer(options: ServerOptions): http.Server {
           }
           let tracks = await cached(
             `meta:tracks:${meta.id}:${id}:${contentProvider.id}:${epNum}:${language ?? ''}`,
-            () => meta.fetchUnitTracks(id, epNum, contentProvider, language ?? undefined),
+            () =>
+              meta.fetchUnitTracks(
+                id,
+                epNum,
+                contentProvider,
+                language ?? undefined,
+              ),
           );
           if (proxy) {
             tracks = proxyifyTracks(tracks, proxyBase, proxySignSecret);
@@ -1138,13 +1246,21 @@ export function startServer(options: ServerOptions): http.Server {
         }
 
         if (url.pathname === '/meta/browse') {
-          const kindResult = parseOptionalQueryValue('kind', q.get('kind'), browseKindSchema);
+          const kindResult = parseOptionalQueryValue(
+            'kind',
+            q.get('kind'),
+            browseKindSchema,
+          );
           if (kindResult.error || !kindResult.value) {
             return err(res, 400, kindResult.error ?? 'Missing param: kind');
           }
           const kind = kindResult.value;
           if (!meta.supportsBrowseKind(kind)) {
-            return err(res, 501, `Provider "${meta.id}" does not support browse('${kind}')`);
+            return err(
+              res,
+              501,
+              `Provider "${meta.id}" does not support browse('${kind}')`,
+            );
           }
           const catalogTypeResult = parseOptionalQueryValue(
             'catalogType',
@@ -1155,8 +1271,12 @@ export function startServer(options: ServerOptions): http.Server {
             return err(res, 400, catalogTypeResult.error);
           }
           const catalogType = catalogTypeResult.value ?? 'ANIME';
-          const page = q.get('page') ? Math.max(1, parseInt(q.get('page')!, 10) || 1) : 1;
-          const perPage = q.get('perPage') ? parseInt(q.get('perPage')!, 10) : undefined;
+          const page = q.get('page')
+            ? Math.max(1, parseInt(q.get('page')!, 10) || 1)
+            : 1;
+          const perPage = q.get('perPage')
+            ? parseInt(q.get('perPage')!, 10)
+            : undefined;
           const seasonResult = parseOptionalQueryValue(
             'season',
             q.get('season'),
@@ -1200,7 +1320,9 @@ export function startServer(options: ServerOptions): http.Server {
     }
   });
 
-  server.listen(port, () => console.log(`anime-sdk server listening on http://localhost:${port}`));
+  server.listen(port, () =>
+    console.log(`anime-sdk server listening on http://localhost:${port}`),
+  );
   return server;
 }
 
@@ -1215,14 +1337,21 @@ function buildOpenApiSpec(args: {
   proxy: boolean;
   proxyBase: string;
 }): Record<string, unknown> {
-  const providerEnum = args.providerIds.length > 0 ? args.providerIds : ['<none>'];
-  const metaEnum = args.metaProviderIds.length > 0 ? args.metaProviderIds : ['<none>'];
+  const providerEnum =
+    args.providerIds.length > 0 ? args.providerIds : ['<none>'];
+  const metaEnum =
+    args.metaProviderIds.length > 0 ? args.metaProviderIds : ['<none>'];
   const paths: Record<string, unknown> = {
     '/search': {
       get: {
         summary: 'Search a content provider for a title',
         parameters: [
-          { name: 'q', in: 'query', required: true, schema: { type: 'string' } },
+          {
+            name: 'q',
+            in: 'query',
+            required: true,
+            schema: { type: 'string' },
+          },
           {
             name: 'provider',
             in: 'query',
@@ -1237,7 +1366,12 @@ function buildOpenApiSpec(args: {
       get: {
         summary: 'List episodes/chapters for a media URN',
         parameters: [
-          { name: 'mediaId', in: 'query', required: true, schema: { type: 'string' } },
+          {
+            name: 'mediaId',
+            in: 'query',
+            required: true,
+            schema: { type: 'string' },
+          },
           {
             name: 'provider',
             in: 'query',
@@ -1252,7 +1386,12 @@ function buildOpenApiSpec(args: {
       get: {
         summary: 'Resolve a playable stream for a unit URN',
         parameters: [
-          { name: 'unitId', in: 'query', required: true, schema: { type: 'string' } },
+          {
+            name: 'unitId',
+            in: 'query',
+            required: true,
+            schema: { type: 'string' },
+          },
           {
             name: 'provider',
             in: 'query',
@@ -1272,7 +1411,12 @@ function buildOpenApiSpec(args: {
       get: {
         summary: 'Cheap-path: subtitles/qualities without resolving a stream',
         parameters: [
-          { name: 'unitId', in: 'query', required: true, schema: { type: 'string' } },
+          {
+            name: 'unitId',
+            in: 'query',
+            required: true,
+            schema: { type: 'string' },
+          },
           {
             name: 'provider',
             in: 'query',
@@ -1292,7 +1436,10 @@ function buildOpenApiSpec(args: {
       },
     },
     '/health': {
-      get: { summary: 'Health + capability check', responses: { '200': { description: 'OK' } } },
+      get: {
+        summary: 'Health + capability check',
+        responses: { '200': { description: 'OK' } },
+      },
     },
   };
   if (args.metaProviderIds.length > 0) {
@@ -1300,7 +1447,12 @@ function buildOpenApiSpec(args: {
       get: {
         summary: 'Search a metadata catalogue (AniList/MAL/Kitsu)',
         parameters: [
-          { name: 'q', in: 'query', required: true, schema: { type: 'string' } },
+          {
+            name: 'q',
+            in: 'query',
+            required: true,
+            schema: { type: 'string' },
+          },
           {
             name: 'provider',
             in: 'query',
@@ -1315,7 +1467,12 @@ function buildOpenApiSpec(args: {
       get: {
         summary: 'Full metadata for a meta URN (e.g. `anilist:21`)',
         parameters: [
-          { name: 'id', in: 'query', required: true, schema: { type: 'string' } },
+          {
+            name: 'id',
+            in: 'query',
+            required: true,
+            schema: { type: 'string' },
+          },
           {
             name: 'provider',
             in: 'query',
@@ -1330,7 +1487,12 @@ function buildOpenApiSpec(args: {
       get: {
         summary: 'Episode list for a meta URN, resolved via a content provider',
         parameters: [
-          { name: 'id', in: 'query', required: true, schema: { type: 'string' } },
+          {
+            name: 'id',
+            in: 'query',
+            required: true,
+            schema: { type: 'string' },
+          },
           {
             name: 'provider',
             in: 'query',
@@ -1351,8 +1513,18 @@ function buildOpenApiSpec(args: {
       get: {
         summary: 'Resolve a stream by episode number on a content provider',
         parameters: [
-          { name: 'id', in: 'query', required: true, schema: { type: 'string' } },
-          { name: 'episode', in: 'query', required: true, schema: { type: 'number' } },
+          {
+            name: 'id',
+            in: 'query',
+            required: true,
+            schema: { type: 'string' },
+          },
+          {
+            name: 'episode',
+            in: 'query',
+            required: true,
+            schema: { type: 'number' },
+          },
           {
             name: 'provider',
             in: 'query',
@@ -1376,10 +1548,21 @@ function buildOpenApiSpec(args: {
     };
     paths['/meta/tracks'] = {
       get: {
-        summary: 'Cheap-path: tracks for an episode, by meta URN + content provider',
+        summary:
+          'Cheap-path: tracks for an episode, by meta URN + content provider',
         parameters: [
-          { name: 'id', in: 'query', required: true, schema: { type: 'string' } },
-          { name: 'episode', in: 'query', required: true, schema: { type: 'number' } },
+          {
+            name: 'id',
+            in: 'query',
+            required: true,
+            schema: { type: 'string' },
+          },
+          {
+            name: 'episode',
+            in: 'query',
+            required: true,
+            schema: { type: 'number' },
+          },
           {
             name: 'provider',
             in: 'query',
@@ -1412,7 +1595,10 @@ function buildOpenApiSpec(args: {
             name: 'kind',
             in: 'query',
             required: true,
-            schema: { type: 'string', enum: ['trending', 'popular', 'seasonal', 'top'] },
+            schema: {
+              type: 'string',
+              enum: ['trending', 'popular', 'seasonal', 'top'],
+            },
           },
           {
             name: 'provider',
@@ -1425,12 +1611,23 @@ function buildOpenApiSpec(args: {
             in: 'query',
             schema: { type: 'string', enum: ['ANIME', 'MANGA'] },
           },
-          { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1 } },
-          { name: 'perPage', in: 'query', schema: { type: 'integer', minimum: 1, maximum: 50 } },
+          {
+            name: 'page',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1 },
+          },
+          {
+            name: 'perPage',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 50 },
+          },
           {
             name: 'season',
             in: 'query',
-            schema: { type: 'string', enum: ['WINTER', 'SPRING', 'SUMMER', 'FALL'] },
+            schema: {
+              type: 'string',
+              enum: ['WINTER', 'SPRING', 'SUMMER', 'FALL'],
+            },
           },
           { name: 'year', in: 'query', schema: { type: 'integer' } },
           { name: 'format', in: 'query', schema: { type: 'string' } },
@@ -1447,7 +1644,12 @@ function buildOpenApiSpec(args: {
       get: {
         summary: 'CORS-friendly upstream proxy for stream/subtitle URLs',
         parameters: [
-          { name: 'url', in: 'query', required: true, schema: { type: 'string' } },
+          {
+            name: 'url',
+            in: 'query',
+            required: true,
+            schema: { type: 'string' },
+          },
           {
             name: 'h',
             in: 'query',
@@ -1463,7 +1665,8 @@ function buildOpenApiSpec(args: {
             in: 'query',
             schema: {
               type: 'string',
-              description: 'HMAC signature (required when proxySignSecret is configured)',
+              description:
+                'HMAC signature (required when proxySignSecret is configured)',
             },
           },
         ],
@@ -1477,7 +1680,11 @@ function buildOpenApiSpec(args: {
   }
   return {
     openapi: '3.1.0',
-    info: { title: 'anime-sdk', version: '1.0.1', description: 'Universal media SDK server' },
+    info: {
+      title: 'anime-sdk',
+      version: '1.0.1',
+      description: 'Universal media SDK server',
+    },
     servers: [{ url: args.proxyBase.replace(/\/proxy$/, '') }],
     paths,
   };

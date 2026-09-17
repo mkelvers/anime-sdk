@@ -70,7 +70,9 @@ export class HttpClient {
       );
     }
     this.retryConfig = config.retry === false ? false : (config.retry ?? {});
-    this.transport = config.transport ?? new CurlFallbackTransport({ timeoutMs: this.timeoutMs });
+    this.transport =
+      config.transport ??
+      new CurlFallbackTransport({ timeoutMs: this.timeoutMs });
   }
 
   /** Live rate-limiter; useful for tests and observability. May be undefined when disabled. */
@@ -103,7 +105,9 @@ export class HttpClient {
       return url;
     }
     if (this.proxyType === 'prepend') {
-      const base = this.proxyUrl.endsWith('/') ? this.proxyUrl : `${this.proxyUrl}/`;
+      const base = this.proxyUrl.endsWith('/')
+        ? this.proxyUrl
+        : `${this.proxyUrl}/`;
       // Strip target protocol if the prepend proxy expects path prepending
       // e.g. proxy.com/target.com/path
       const target = url.replace(/^(https?:\/\/)/, '');
@@ -114,7 +118,10 @@ export class HttpClient {
     }
   }
 
-  public async request(url: string, options: RequestInit = {}): Promise<Response> {
+  public async request(
+    url: string,
+    options: RequestInit = {},
+  ): Promise<Response> {
     const signal = options.signal as AbortSignal | null | undefined;
     const host = safeHostname(this.requestUrl(url));
 
@@ -149,7 +156,10 @@ export class HttpClient {
     );
   }
 
-  private async requestOnce(url: string, options: RequestInit = {}): Promise<Response> {
+  private async requestOnce(
+    url: string,
+    options: RequestInit = {},
+  ): Promise<Response> {
     const targetUrl = this.requestUrl(url);
     const headers: Record<string, string> = { ...this.defaultHeaders };
     if (options.headers) {
@@ -170,7 +180,10 @@ export class HttpClient {
     // caller-supplied AbortSignal still cancels the in-flight request.
     const callerSignal = options.signal as AbortSignal | null | undefined;
     const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(new Error('Request timed out')), this.timeoutMs);
+    const id = setTimeout(
+      () => controller.abort(new Error('Request timed out')),
+      this.timeoutMs,
+    );
     let onCallerAbort: (() => void) | undefined;
     if (callerSignal) {
       if (callerSignal.aborted) {
@@ -205,7 +218,11 @@ export class HttpClient {
     return this.request(url, { ...options, method: 'GET' });
   }
 
-  public async post(url: string, body?: any, options: RequestInit = {}): Promise<Response> {
+  public async post(
+    url: string,
+    body?: any,
+    options: RequestInit = {},
+  ): Promise<Response> {
     const headers: Record<string, string> = {};
     if (options.headers) {
       if (options.headers instanceof Headers) {
@@ -232,12 +249,19 @@ export class HttpClient {
       }
       finalBody = JSON.stringify(body);
     }
-    return this.request(url, { ...options, method: 'POST', headers, body: finalBody });
+    return this.request(url, {
+      ...options,
+      method: 'POST',
+      headers,
+      body: finalBody,
+    });
   }
 
   public setCookie(name: string, value: string): void {
     const existingCookie = this.defaultHeaders['Cookie'] || '';
-    const cookies = existingCookie ? existingCookie.split(';').map((c) => c.trim()) : [];
+    const cookies = existingCookie
+      ? existingCookie.split(';').map((c) => c.trim())
+      : [];
     const newCookies = cookies.filter((c) => !c.startsWith(`${name}=`));
     newCookies.push(`${name}=${value}`);
     this.defaultHeaders['Cookie'] = newCookies.join('; ');
@@ -265,7 +289,9 @@ function abortReason(signal: AbortSignal): Error {
   if (signal.reason instanceof Error) {
     return signal.reason;
   }
-  const e = new Error(typeof signal.reason === 'string' ? signal.reason : 'Aborted');
+  const e = new Error(
+    typeof signal.reason === 'string' ? signal.reason : 'Aborted',
+  );
   e.name = 'AbortError';
   return e;
 }

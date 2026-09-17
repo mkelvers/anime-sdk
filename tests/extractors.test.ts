@@ -41,7 +41,10 @@ describe('VidstreamingExtractor', () => {
     // 1. Encrypted payload inside data-value
     const decryptedPayload = 'id=43918&token=xyz';
     const encryptedDataValue = await aesEncrypt(decryptedPayload, key, iv);
-    const htmlWithData = mockHtml.replace('MOCKED_DATA_VALUE', encryptedDataValue);
+    const htmlWithData = mockHtml.replace(
+      'MOCKED_DATA_VALUE',
+      encryptedDataValue,
+    );
 
     // 2. Encrypted response from encrypt-ajax.php
     const mockAjaxResult = {
@@ -51,7 +54,11 @@ describe('VidstreamingExtractor', () => {
       ],
       source_bk: [],
     };
-    const encryptedAjaxData = await aesEncrypt(JSON.stringify(mockAjaxResult), decKey, iv);
+    const encryptedAjaxData = await aesEncrypt(
+      JSON.stringify(mockAjaxResult),
+      decKey,
+      iv,
+    );
 
     // Mock HttpClient calls
     const mockGet = vi.spyOn(http, 'get');
@@ -68,7 +75,8 @@ describe('VidstreamingExtractor', () => {
       } as Response;
     });
 
-    const embedUrl = 'https://ajax.gogo-load.com/embed.html?id=NDM5MTg=&token=foo';
+    const embedUrl =
+      'https://ajax.gogo-load.com/embed.html?id=NDM5MTg=&token=foo';
     const streams = await extractor.extract(embedUrl);
 
     expect(streams).toHaveLength(2);

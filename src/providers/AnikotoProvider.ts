@@ -52,7 +52,8 @@ export class AnikotoProvider extends BaseProvider {
         return {
           id,
           title: titleEl?.textContent?.trim() || '',
-          thumbnailUrl: item.querySelector('img')?.getAttribute('src') || undefined,
+          thumbnailUrl:
+            item.querySelector('img')?.getAttribute('src') || undefined,
           catalogType: 'ANIME',
           providerId: this.id,
         };

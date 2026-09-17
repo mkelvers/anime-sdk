@@ -3,7 +3,9 @@ import { RateLimiter } from '../src/transport/rateLimiter';
 
 describe('RateLimiter', () => {
   it('acquires immediately when under capacity', async () => {
-    const r = new RateLimiter({ 'example.com': { capacity: 3, intervalMs: 60_000 } });
+    const r = new RateLimiter({
+      'example.com': { capacity: 3, intervalMs: 60_000 },
+    });
     const before = Date.now();
     await r.acquire('example.com');
     await r.acquire('example.com');
@@ -13,7 +15,9 @@ describe('RateLimiter', () => {
   });
 
   it('queues callers past capacity until the next window', async () => {
-    const r = new RateLimiter({ 'example.com': { capacity: 1, intervalMs: 200 } });
+    const r = new RateLimiter({
+      'example.com': { capacity: 1, intervalMs: 200 },
+    });
     const start = Date.now();
     await r.acquire('example.com');
     const p = r.acquire('example.com');
@@ -40,7 +44,9 @@ describe('RateLimiter', () => {
   });
 
   it('respects abort signal while queued', async () => {
-    const r = new RateLimiter({ 'example.com': { capacity: 1, intervalMs: 10_000 } });
+    const r = new RateLimiter({
+      'example.com': { capacity: 1, intervalMs: 10_000 },
+    });
     await r.acquire('example.com'); // exhaust the bucket
     const ac = new AbortController();
     const p = r.acquire('example.com', ac.signal);
@@ -58,7 +64,9 @@ describe('RateLimiter', () => {
   it('does not throttle hosts without a policy', async () => {
     const r = new RateLimiter({});
     const before = Date.now();
-    for (let i = 0; i < 1_000; i++) await r.acquire('unbounded.example');
+    for (let i = 0; i < 1_000; i++) {
+      await r.acquire('unbounded.example');
+    }
     expect(Date.now() - before).toBeLessThan(100);
   });
 });

@@ -22,7 +22,9 @@ describe('Allmanga URN round-trip — live', () => {
     const hits = await allmanga.search('Frieren');
     expect(hits.length).toBeGreaterThan(0);
     const target =
-      hits.find((r) => r.title.toLowerCase().includes("beyond journey's end")) ?? hits[0];
+      hits.find((r) =>
+        r.title.toLowerCase().includes("beyond journey's end"),
+      ) ?? hits[0];
     expect(target.id.startsWith('allmanga:')).toBe(true);
     expect(target.providerId).toBe('allmanga');
 

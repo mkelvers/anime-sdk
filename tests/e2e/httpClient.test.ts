@@ -16,14 +16,19 @@ import { RateLimiter } from '../../src/transport/rateLimiter';
 // SDK behaviour is observable.
 let server: http.Server;
 let baseUrl: string;
-let currentHandler: (req: http.IncomingMessage, res: http.ServerResponse) => void = () => {};
+let currentHandler: (
+  req: http.IncomingMessage,
+  res: http.ServerResponse,
+) => void = () => {};
 const setHandler = (h: typeof currentHandler) => {
   currentHandler = h;
 };
 
 beforeAll(async () => {
   server = http.createServer((req, res) => currentHandler(req, res));
-  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+  await new Promise<void>((resolve) =>
+    server.listen(0, '127.0.0.1', () => resolve()),
+  );
   const addr = server.address();
   if (!addr || typeof addr === 'string') {
     throw new Error('no address');
@@ -57,7 +62,9 @@ describe('HttpClient — AbortSignal propagation', () => {
     const ac = new AbortController();
     ac.abort();
     const client = new HttpClient({ retry: false });
-    await expect(client.get(`${baseUrl}/never`, { signal: ac.signal })).rejects.toThrow();
+    await expect(
+      client.get(`${baseUrl}/never`, { signal: ac.signal }),
+    ).rejects.toThrow();
     expect(called).toBe(0);
   });
 });
@@ -75,7 +82,9 @@ describe('HttpClient — retry semantics', () => {
         return;
       }
       secondAt = Date.now();
-      res.writeHead(200, { 'Content-Type': 'application/json' }).end('{"ok":true}');
+      res
+        .writeHead(200, { 'Content-Type': 'application/json' })
+        .end('{"ok":true}');
     });
     const client = new HttpClient({
       retry: { initialDelayMs: 5, factor: 1, jitter: 0, maxAttempts: 3 },

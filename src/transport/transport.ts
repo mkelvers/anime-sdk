@@ -49,7 +49,11 @@ export class CurlFallbackTransport implements HttpTransport {
   private cookieFile?: string;
   private readonly timeoutMs: number;
 
-  constructor(options: { timeoutMs?: number } = {}) {
+  constructor(
+    options: {
+      timeoutMs?: number;
+    } = {},
+  ) {
     this.timeoutMs = options.timeoutMs ?? 10_000;
   }
 
@@ -73,7 +77,10 @@ export class CurlFallbackTransport implements HttpTransport {
     }
   }
 
-  private async curlFetch(targetUrl: string, options: RequestInit): Promise<Response> {
+  private async curlFetch(
+    targetUrl: string,
+    options: RequestInit,
+  ): Promise<Response> {
     const cp = await import('child_process');
     const execSync = cp.execSync;
 
@@ -97,12 +104,15 @@ export class CurlFallbackTransport implements HttpTransport {
         headers[k] = v;
       });
     } else if (Array.isArray(options.headers)) {
-      for (const [k, v] of options.headers) headers[k] = v;
+      for (const [k, v] of options.headers) {
+        headers[k] = v;
+      }
     } else if (options.headers) {
       Object.assign(headers, options.headers);
     }
     if (options.body instanceof URLSearchParams && !headers['Content-Type']) {
-      headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
+      headers['Content-Type'] =
+        'application/x-www-form-urlencoded;charset=UTF-8';
     }
 
     let headerArgs = '';
@@ -123,7 +133,8 @@ export class CurlFallbackTransport implements HttpTransport {
       bodyArg = ` -d ${JSON.stringify(bodyStr)}`;
     }
 
-    const methodArg = method !== 'GET' && method !== 'POST' ? ` -X ${method}` : '';
+    const methodArg =
+      method !== 'GET' && method !== 'POST' ? ` -X ${method}` : '';
     const cookieArg = ` -c ${JSON.stringify(this.cookieFile)} -b ${JSON.stringify(this.cookieFile)}`;
     const cmd = `curl -sL --max-time ${Math.ceil(this.timeoutMs / 1000)}${methodArg}${headerArgs}${bodyArg}${cookieArg} -i ${JSON.stringify(targetUrl)}`;
     const output = execSync(cmd, { maxBuffer: 10 * 1024 * 1024 });
@@ -156,7 +167,10 @@ function parseCurlResponse(raw: string, targetUrl: string): Response {
     const line = headerLines[i];
     const idx = line.indexOf(':');
     if (idx !== -1) {
-      responseHeaders.append(line.substring(0, idx).trim(), line.substring(idx + 1).trim());
+      responseHeaders.append(
+        line.substring(0, idx).trim(),
+        line.substring(idx + 1).trim(),
+      );
     }
   }
 
@@ -176,7 +190,9 @@ function parseCurlResponse(raw: string, targetUrl: string): Response {
         }
         const val = line.substring(idx + 1).trim();
         try {
-          finalUrl = val.startsWith('http') ? val : new URL(val, finalUrl).toString();
+          finalUrl = val.startsWith('http')
+            ? val
+            : new URL(val, finalUrl).toString();
         } catch {
           /* leave finalUrl as-is */
         }

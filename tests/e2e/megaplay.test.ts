@@ -26,7 +26,10 @@ describe('MegaPlayProvider E2E', () => {
     const stream = await provider.resolveStream('154587:1', 'sub');
     expect(stream.type).toBe('video');
     if (stream.type === 'video') {
-      const result = await captureStreamScreenshot('megaplay_sub', stream.streams);
+      const result = await captureStreamScreenshot(
+        'megaplay_sub',
+        stream.streams,
+      );
       expect(fs.existsSync(result.outputPath)).toBe(true);
       expect(fs.statSync(result.outputPath).size).toBeGreaterThan(1024);
     }
@@ -36,7 +39,10 @@ describe('MegaPlayProvider E2E', () => {
     const stream = await provider.resolveStream('154587:1', 'dub');
     expect(stream.type).toBe('video');
     if (stream.type === 'video') {
-      const result = await captureStreamScreenshot('megaplay_dub', stream.streams);
+      const result = await captureStreamScreenshot(
+        'megaplay_dub',
+        stream.streams,
+      );
       expect(fs.existsSync(result.outputPath)).toBe(true);
       expect(fs.statSync(result.outputPath).size).toBeGreaterThan(1024);
     }

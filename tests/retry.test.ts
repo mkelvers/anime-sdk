@@ -1,5 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
-import { withRetry, HttpRetryableError, parseRetryAfter } from '../src/transport/retry';
+import {
+  withRetry,
+  HttpRetryableError,
+  parseRetryAfter,
+} from '../src/transport/retry';
 
 describe('parseRetryAfter', () => {
   it('parses seconds', () => {
@@ -39,7 +43,12 @@ describe('withRetry', () => {
       throw new Error('hard failure');
     });
     await expect(
-      withRetry(fn, { initialDelayMs: 1, factor: 1, jitter: 0, maxAttempts: 3 }),
+      withRetry(fn, {
+        initialDelayMs: 1,
+        factor: 1,
+        jitter: 0,
+        maxAttempts: 3,
+      }),
     ).rejects.toThrow('hard failure');
     expect(fn).toHaveBeenCalledTimes(1);
   });
@@ -68,7 +77,9 @@ describe('withRetry', () => {
   it('aborts immediately when signal is already aborted', async () => {
     const ac = new AbortController();
     ac.abort();
-    await expect(withRetry(async () => 'never', { maxAttempts: 3 }, ac.signal)).rejects.toThrow();
+    await expect(
+      withRetry(async () => 'never', { maxAttempts: 3 }, ac.signal),
+    ).rejects.toThrow();
   });
 
   it('throws the last error after exhausting attempts', async () => {

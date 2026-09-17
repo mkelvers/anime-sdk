@@ -11,7 +11,10 @@ import { BaseProvider, CallOptions } from './BaseProvider';
 export class MangadexProvider extends BaseProvider {
   readonly id = 'mangadex';
   readonly supportedTypes: MediaCatalogType[] = ['MANGA'];
-  public static override readonly malsyncSites = ['MangaDex', 'Mangadex'] as const;
+  public static override readonly malsyncSites = [
+    'MangaDex',
+    'Mangadex',
+  ] as const;
 
   private readonly apiUrl = 'https://api.mangadex.org';
   private readonly coverUrlBase = 'https://uploads.mangadex.org/covers';
@@ -34,8 +37,11 @@ export class MangadexProvider extends BaseProvider {
     const results: IMediaSearchResult[] = [];
 
     for (const manga of data.data) {
-      const title = manga.attributes.title.en || Object.values(manga.attributes.title)[0];
-      const coverRel = manga.relationships.find((r: any) => r.type === 'cover_art');
+      const title =
+        manga.attributes.title.en || Object.values(manga.attributes.title)[0];
+      const coverRel = manga.relationships.find(
+        (r: any) => r.type === 'cover_art',
+      );
       const coverFileName = coverRel?.attributes?.fileName;
       const thumbnailUrl = coverFileName
         ? `${this.coverUrlBase}/${manga.id}/${coverFileName}.256.jpg`
@@ -104,7 +110,9 @@ export class MangadexProvider extends BaseProvider {
 
     const baseUrl = data.baseUrl;
     const hash = data.chapter.hash;
-    const imageUrls = data.chapter.data.map((file: string) => `${baseUrl}/data/${hash}/${file}`);
+    const imageUrls = data.chapter.data.map(
+      (file: string) => `${baseUrl}/data/${hash}/${file}`,
+    );
 
     return {
       type: 'manga',

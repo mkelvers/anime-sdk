@@ -20,7 +20,9 @@ class TestProvider extends BaseProvider {
     return [];
   }
 
-  protected async fetchContentUnitsRaw(_mediaId: string): Promise<IContentUnit[]> {
+  protected async fetchContentUnitsRaw(
+    _mediaId: string,
+  ): Promise<IContentUnit[]> {
     return [];
   }
 
@@ -49,7 +51,10 @@ class TestProvider extends BaseProvider {
 
 describe('BaseProvider resolveStream', () => {
   it('resolves both languages into one grouped result', async () => {
-    const streams = await new TestProvider().resolveStream('test:episode', 'both');
+    const streams = await new TestProvider().resolveStream(
+      'test:episode',
+      'both',
+    );
 
     expect(streams.sub.type).toBe('video');
     expect(streams.dub.type).toBe('video');
@@ -58,7 +63,10 @@ describe('BaseProvider resolveStream', () => {
   });
 
   it('returns null for a language that fails in both mode', async () => {
-    const streams = await new TestProvider('dub').resolveStream('test:episode', 'both');
+    const streams = await new TestProvider('dub').resolveStream(
+      'test:episode',
+      'both',
+    );
 
     expect(streams.sub).not.toBeNull();
     expect(streams.dub).toBeNull();

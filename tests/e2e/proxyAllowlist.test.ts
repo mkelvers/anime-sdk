@@ -34,19 +34,25 @@ afterAll(async () => {
 
 describe('/proxy SSRF allowlist', () => {
   it('allows example.com and any of its subdomains', async () => {
-    const r = await fetch(`${baseUrl}/proxy?url=${encodeURIComponent('https://example.com/')}`);
+    const r = await fetch(
+      `${baseUrl}/proxy?url=${encodeURIComponent('https://example.com/')}`,
+    );
     expect(r.status).toBe(200);
   }, 30_000);
 
   it('rejects requests outside the allowlist with 403', async () => {
-    const r = await fetch(`${baseUrl}/proxy?url=${encodeURIComponent('https://wikipedia.org/')}`);
+    const r = await fetch(
+      `${baseUrl}/proxy?url=${encodeURIComponent('https://wikipedia.org/')}`,
+    );
     expect(r.status).toBe(403);
     const body = (await r.json()) as { error: string };
     expect(body.error).toMatch(/allowlist/);
   });
 
   it('rejects 400 on a malformed url', async () => {
-    const r = await fetch(`${baseUrl}/proxy?url=${encodeURIComponent('not a url')}`);
+    const r = await fetch(
+      `${baseUrl}/proxy?url=${encodeURIComponent('not a url')}`,
+    );
     expect(r.status).toBe(400);
   });
 });

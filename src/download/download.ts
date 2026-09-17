@@ -7,7 +7,10 @@ import { IVideoPayload, IMangaPayload } from '../types/index';
 
 export interface DownloadVideoOptions {
   /** Called periodically with progress info. */
-  onProgress?: (info: { phase: string; detail?: string }) => void;
+  onProgress?: (info: {
+    phase: string;
+    detail?: string;
+  }) => void;
   /** Timeout in ms for the overall ffmpeg process. Default 300000 (5 min). */
   timeoutMs?: number;
 }
@@ -34,7 +37,10 @@ export interface DownloadMangaPageResult {
 
 export interface DownloadMangaChapterOptions {
   /** Called periodically with progress info. */
-  onProgress?: (info: { downloaded: number; total: number }) => void;
+  onProgress?: (info: {
+    downloaded: number;
+    total: number;
+  }) => void;
   /** Timeout in ms per page fetch. Default 30000. */
   timeoutMs?: number;
 }
@@ -74,7 +80,10 @@ export function parseHlsMaster(content: string, baseUrl: string): string[] {
 /**
  * Parse an M3U8 media playlist and return segment URLs with durations.
  */
-export function parseHlsSegments(content: string, baseUrl: string): HlsSegment[] {
+export function parseHlsSegments(
+  content: string,
+  baseUrl: string,
+): HlsSegment[] {
   const segments: HlsSegment[] = [];
   let dur = 0;
   for (const line of content.split('\n').map((l) => l.trim())) {
@@ -85,7 +94,10 @@ export function parseHlsSegments(content: string, baseUrl: string): HlsSegment[]
       }
     } else if (line && !line.startsWith('#')) {
       try {
-        segments.push({ url: new URL(line, baseUrl).toString(), duration: dur });
+        segments.push({
+          url: new URL(line, baseUrl).toString(),
+          duration: dur,
+        });
       } catch {
         segments.push({ url: line, duration: dur });
       }
@@ -186,9 +198,18 @@ export async function downloadVideo(
           phase: 'downloading',
           detail: 'Downloading HLS segments manually',
         });
-        await downloadHlsSegments(target, outputPath, headers, timeout, options?.onProgress);
+        await downloadHlsSegments(
+          target,
+          outputPath,
+          headers,
+          timeout,
+          options?.onProgress,
+        );
       } else {
-        options?.onProgress?.({ phase: 'downloading', detail: 'Downloading MP4 directly' });
+        options?.onProgress?.({
+          phase: 'downloading',
+          detail: 'Downloading MP4 directly',
+        });
         await downloadMp4Direct(target, outputPath, headers, timeout);
       }
 
@@ -215,7 +236,9 @@ export async function downloadVideo(
 async function probeIsVideo(
   url: string,
   headers: Record<string, string>,
-): Promise<{ isVideo: boolean }> {
+): Promise<{
+  isVideo: boolean;
+}> {
   try {
     const res = await fetch(url, {
       method: 'GET',
@@ -250,7 +273,10 @@ async function probeIsVideo(
 async function scrapeForStreamUrl(
   pageUrl: string,
   headers: Record<string, string>,
-): Promise<{ url: string; isHls: boolean } | null> {
+): Promise<{
+  url: string;
+  isHls: boolean;
+} | null> {
   try {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 8000);
@@ -321,17 +347,26 @@ async function downloadHlsSegments(
   outputPath: string,
   headers: Record<string, string>,
   timeoutMs: number,
-  onProgress?: (info: { phase: string; detail?: string }) => void,
+  onProgress?: (info: {
+    phase: string;
+    detail?: string;
+  }) => void,
 ): Promise<void> {
   let currentUrl = playlistUrl;
   let res = await fetch(currentUrl, { headers: mergeHeaders(headers) });
   if (!res.ok) {
-    throw new Error(`Playlist ${res.status} ${res.statusText} (${currentUrl.slice(0, 120)})`);
+    throw new Error(
+      `Playlist ${res.status} ${res.statusText} (${currentUrl.slice(0, 120)})`,
+    );
   }
   let playlist = await res.text();
 
   // Walk down master → variant playlists (max 2 hops)
-  for (let hops = 0; hops < 2 && playlist.includes('#EXT-X-STREAM-INF'); hops++) {
+  for (
+    let hops = 0;
+    hops < 2 && playlist.includes('#EXT-X-STREAM-INF');
+    hops++
+  ) {
     const variants = parseHlsMaster(playlist, currentUrl);
     if (variants.length === 0) {
       throw new Error('Master playlist has no variants');
@@ -350,7 +385,10 @@ async function downloadHlsSegments(
   }
 
   const dir = path.dirname(outputPath);
-  const tmpTs = path.join(dir, `tmp_${path.basename(outputPath, '.mp4')}_concat.ts`);
+  const tmpTs = path.join(
+    dir,
+    `tmp_${path.basename(outputPath, '.mp4')}_concat.ts`,
+  );
 
   if (fs.existsSync(tmpTs)) {
     fs.unlinkSync(tmpTs);
@@ -378,7 +416,10 @@ async function downloadHlsSegments(
     fs.closeSync(fd);
   }
 
-  onProgress?.({ phase: 'muxing', detail: 'Muxing segments to MP4 via ffmpeg' });
+  onProgress?.({
+    phase: 'muxing',
+    detail: 'Muxing segments to MP4 via ffmpeg',
+  });
 
   const cmd = [
     'ffmpeg -y',
@@ -392,7 +433,11 @@ async function downloadHlsSegments(
     .join(' ');
 
   try {
-    execSync(cmd, { stdio: 'pipe', timeout: timeoutMs, maxBuffer: 50 * 1024 * 1024 });
+    execSync(cmd, {
+      stdio: 'pipe',
+      timeout: timeoutMs,
+      maxBuffer: 50 * 1024 * 1024,
+    });
   } catch (e: any) {
     const stderr = e.stderr ? e.stderr.toString() : '';
     throw new Error(`ffmpeg failed: ${e.message}\n${stderr}`);
@@ -463,7 +508,9 @@ export async function downloadMangaPage(
   options?: DownloadMangaPageOptions,
 ): Promise<DownloadMangaPageResult> {
   if (pageIndex < 0 || pageIndex >= pages.imageUrls.length) {
-    throw new Error(`Page index ${pageIndex} out of range (0-${pages.imageUrls.length - 1})`);
+    throw new Error(
+      `Page index ${pageIndex} out of range (0-${pages.imageUrls.length - 1})`,
+    );
   }
 
   if (!fs.existsSync(outputDir)) {
@@ -556,7 +603,10 @@ export async function downloadMangaChapter(
     }
   }
 
-  options?.onProgress?.({ downloaded: pages.imageUrls.length, total: pages.imageUrls.length });
+  options?.onProgress?.({
+    downloaded: pages.imageUrls.length,
+    total: pages.imageUrls.length,
+  });
 
   const zipBuffer = createZipBuffer(entries);
   fs.writeFileSync(outputPath, zipBuffer);

@@ -99,7 +99,8 @@ export class AllmangaProvider extends BaseProvider {
       if (!title) {
         continue;
       }
-      const avail = edge.availableEpisodes as Record<string, number> | undefined;
+      const avail = edge.availableEpisodes as
+        Record<string, number> | undefined;
       const langs: ContentLanguage[] = [];
       if (avail?.sub) {
         langs.push('sub');
@@ -143,7 +144,13 @@ export class AllmangaProvider extends BaseProvider {
 
     // Merge sub/dub/raw episode lists into one canonical list keyed by episode
     // number; each unit advertises which translations include it.
-    const merged = new Map<string, { num: number; langs: ContentLanguage[] }>();
+    const merged = new Map<
+      string,
+      {
+        num: number;
+        langs: ContentLanguage[];
+      }
+    >();
     for (const lang of ['sub', 'dub', 'raw'] as const) {
       const list: string[] = Array.isArray(detail[lang]) ? detail[lang] : [];
       for (const epStr of list) {
@@ -185,15 +192,27 @@ export class AllmangaProvider extends BaseProvider {
     if (!showId || !episodeString) {
       throw new Error(`Invalid AllManga unit ID: ${unitId}`);
     }
-    const lang = language ?? (legacyLang as ContentLanguage | undefined) ?? this.defaultLanguage;
+    const lang =
+      language ??
+      (legacyLang as ContentLanguage | undefined) ??
+      this.defaultLanguage;
 
-    const sources = await this.fetchEpisodeSources(showId, episodeString, lang, options.signal);
+    const sources = await this.fetchEpisodeSources(
+      showId,
+      episodeString,
+      lang,
+      options.signal,
+    );
     if (sources.length === 0) {
-      throw new Error(`AllManga returned no source URLs for ${unitId} (lang=${lang})`);
+      throw new Error(
+        `AllManga returned no source URLs for ${unitId} (lang=${lang})`,
+      );
     }
 
     // Process sources in priority order; collect streams across all sources.
-    sources.sort((a, b) => (Number(b.priority) || 0) - (Number(a.priority) || 0));
+    sources.sort(
+      (a, b) => (Number(b.priority) || 0) - (Number(a.priority) || 0),
+    );
 
     const streams: IVideoPayload[] = [];
     const errors: string[] = [];
@@ -236,12 +255,19 @@ export class AllmangaProvider extends BaseProvider {
     episodeString: string,
     lang: ContentLanguage,
     signal?: AbortSignal,
-  ): Promise<Array<{ sourceUrl: string; sourceName?: string; priority?: number }>> {
+  ): Promise<
+    Array<{
+      sourceUrl: string;
+      sourceName?: string;
+      priority?: number;
+    }>
+  > {
     const variables = { showId, translationType: lang, episodeString };
     const extensions = {
       persistedQuery: {
         version: 1,
-        sha256Hash: 'd405d0edd690624b66baba3068e0edc3ac90f1597d898a1ec8db4e5c43c00fec',
+        sha256Hash:
+          'd405d0edd690624b66baba3068e0edc3ac90f1597d898a1ec8db4e5c43c00fec',
       },
     };
 
@@ -249,7 +275,10 @@ export class AllmangaProvider extends BaseProvider {
       JSON.stringify(variables),
     )}&extensions=${encodeURIComponent(JSON.stringify(extensions))}`;
 
-    const res = await this.http.get(url, { headers: this.apiHeaders(), signal });
+    const res = await this.http.get(url, {
+      headers: this.apiHeaders(),
+      signal,
+    });
     if (res.status !== 200) {
       throw new Error(`Failed to load AllManga stream sources: ${res.status}`);
     }
@@ -268,7 +297,9 @@ export class AllmangaProvider extends BaseProvider {
       { headers: this.apiHeaders(), signal },
     );
     if (fbRes.status !== 200) {
-      throw new Error(`AllManga fallback GraphQL failed with status ${fbRes.status}`);
+      throw new Error(
+        `AllManga fallback GraphQL failed with status ${fbRes.status}`,
+      );
     }
     const fbJson = (await fbRes.json()) as any;
     return fbJson?.data?.episode?.sourceUrls ?? [];
@@ -284,7 +315,9 @@ export class AllmangaProvider extends BaseProvider {
       binary = atob(pad ? norm + '='.repeat(4 - pad) : norm);
     }
     const data = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) data[i] = binary.charCodeAt(i);
+    for (let i = 0; i < binary.length; i++) {
+      data[i] = binary.charCodeAt(i);
+    }
 
     if (data.length < 30) {
       throw new Error(`tobeparsed blob too short (${data.length} bytes)`);
@@ -303,7 +336,8 @@ export class AllmangaProvider extends BaseProvider {
     const text = new TextDecoder().decode(decrypted);
     const parsed = JSON.parse(text);
 
-    const sources = parsed.episode?.sourceUrls ?? parsed.data?.episode?.sourceUrls ?? null;
+    const sources =
+      parsed.episode?.sourceUrls ?? parsed.data?.episode?.sourceUrls ?? null;
     if (!Array.isArray(sources)) {
       throw new Error('No sourceUrls in decrypted tobeparsed payload');
     }
@@ -311,7 +345,10 @@ export class AllmangaProvider extends BaseProvider {
   }
 
   private async extractSource(
-    src: { sourceUrl: string; sourceName?: string },
+    src: {
+      sourceUrl: string;
+      sourceName?: string;
+    },
     lang: ContentLanguage,
   ): Promise<IVideoPayload[]> {
     let raw = src.sourceUrl;
@@ -386,7 +423,10 @@ export class AllmangaProvider extends BaseProvider {
     return [];
   }
 
-  private async resolveClockJson(url: string, lang: ContentLanguage): Promise<IVideoPayload[]> {
+  private async resolveClockJson(
+    url: string,
+    lang: ContentLanguage,
+  ): Promise<IVideoPayload[]> {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8000);
     try {
@@ -420,7 +460,10 @@ export class AllmangaProvider extends BaseProvider {
               .replace('repackager.wixmp.com/', '')
               .replace(/\.urlset\/master\.m3u8$/, '');
             for (const q of qualities) {
-              const streamUrl = cleanBase.replace(`/,${m[1]},/mp4/`, `/${q}/mp4/`);
+              const streamUrl = cleanBase.replace(
+                `/,${m[1]},/mp4/`,
+                `/${q}/mp4/`,
+              );
               out.push({
                 sourceUrl: streamUrl,
                 isHLS: false,
